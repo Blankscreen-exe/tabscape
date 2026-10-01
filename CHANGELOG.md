@@ -2,6 +2,12 @@
 
 User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 
+## [Unreleased]
+
+### Added
+- README with install and usage instructions and a two-column preview gallery of all 17 themes (`docs/previews/`).
+- `npm run previews` regenerates those images with headless Chrome/Edge. Browser detection is shared with the smoke test (`dev/browser.mjs`).
+
 ## [0.5.0] - 2026-10-01
 
 All 15 original design demos are now themes (17 themes in total, with Default and Midnight).

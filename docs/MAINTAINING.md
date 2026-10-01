@@ -68,7 +68,7 @@ These rules keep the project easy to maintain years from now. Each rule has an i
 | Id | Rule |
 |---|---|
 | Q1 | Run `npm run verify` before each commit (the pre-commit hook does this). Run `npm run smoke` (real browser) after touching `core/` and before tagging a release. When a bug is fixed, add a smoke step that would have caught it. |
-| Q2 | Look at `dev/gallery.html` after any visual change, at both desktop and phone width. |
+| Q2 | Look at `dev/gallery.html` after any visual change, at both desktop and phone width. Then run `npm run previews <theme-id>` and commit the updated README image. |
 | Q3 | Every theme and widget folder has a `README.md` describing its decorations, services, data, variants and quirks. |
 | Q4 | New themes and widgets start from `themes/_template` / `widgets/_template`. |
 | Q5 | Important decisions get a short record in `docs/decisions/` (context → decision → consequences). |

@@ -9,6 +9,7 @@
     "check": "node dev/check.mjs",
     "test": "node --test \"dev/tests/*.test.mjs\"",
     "smoke": "node dev/smoke.mjs",
+    "previews": "node dev/previews.mjs",
     "verify": "node dev/check.mjs && node --test \"dev/tests/*.test.mjs\""
   }
 }
