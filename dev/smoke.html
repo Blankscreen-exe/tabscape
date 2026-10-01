@@ -219,6 +219,90 @@
     assert(json.app === "browser-home-pages" && json.data.schemaVersion >= 1, "bad export");
   });
 
+  // ---------------------------------------------------------------- every theme
+  const registryFile = await (await fetch("../registry.json")).json();
+  for (const { id } of registryFile.themes) {
+    await step(`theme "${id}" boots with its default layout and no widget errors`, async () => {
+      await load(id);
+      assert(frame.contentDocument.documentElement.dataset.theme === id, "fell back to another theme");
+      assert($$(".g-item").length > 0, "no widgets");
+      const errs = $$(".w-error").map(e => e.textContent.trim());
+      assert(!errs.length, errs.join(" | "));
+    });
+  }
+
+  // ---------------------------------------------------------------- RPG Quest
+  const heroData = () => frame.contentWindow.__homepage.store.snapshot().widgetData.hero ?? { xp: 0, gold: 0 };
+  const addQuest = async (text, difficulty) => {
+    const form = $(".w-todo .todo-form");
+    form.querySelector(".todo-input").value = text;
+    if (difficulty) form.querySelector(".todo-diff").value = String(difficulty);
+    form.requestSubmit();
+    await sleep(80);
+  };
+  const toggleQuest = async text => { $$(".w-todo li").find(li => li.textContent.includes(text)).querySelector(".todo-text").click(); await sleep(80); };
+
+  await step("rpg: quest-log variant, completing awards XP + gold, reopening takes back exactly that", async () => {
+    await load("rpg-quest");
+    assert($('.w-todo[data-variant="quest-log"] .todo-diff'), "quest-log variant not applied");
+    await addQuest("slay the inbox", 50);
+    await toggleQuest("slay the inbox");
+    assert(heroData().xp === 50 && heroData().gold === 25, `after complete: ${JSON.stringify(heroData())}`);
+    assert($(".rpg-pop"), "no +XP popup from the theme");
+    await toggleQuest("slay the inbox");
+    assert(heroData().xp === 0 && heroData().gold === 0, `after reopen: ${JSON.stringify(heroData())}`);
+  });
+
+  await step("rpg: a second hero widget does not award twice", async () => {
+    $(".ui-fab").click();
+    await until(() => $$(".ui-btn").some(b => b.textContent === "Edit layout"));
+    $$(".ui-btn").find(b => b.textContent === "Edit layout").click();
+    await until(() => $$(".ui-chip").length);
+    $$(".ui-chip").find(b => b.textContent.startsWith("Hero")).click();
+    assert(await until(() => $$(".w-hero").length === 2), "second hero not added");
+    $$(".ui-btn").find(b => b.textContent === "Stop editing").click();
+    await sleep(100);
+    await addQuest("brew potion", 25);
+    await toggleQuest("brew potion");
+    assert(heroData().xp === 25, `xp is ${heroData().xp}, expected 25`);
+  });
+
+  await step("rpg: reaching 100 XP levels up and shows the banner", async () => {
+    for (const q of ["q1", "q2", "q3"]) { await addQuest(q, 25); await toggleQuest(q); }
+    assert(heroData().xp === 100, `xp ${heroData().xp}`);
+    assert($$(".w-hero .hero-lvl").every(e => e.textContent === "LV 2"), "level label not updated");
+    assert($(".rpg-banner.show"), "level-up banner not shown");
+  });
+
+  // ---------------------------------------------------------------- Zen + Anti-Design
+  await step("zen: breathing orb starts and stops, intention is saved", async () => {
+    await load("zen");
+    $(".w-breath .breath-orb").click();
+    await sleep(50);
+    assert($(".w-breath .breath-word").textContent === "in", "orb did not start");
+    $(".w-breath .breath-orb").click();
+    assert($(".w-breath .breath-word").textContent === "start", "orb did not stop");
+    const ta = $(".w-intention textarea");
+    ta.value = "be kind";
+    ta.dispatchEvent(new frame.contentWindow.Event("input", { bubbles: true }));
+    await sleep(400);
+    assert(frame.contentWindow.__homepage.store.snapshot().widgetData.intention?.text === "be kind", "intention not saved");
+    assert($(".zen-mountains") && $(".zen-seal"), "zen decorations missing");
+  });
+
+  await step("anti-design: ticker present, dice gives a link, tilt removed in edit mode", async () => {
+    await load("anti-design");
+    assert($(".anti-ticker"), "no ticker");
+    $(".w-dice .dice-die").click();
+    await sleep(50);
+    assert($(".w-dice .dice-out a")?.href.startsWith("http"), "die did not produce a link");
+    $(".ui-fab").click();
+    await until(() => $$(".ui-btn").some(b => b.textContent === "Edit layout"));
+    $$(".ui-btn").find(b => b.textContent === "Edit layout").click();
+    await sleep(100);
+    assert(frame.contentWindow.getComputedStyle($(".w-todo")).transform === "none", "widget still tilted in edit mode");
+  });
+
   const summary = document.getElementById("summary");
   summary.textContent = `SMOKE RESULT: ${passed} passed, ${failed} failed`;
   summary.className = failed ? "fail" : "pass";

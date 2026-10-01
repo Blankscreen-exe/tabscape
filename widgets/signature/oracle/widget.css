@@ -1,0 +1,10 @@
+@layer widgets {
+  .w-oracle { position: relative; overflow: visible; cursor: pointer; padding-top: 22px; }
+  .w-oracle .oracle-speaker {
+    position: absolute; top: -12px; left: 14px; padding: 2px 10px; font: 700 12px var(--font-mono);
+    background: var(--accent); color: var(--accent-contrast); border: 2px solid var(--border);
+  }
+  .w-oracle .oracle-text { font: 16px/1.6 var(--font-mono); min-height: 3.2em; }
+  .w-oracle .oracle-next { position: absolute; right: 14px; bottom: 8px; color: var(--accent); animation: oracle-bob .6s steps(2) infinite; }
+  @keyframes oracle-bob { 50% { transform: translateY(3px); } }
+}

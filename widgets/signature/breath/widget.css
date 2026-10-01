@@ -1,0 +1,14 @@
+@layer widgets {
+  .w-breath { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; container-type: size; }
+  .w-breath .breath-orb {
+    width: min(60cqh, 70cqw); aspect-ratio: 1; border-radius: 50%; cursor: pointer; padding: 0;
+    border: 1px solid var(--border);
+    background: radial-gradient(circle, color-mix(in srgb, var(--text) 18%, transparent), color-mix(in srgb, var(--text) 2%, transparent) 70%);
+    transform: scale(.6); transition: transform 4s ease-in-out;
+    display: grid; place-items: center; color: var(--muted);
+  }
+  .w-breath .breath-orb.big { transform: scale(1.05); }
+  .w-breath .breath-orb:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .w-breath .breath-word { font: 13px var(--font-body); letter-spacing: .2em; text-transform: lowercase; }
+  .w-breath .breath-hint { font-size: 13px; color: var(--muted); letter-spacing: .05em; text-align: center; min-height: 1.3em; }
+}

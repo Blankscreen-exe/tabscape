@@ -5,4 +5,8 @@
   .w-search .search-icon { width: 20px; height: 20px; color: var(--muted); flex: none; }
   .w-search .search-input { flex: 1; min-width: 0; border: none; outline: none; background: none; color: var(--text); font-size: 17px; padding: 12px 0; }
   .w-search .search-input::placeholder { color: var(--muted); }
+  .w-search .search-button {
+    flex: none; padding: 8px 16px; border: none; border-radius: calc(var(--radius) * .6); cursor: pointer;
+    background: var(--accent); color: var(--accent-contrast); font-weight: 600;
+  }
 }

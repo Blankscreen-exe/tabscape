@@ -1,0 +1,13 @@
+@layer widgets {
+  .w-dice { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; container-type: size; }
+  .w-dice .dice-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-dice .dice-die {
+    width: min(45cqh, 60cqw); aspect-ratio: 1; display: grid; place-items: center; cursor: pointer;
+    font: 700 min(30cqh, 40cqw) / 1 var(--font-display); color: var(--accent-contrast);
+    background: var(--accent); border: 3px solid var(--text); border-radius: calc(var(--radius) * .5);
+    transition: transform .4s;
+  }
+  .w-dice .dice-die.roll { transform: rotate(720deg) scale(.85); }
+  .w-dice .dice-out { font-size: 14px; }
+  .w-dice .dice-out a { color: var(--accent); }
+}

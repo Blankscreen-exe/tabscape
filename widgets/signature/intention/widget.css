@@ -1,0 +1,9 @@
+@layer widgets {
+  .w-intention { display: flex; flex-direction: column; gap: 8px; }
+  .w-intention .int-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-intention .int-text {
+    flex: 1; resize: none; border: none; outline: none; background: transparent; color: var(--text);
+    font: italic 20px var(--font-display); line-height: 1.45;
+  }
+  .w-intention .int-text::placeholder { color: var(--muted); }
+}

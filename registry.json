@@ -1,13 +1,22 @@
 {
   "themes": [
     { "id": "default", "path": "themes/default/theme.js" },
-    { "id": "midnight", "path": "themes/midnight/theme.js" }
+    { "id": "midnight", "path": "themes/midnight/theme.js" },
+    { "id": "zen", "path": "themes/zen/theme.js" },
+    { "id": "rpg-quest", "path": "themes/rpg-quest/theme.js" },
+    { "id": "anti-design", "path": "themes/anti-design/theme.js" }
   ],
   "widgets": [
     { "id": "clock", "path": "widgets/core/clock/widget.js" },
     { "id": "search", "path": "widgets/core/search/widget.js" },
     { "id": "links", "path": "widgets/core/links/widget.js" },
     { "id": "todo", "path": "widgets/core/todo/widget.js" },
-    { "id": "notes", "path": "widgets/core/notes/widget.js" }
+    { "id": "notes", "path": "widgets/core/notes/widget.js" },
+    { "id": "breath", "path": "widgets/signature/breath/widget.js" },
+    { "id": "intention", "path": "widgets/signature/intention/widget.js" },
+    { "id": "haiku", "path": "widgets/signature/haiku/widget.js" },
+    { "id": "hero", "path": "widgets/signature/hero/widget.js" },
+    { "id": "oracle", "path": "widgets/signature/oracle/widget.js" },
+    { "id": "dice", "path": "widgets/signature/dice/widget.js" }
   ]
 }

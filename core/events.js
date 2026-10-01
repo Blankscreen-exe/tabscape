@@ -24,7 +24,7 @@ export const EVENTS = Object.freeze({
   // ---- widget domain events (themes/services may react to these) ----------
   /** payload: { item } */
   TODO_ADDED: "todo:added",
-  /** payload: { item } */
+  /** payload: { item } — item.xp (optional) is the quest-log difficulty; consumers default to 25 */
   TODO_COMPLETED: "todo:completed",
   /** payload: { item } */
   TODO_UNCOMPLETED: "todo:uncompleted",
@@ -36,6 +36,12 @@ export const EVENTS = Object.freeze({
   LINK_OPENED: "link:opened",
   /** payload: { length } */
   NOTE_EDITED: "note:edited",
+
+  // ---- signature widget events --------------------------------------------
+  /** payload: { amount, total, reason } — hero widget awarded (or, if negative, took back) XP */
+  RPG_XP_CHANGED: "rpg:xp-changed",
+  /** payload: { level } — hero widget reached a new level */
+  RPG_LEVEL_UP: "rpg:level-up",
 });
 
 const KNOWN = new Set(Object.values(EVENTS));

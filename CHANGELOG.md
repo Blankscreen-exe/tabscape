@@ -2,6 +2,18 @@
 
 User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 
+## [0.3.0] - 2026-10-01
+
+### Added
+- Themes: **Zen** (ink-wash mountains, ensō clock, kanji date strip), **RPG Quest** (pixel HUD, level-up banner, +XP popups), **Anti-Design** (marquee ticker, drifting shapes, tilted clashing blocks).
+- Signature widgets: Breathe, Intention, Haiku (Zen); Hero (XP, gold, levels, battle log) and Oracle (RPG); Feeling Lucky dice (Anti-Design). All of them can be placed in any theme.
+- To-do variant `quest-log` with a difficulty per quest. Search setting for button text.
+- Events `RPG_XP_CHANGED` and `RPG_LEVEL_UP`.
+- The smoke test now boots every registered theme and covers the RPG, Zen and Anti-Design features.
+
+### Fixed
+- The clock no longer overflows narrow widgets (its size now follows width as well as height).
+
 ## [0.2.0] - 2026-10-01
 
 ### Added

@@ -23,6 +23,7 @@ export default {
     { key: "engine", label: "Search engine", type: "select", default: "google",
       options: Object.entries(ENGINES).map(([value, e]) => ({ value, label: e.label })) },
     { key: "placeholder", label: "Placeholder text", type: "text", default: "Search the web…" },
+    { key: "button", label: "Button text (empty = no button)", type: "text", default: "" },
     { key: "autofocus", label: "Focus on new tab", type: "toggle", default: true },
     { key: "newTab", label: "Open results in a new tab", type: "toggle", default: false },
   ],
@@ -38,6 +39,12 @@ export default {
     const form = /** @type {HTMLFormElement} */ (el.querySelector("form"));
     const input = /** @type {HTMLInputElement} */ (el.querySelector("input"));
     input.placeholder = s.placeholder;
+    if (s.button) {
+      const btn = document.createElement("button");
+      btn.className = "search-button";
+      btn.textContent = s.button;
+      form.append(btn);
+    }
     if (s.autofocus && !ctx.isEditing()) ctx.after(50, () => input.focus());
 
     ctx.listen(form, "submit", e => {

@@ -1,0 +1,69 @@
+@layer theme {
+  /* Fixed identity colours (not the accent): blue page, hot pink, yellow, orange. */
+  [data-theme="anti-design"] { --anti-pink: #ff00e5; --anti-yellow: #fffb00; --anti-orange: #ff6a00; }
+  [data-theme="anti-design"] body { cursor: crosshair; }
+  [data-theme="anti-design"] #grid { padding-top: calc(5vh + 34px); }
+
+  /* ---- decorations ---------------------------------------------------------- */
+  [data-theme="anti-design"] .anti-ticker {
+    position: absolute; top: 0; left: 0; right: 0; background: var(--anti-yellow); color: #000;
+    font: 900 18px var(--font-display); white-space: nowrap; overflow: hidden; border-bottom: 4px solid #000;
+  }
+  [data-theme="anti-design"] .anti-ticker div { display: inline-block; padding: 6px 0; animation: anti-scroll 18s linear infinite; }
+  @keyframes anti-scroll { to { transform: translateX(-50%); } }
+  [data-theme="anti-design"] .anti-shape { position: absolute; top: 0; left: 0; font-size: 40px; z-index: 2; }
+  [data-theme="anti-design"] .anti-shape-0 { color: var(--accent); }
+  [data-theme="anti-design"] .anti-shape-1 { color: var(--anti-pink); }
+  [data-theme="anti-design"] .anti-shape-2 { color: var(--anti-yellow); }
+
+  /* ---- widgets: tilted slabs -------------------------------------------------- */
+  [data-theme="anti-design"] .w { border: 4px solid #000; }
+  [data-theme="anti-design"] .w h3,
+  [data-theme="anti-design"] .w .links-head h3 { font: 400 40px/0.95 "Comic Sans MS", "Segoe Print", cursive; letter-spacing: 0; text-transform: none; color: var(--anti-pink); text-shadow: 2px 2px 0 #000; }
+
+  [data-theme="anti-design"] .w-clock { background: none; border: none; box-shadow: none; transform: rotate(-3deg); overflow: visible; }
+  [data-theme="anti-design"] .w-clock .clock-time {
+    font: 900 clamp(80px, 60cqh, 220px) var(--font-display); letter-spacing: -.06em; line-height: .8;
+    color: var(--accent); -webkit-text-stroke: 3px #000; text-shadow: 10px 10px 0 var(--anti-pink);
+  }
+  [data-theme="anti-design"] .w-clock .clock-sub { background: #000; color: var(--anti-yellow); font: italic 18px var(--font-body); padding: 2px 10px; margin-top: 14px; }
+
+  [data-theme="anti-design"] .w-notes { transform: rotate(6deg); box-shadow: -12px 12px 0 var(--anti-yellow); }
+  [data-theme="anti-design"] .w-notes .notes-text { font: 18px "Comic Sans MS", "Segoe Print", cursive; }
+
+  [data-theme="anti-design"] .w-search { transform: rotate(1deg); background: var(--anti-pink); box-shadow: 14px 14px 0 #000; padding: 8px; }
+  [data-theme="anti-design"] .w-search .search-icon { display: none; }
+  [data-theme="anti-design"] .w-search .search-input { background: var(--anti-yellow); border: 4px dashed #000; font: 700 22px var(--font-mono); padding: 8px 12px; color: #000; }
+  [data-theme="anti-design"] .w-search .search-input::placeholder { color: #000; opacity: .5; }
+  [data-theme="anti-design"] .w-search .search-button { border: 4px solid #000; border-radius: 0; font: 900 20px "Comic Sans MS", cursive; transform: rotate(-4deg); }
+  [data-theme="anti-design"] .w-search .search-button:hover { transform: rotate(4deg) scale(1.1); }
+
+  /* links: a pile of mismatched stickers */
+  [data-theme="anti-design"] .w-links { background: none; border: none; box-shadow: none; overflow: visible; }
+  [data-theme="anti-design"] .w-links .links-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  [data-theme="anti-design"] .w-links .links-ico { display: none; }
+  [data-theme="anti-design"] .w-links .links-grid a { border: 3px solid #000; border-radius: 0; padding: 8px 14px; font-size: 22px; color: #000; text-decoration: underline wavy; display: block; }
+  [data-theme="anti-design"] .w-links .links-grid a:nth-child(5n+1) { background: var(--anti-orange); font-family: var(--font-display); transform: rotate(4deg); }
+  [data-theme="anti-design"] .w-links .links-grid a:nth-child(5n+2) { background: var(--accent); font-family: var(--font-display); transform: rotate(-5deg); }
+  [data-theme="anti-design"] .w-links .links-grid a:nth-child(5n+3) { background: #fff; font-family: var(--font-body); font-style: italic; transform: rotate(3deg); }
+  [data-theme="anti-design"] .w-links .links-grid a:nth-child(5n+4) { background: var(--anti-yellow); font-family: var(--font-mono); }
+  [data-theme="anti-design"] .w-links .links-grid a:nth-child(5n+5) { background: var(--anti-pink); font-family: "Comic Sans MS", cursive; transform: rotate(-2deg); }
+  [data-theme="anti-design"] .w-links .links-grid a:hover { transform: scale(1.15); }
+  [data-theme="anti-design"] .w-links .links-edit { color: #fff; }
+
+  [data-theme="anti-design"] .w-todo { transform: rotate(-2deg); overflow: visible; }
+  [data-theme="anti-design"] .w-todo::before { content: "📌"; position: absolute; top: -24px; left: 46%; font-size: 34px; }
+  [data-theme="anti-design"] .w-todo h3 { color: var(--bg); text-shadow: 3px 3px 0 var(--accent); }
+  [data-theme="anti-design"] .w-todo li { font: 20px "Comic Sans MS", cursive; border-radius: 0; }
+  [data-theme="anti-design"] .w-todo li:nth-child(even) { font: italic 20px var(--font-body); }
+  [data-theme="anti-design"] .w-todo li.done .todo-text { text-decoration-color: var(--anti-pink); text-decoration-thickness: 5px; }
+
+  [data-theme="anti-design"] .w-dice { transform: rotate(3deg); background: var(--anti-yellow); }
+  [data-theme="anti-design"] .w-dice h3 { font-size: 30px; }
+  [data-theme="anti-design"] .w-dice .dice-die { border: 5px solid #000; box-shadow: 8px 8px 0 var(--anti-pink); }
+  [data-theme="anti-design"] .w-dice .dice-out { background: #000; color: #fff; font-family: var(--font-mono); padding: 6px; }
+  [data-theme="anti-design"] .w-dice .dice-out a { color: var(--anti-yellow); }
+
+  /* edit mode: straighten everything so dragging is predictable */
+  [data-theme="anti-design"] .g-editing .w { transform: none; }
+}
