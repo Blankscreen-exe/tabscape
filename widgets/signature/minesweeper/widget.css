@@ -1,0 +1,12 @@
+@layer widgets {
+  .w-minesweeper { display: flex; flex-direction: column; gap: 8px; align-items: center; container-type: size; }
+  .w-minesweeper .ms-top { display: flex; justify-content: space-between; align-items: center; width: min(100%, 75cqh); }
+  .w-minesweeper .ms-lcd { background: var(--text); color: var(--danger); font: 700 18px var(--font-mono); padding: 0 4px; }
+  .w-minesweeper .ms-face { width: 32px; height: 32px; padding: 0; font-size: 18px; cursor: pointer; border: 2px solid var(--border); background: var(--surface-2); }
+  .w-minesweeper .ms-board { display: grid; width: min(100%, 75cqh); aspect-ratio: 1; border: 2px solid var(--border); }
+  .w-minesweeper .ms-cell {
+    aspect-ratio: 1; min-width: 0; padding: 0; cursor: pointer; font: 700 clamp(9px, 3.4cqh, 15px) var(--font-mono);
+    background: var(--surface-2); border: 1px solid var(--border);
+  }
+  .w-minesweeper .ms-cell.open { background: var(--surface); cursor: default; }
+}

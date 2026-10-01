@@ -46,9 +46,11 @@ manifest.json        extension manifest (MV3)
 newtab.html          the only page
 registry.json        installed themes + widgets
 core/                small, stable engine: app, store, events, registry, grid, ui, platform, tokens.css
-themes/<id>/         theme.js + theme.css + README.md       (_template/ to start a new one)
-widgets/core/<id>/   clock, search, links, todo, notes, quote, progress, calendar, pomodoro, countdown
-widgets/signature/   breath, intention, haiku, hero, oracle, dice, terminal, sysinfo
+themes/<id>/         17 themes: theme.js + theme.css + README.md   (_template/ to start a new one)
+widgets/core/<id>/   clock, search, links, todo, notes, quote, progress, calendar, pomodoro, countdown,
+                     worldclock, stopwatch, moon
+widgets/signature/   breath, intention, haiku, hero, oracle, dice, terminal, sysinfo, counter, habits,
+                     minesweeper, rainsound, orbit
 dev/                 serve, check, tests, smoke test, gallery, git hooks
 docs/                CONTRACTS.md, MAINTAINING.md, decisions/
 demos/               the original standalone design demos (reference for porting)

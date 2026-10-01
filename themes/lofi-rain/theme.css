@@ -1,0 +1,22 @@
+@layer theme {
+  [data-theme="lofi-rain"] body { background: linear-gradient(to bottom, #0b1026, #1b2347 55%, #3a3360); }
+  [data-theme="lofi-rain"] .lofi-city,
+  [data-theme="lofi-rain"] .lofi-rain { position: absolute; inset: 0; width: 100%; height: 100%; }
+  [data-theme="lofi-rain"] .lofi-fog {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 120%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%), radial-gradient(ellipse at center, transparent 50%, rgb(5 6 15 / .6));
+  }
+
+  [data-theme="lofi-rain"] .w { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  [data-theme="lofi-rain"] .w h3,
+  [data-theme="lofi-rain"] .w .links-head h3 { color: var(--accent); letter-spacing: .2em; font-size: 11px; }
+
+  [data-theme="lofi-rain"] .w-clock { background: none; border: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  [data-theme="lofi-rain"] .w-clock .clock-time { font-weight: 300; text-shadow: 0 0 30px color-mix(in srgb, var(--accent) 35%, transparent); }
+  [data-theme="lofi-rain"] .w-clock .clock-sub { font: italic 20px Georgia, "Times New Roman", serif; }
+
+  [data-theme="lofi-rain"] .w-links .links-ico { display: none; }
+  [data-theme="lofi-rain"] .w-links .links-list a::after { content: "↗"; margin-left: auto; color: var(--muted); font-size: 12px; }
+
+  [data-theme="lofi-rain"] .w-todo .todo-check { border-color: var(--accent); }
+}

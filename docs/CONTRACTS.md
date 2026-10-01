@@ -70,6 +70,14 @@ Everything registered through `ctx` is released when the user switches theme.
 }
 ```
 
+Hooks themes can style (all set by the core, read-only):
+
+| Element | Attribute / property | Example use |
+|---|---|---|
+| widget root `.w` | `data-widget` (id), `data-variant`, `data-title` (display name) | Retro OS window titles: `.w::before { content: attr(data-title) }` |
+| grid frame `.g-item` | `data-cell` (`A1`, `J4`… column letter + row), `--h` (rows) | Concrete slab tags: `.g-item::before { content: attr(data-cell) }` |
+| `#grid` | `--grid-columns`, `--grid-row-height`, `--grid-max-width` | |
+
 ---
 
 ## Widget

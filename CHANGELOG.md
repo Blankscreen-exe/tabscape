@@ -2,6 +2,21 @@
 
 User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 
+## [0.5.0] - 2026-10-01
+
+All 15 original design demos are now themes (17 themes in total, with Default and Midnight).
+
+### Added
+- Themes: **Raw HTML**, **Neo Brutal**, **Swiss Grid**, **Concrete**, **Retro OS**, **Lo-fi Rain**, **Mission Control**.
+- Core widgets: World Clocks, Stopwatch (survives closing the tab), Moon Phase (calculated locally).
+- Signature widgets: Tab Counter, Habit Tracker, Minesweeper (first click always safe), Rain Sound (Web Audio), Orbit.
+- To-do variant `go-no-go` (mission checklist with an "all stations go" summary).
+- Theme hooks: widget roots carry `data-title`, grid frames carry `data-cell` (e.g. `A1`).
+- Unit tests for the new widget helpers. The smoke test covers every new widget and theme feature (46 steps).
+
+### Fixed
+- Swiss Grid's danger colour no longer equals its accent (found by the S5 check).
+
 ## [0.4.0] - 2026-10-01
 
 ### Added

@@ -40,6 +40,7 @@ export function createWidgetHost({ registry, store, bus, isEditing }) {
     try {
       const { def, url } = await registry.widget(item.widget);
       if (scope.disposed) return; // unmounted while loading
+      el.dataset.title = def.name; // themes may show it, e.g. as a window title (Retro OS)
       if (def.css) await loadStylesheet(new URL(def.css, url).href, `widget:${def.id}`);
       if (scope.disposed) return;
 

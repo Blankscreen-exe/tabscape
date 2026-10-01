@@ -1,0 +1,10 @@
+@layer widgets {
+  .w-habits { display: flex; flex-direction: column; gap: 10px; }
+  .w-habits .hb-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-habits .hb-table { width: 100%; border-collapse: separate; border-spacing: 6px; }
+  .w-habits th { font-size: 12px; color: var(--muted); font-weight: 600; text-align: center; }
+  .w-habits .hb-name { font-weight: 700; white-space: nowrap; padding-right: 8px; }
+  .w-habits .hb-cell { width: 100%; height: 34px; border: 2px solid var(--border); border-radius: calc(var(--radius) * .5); background: var(--surface-2); cursor: pointer; font: 700 16px var(--font-display); }
+  .w-habits .hb-cell.on { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+  .w-habits .hb-cell.today { outline: 2px dashed var(--text); outline-offset: 2px; }
+}

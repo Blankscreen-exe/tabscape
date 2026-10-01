@@ -1,0 +1,14 @@
+@layer widgets {
+  .w-orbit { display: flex; flex-direction: column; align-items: center; gap: 6px; container-type: size; }
+  .w-orbit .ob-title { align-self: stretch; font: 600 12px var(--font-body); letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+  .w-orbit .ob-svg { width: min(100%, 68cqh); flex: none; }
+  .w-orbit .ob-ring { fill: none; stroke: var(--border); }
+  .w-orbit .ob-sat { animation: ob-spin linear infinite; transform-origin: 210px 210px; }
+  .w-orbit .ob-a { fill: var(--accent); }
+  .w-orbit .ob-halo { fill: none; stroke: var(--accent); opacity: .4; }
+  .w-orbit .ob-b { fill: var(--warning); }
+  .w-orbit .ob-c { fill: var(--success); }
+  @keyframes ob-spin { to { transform: rotate(360deg); } }
+  .w-orbit .ob-met { font: 300 clamp(28px, 9cqh, 64px) var(--font-display); letter-spacing: .06em; font-variant-numeric: tabular-nums; margin-top: -6px; }
+  .w-orbit .ob-label { color: var(--muted); letter-spacing: .2em; font-size: 11px; text-transform: uppercase; text-align: center; }
+}

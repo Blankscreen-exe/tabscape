@@ -1,0 +1,9 @@
+@layer widgets {
+  .w-worldclock { display: flex; flex-direction: column; gap: 10px; }
+  .w-worldclock .wc-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-worldclock .wc-list { display: grid; grid-template-columns: 1fr auto; margin: 0; }
+  .w-worldclock dt, .w-worldclock dd { padding: 8px 0; border-bottom: 1px solid var(--border); margin: 0; }
+  .w-worldclock .wc-city { font-weight: 600; }
+  .w-worldclock .wc-day { display: block; color: var(--muted); font-size: 12px; }
+  .w-worldclock .wc-time { font: 600 24px var(--font-display); font-variant-numeric: tabular-nums; text-align: right; align-self: center; }
+}

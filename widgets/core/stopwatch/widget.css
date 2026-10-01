@@ -1,0 +1,10 @@
+@layer widgets {
+  .w-stopwatch { display: flex; flex-direction: column; gap: 10px; }
+  .w-stopwatch .sw-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-stopwatch .sw-time { font: 700 34px var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .w-stopwatch .sw-btns { display: flex; gap: 6px; }
+  .w-stopwatch .sw-btns button { flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: calc(var(--radius) * .6); background: var(--surface-2); cursor: pointer; font-weight: 600; }
+  .w-stopwatch .sw-btns .sw-go { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+  .w-stopwatch .sw-laps { list-style: none; padding: 0; margin: 0; font: 12px var(--font-mono); overflow: auto; min-height: 0; }
+  .w-stopwatch .sw-laps li { display: flex; justify-content: space-between; padding: 2px 0; color: var(--muted); }
+}

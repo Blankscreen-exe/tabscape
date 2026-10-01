@@ -7,6 +7,7 @@
  *   default    plain task list
  *   quest-log  RPG wording + a difficulty per task, stored as the optional `item.xp`
  *              (other variants ignore it; the hero widget reads it from TODO_COMPLETED)
+ *   go-no-go   mission checklist: each item shows GO / NO-GO, plus an "all stations go" summary
  *
  * Pattern used here ("data down, events up"): user actions only change data;
  * ctx.data.watch() redraws. That keeps several instances / tabs in sync for free.
@@ -26,6 +27,7 @@ const DEFAULT_XP = 25;
 const COPY = {
   default: { title: "To-do", placeholder: "Add a task…", add: "+", empty: "Nothing to do.", del: "Delete" },
   "quest-log": { title: "Quest log", placeholder: "New quest…", add: "ACCEPT", empty: "No active quests. The realm is at peace.", del: "Abandon quest" },
+  "go-no-go": { title: "Go / No-go", placeholder: "+ add checklist item", add: "ADD", empty: "Checklist empty.", del: "Remove item" },
 };
 
 /** @type {import("../../../core/contracts.js").WidgetDef} */
@@ -36,7 +38,7 @@ export default {
   description: "A simple task list.",
   css: "widget.css",
   size: { w: 4, h: 4 },
-  variants: ["default", "quest-log"],
+  variants: ["default", "quest-log", "go-no-go"],
   data: { items: [] },
   settings: [
     { key: "title", label: "Title", type: "text", default: "To-do" },
@@ -47,7 +49,8 @@ export default {
   render(el, ctx) {
     const s = ctx.settings;
     const quest = ctx.variant === "quest-log";
-    const copy = COPY[quest ? "quest-log" : "default"];
+    const gonogo = ctx.variant === "go-no-go";
+    const copy = COPY[/** @type {keyof typeof COPY} */ (ctx.variant in COPY ? ctx.variant : "default")];
     const title = s.title !== COPY.default.title ? s.title : copy.title;
     const placeholder = s.placeholder !== COPY.default.placeholder ? s.placeholder : copy.placeholder;
 
@@ -59,7 +62,8 @@ export default {
         <button class="todo-add" aria-label="Add">${copy.add}</button>
       </form>
       <ul class="todo-list"></ul>
-      <p class="todo-empty"></p>`;
+      <p class="todo-empty"></p>
+      ${gonogo ? `<p class="todo-summary" role="status"></p>` : ""}`;
     /** @type {HTMLElement} */ (el.querySelector(".todo-title")).textContent = title;
     /** @type {HTMLElement} */ (el.querySelector(".todo-empty")).textContent = copy.empty;
     const input = /** @type {HTMLInputElement} */ (el.querySelector(".todo-input"));
@@ -109,9 +113,16 @@ export default {
           <button class="todo-check" aria-label="${i.done ? "Mark as not done" : "Mark as done"}"></button>
           <span class="todo-text">${esc(i.text)}</span>
           ${quest ? `<span class="todo-xp">${i.done ? "✓ " : "+"}${i.xp ?? DEFAULT_XP} XP</span>` : ""}
+          ${gonogo ? `<span class="todo-go">${i.done ? "GO" : "NO-GO"}</span>` : ""}
           <button class="todo-del" aria-label="${copy.del}" title="${copy.del}">✕</button>
         </li>`).join("");
       empty.hidden = items.length > 0;
+      if (gonogo) {
+        const all = /** @type {Item[]} */ (data.items), nogo = all.filter(i => !i.done).length;
+        const summary = /** @type {HTMLElement} */ (el.querySelector(".todo-summary"));
+        summary.textContent = !all.length ? "— NO ITEMS TO POLL" : !nogo ? "▲ ALL STATIONS GO" : `■ HOLD · ${nogo} NO-GO`;
+        summary.classList.toggle("go", all.length > 0 && !nogo);
+      }
     });
   },
 };

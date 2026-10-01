@@ -9,7 +9,14 @@
     { "id": "paper-ink", "path": "themes/paper-ink/theme.js" },
     { "id": "terminal", "path": "themes/terminal/theme.js" },
     { "id": "synthwave", "path": "themes/synthwave/theme.js" },
-    { "id": "bento", "path": "themes/bento/theme.js" }
+    { "id": "bento", "path": "themes/bento/theme.js" },
+    { "id": "raw-html", "path": "themes/raw-html/theme.js" },
+    { "id": "neo-brutal", "path": "themes/neo-brutal/theme.js" },
+    { "id": "swiss-grid", "path": "themes/swiss-grid/theme.js" },
+    { "id": "concrete", "path": "themes/concrete/theme.js" },
+    { "id": "retro-os", "path": "themes/retro-os/theme.js" },
+    { "id": "lofi-rain", "path": "themes/lofi-rain/theme.js" },
+    { "id": "mission-control", "path": "themes/mission-control/theme.js" }
   ],
   "widgets": [
     { "id": "clock", "path": "widgets/core/clock/widget.js" },
@@ -22,6 +29,9 @@
     { "id": "calendar", "path": "widgets/core/calendar/widget.js" },
     { "id": "pomodoro", "path": "widgets/core/pomodoro/widget.js" },
     { "id": "countdown", "path": "widgets/core/countdown/widget.js" },
+    { "id": "worldclock", "path": "widgets/core/worldclock/widget.js" },
+    { "id": "stopwatch", "path": "widgets/core/stopwatch/widget.js" },
+    { "id": "moon", "path": "widgets/core/moon/widget.js" },
     { "id": "breath", "path": "widgets/signature/breath/widget.js" },
     { "id": "intention", "path": "widgets/signature/intention/widget.js" },
     { "id": "haiku", "path": "widgets/signature/haiku/widget.js" },
@@ -29,6 +39,11 @@
     { "id": "oracle", "path": "widgets/signature/oracle/widget.js" },
     { "id": "dice", "path": "widgets/signature/dice/widget.js" },
     { "id": "terminal", "path": "widgets/signature/terminal/widget.js" },
-    { "id": "sysinfo", "path": "widgets/signature/sysinfo/widget.js" }
+    { "id": "sysinfo", "path": "widgets/signature/sysinfo/widget.js" },
+    { "id": "counter", "path": "widgets/signature/counter/widget.js" },
+    { "id": "habits", "path": "widgets/signature/habits/widget.js" },
+    { "id": "minesweeper", "path": "widgets/signature/minesweeper/widget.js" },
+    { "id": "rainsound", "path": "widgets/signature/rainsound/widget.js" },
+    { "id": "orbit", "path": "widgets/signature/orbit/widget.js" }
   ]
 }

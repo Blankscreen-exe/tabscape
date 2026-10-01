@@ -1,0 +1,12 @@
+@layer widgets {
+  .w-rainsound { display: flex; flex-direction: column; gap: 10px; }
+  .w-rainsound .rs-title { font: 600 12px var(--font-body); letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+  .w-rainsound .rs-play {
+    display: flex; align-items: center; justify-content: center; gap: 10px; padding: 11px; cursor: pointer;
+    border-radius: calc(var(--radius) * .7); border: 1px solid var(--border); background: var(--accent-soft); color: var(--text); font-weight: 500;
+  }
+  .w-rainsound .rs-play.on { background: var(--accent); color: var(--accent-contrast); }
+  .w-rainsound .rs-row { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+  .w-rainsound .rs-row input { flex: 1; accent-color: var(--accent); }
+  .w-rainsound .rs-note { color: var(--muted); font-size: 12px; }
+}

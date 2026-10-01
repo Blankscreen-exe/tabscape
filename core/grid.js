@@ -41,6 +41,7 @@ export function createGrid({ container, host, onChange, onRemove, onSettings, wi
     el.style.gridColumn = `${r.x + 1} / span ${r.w}`;
     el.style.gridRow = `${r.y + 1} / span ${r.h}`;
     el.style.setProperty("--h", String(r.h)); // used by the single-column phone layout
+    el.dataset.cell = `${String.fromCharCode(65 + (r.x % 26))}${r.y + 1}`; // "A1" — themes may show it (Concrete)
   }
 
   /** Cell size in px, from the live container width. */

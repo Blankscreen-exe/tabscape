@@ -1,0 +1,10 @@
+@layer widgets {
+  .w-moon { display: flex; flex-direction: column; gap: 10px; }
+  .w-moon .moon-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-moon .moon-row { display: flex; gap: 16px; align-items: center; }
+  .w-moon .moon-svg { width: 64px; height: 64px; flex: none; }
+  .w-moon .moon-dark { fill: var(--surface-2); stroke: var(--border); }
+  .w-moon .moon-lit { fill: var(--text); }
+  .w-moon .moon-name { display: block; font: 600 18px var(--font-display); }
+  .w-moon .moon-info { color: var(--muted); font-size: 13px; }
+}

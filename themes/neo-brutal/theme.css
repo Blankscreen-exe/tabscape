@@ -1,0 +1,50 @@
+@layer theme {
+  /* Fixed identity colours (not the accent). */
+  [data-theme="neo-brutal"] { --nb-pink: #ff8fd8; --nb-blue: #7aa2ff; --nb-green: #74f0a7; --nb-orange: #ff7a45; }
+  [data-theme="neo-brutal"] body { background-image: radial-gradient(#000 1px, transparent 1px); background-size: 22px 22px; }
+
+  [data-theme="neo-brutal"] .w { border: 3px solid #000; }
+  [data-theme="neo-brutal"] .w h3,
+  [data-theme="neo-brutal"] .w .links-head h3 {
+    display: inline-block; align-self: flex-start; font: 900 12px var(--font-display); color: #000; letter-spacing: .06em;
+    border: 2px solid #000; border-radius: 99px; padding: 3px 12px; background: #fff;
+  }
+
+  /* every widget gets its own loud colour */
+  [data-theme="neo-brutal"] .w-clock { background: var(--accent); align-items: flex-start; padding-left: 28px; }
+  [data-theme="neo-brutal"] .w-clock .clock-time { font: 900 clamp(40px, min(50cqh, 18cqw), 128px) var(--font-display); letter-spacing: -.03em; }
+  [data-theme="neo-brutal"] .w-clock .clock-sub { color: #000; font: 900 16px var(--font-display); text-transform: uppercase; }
+  [data-theme="neo-brutal"] .w-quote { background: var(--nb-pink); transform: rotate(2deg); text-align: center; }
+  [data-theme="neo-brutal"] .w-quote h3 { align-self: center; }
+  [data-theme="neo-brutal"] .w-quote .quote-text { font: 900 20px/1.2 var(--font-display); }
+  [data-theme="neo-brutal"] .w-quote .quote-by { color: #000; font-weight: 700; }
+  [data-theme="neo-brutal"] .w-search { background: var(--nb-blue); padding: 10px; }
+  [data-theme="neo-brutal"] .w-search:focus-within { box-shadow: var(--shadow); }
+  [data-theme="neo-brutal"] .w-search .search-icon { display: none; }
+  [data-theme="neo-brutal"] .w-search .search-input { background: #fff; border: 3px solid #000; border-radius: 10px; padding: 10px 14px; font-weight: 700; }
+  [data-theme="neo-brutal"] .w-todo { background: var(--nb-green); }
+  [data-theme="neo-brutal"] .w-todo li { background: #fff; border: 2px solid #000; border-radius: 8px; font-weight: 600; }
+  [data-theme="neo-brutal"] .w-todo .todo-input { border: 3px solid #000; background: #fff; }
+  [data-theme="neo-brutal"] .w-habits { background: var(--nb-orange); }
+  [data-theme="neo-brutal"] .w-habits .hb-name { background: #fff; border: 2px solid #000; border-radius: 8px; padding: 6px 10px; }
+  [data-theme="neo-brutal"] .w-habits .hb-cell { border: 2px solid #000; background: #fff; }
+  [data-theme="neo-brutal"] .w-habits .hb-cell.on { background: #000; color: var(--accent); }
+  [data-theme="neo-brutal"] .w-habits th { color: #000; font-family: var(--font-display); }
+
+  /* links: colourful blocks */
+  [data-theme="neo-brutal"] .w-links .links-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  [data-theme="neo-brutal"] .w-links .links-ico { display: none; }
+  [data-theme="neo-brutal"] .w-links .links-grid a { border: 3px solid #000; border-radius: 10px; box-shadow: 4px 4px 0 #000; font: 900 14px var(--font-display); padding: 16px 4px; }
+  [data-theme="neo-brutal"] .w-links .links-grid a:nth-child(5n+1) { background: var(--accent); }
+  [data-theme="neo-brutal"] .w-links .links-grid a:nth-child(5n+2) { background: var(--nb-pink); }
+  [data-theme="neo-brutal"] .w-links .links-grid a:nth-child(5n+3) { background: var(--nb-blue); }
+  [data-theme="neo-brutal"] .w-links .links-grid a:nth-child(5n+4) { background: var(--nb-orange); }
+  [data-theme="neo-brutal"] .w-links .links-grid a:nth-child(5n+5) { background: var(--nb-green); }
+
+  /* buttons press in */
+  [data-theme="neo-brutal"] :is(.links-grid a, .search-button, .todo-add, .hb-cell) { transition: transform .08s, box-shadow .08s; }
+  [data-theme="neo-brutal"] :is(.search-button, .todo-add) { border: 3px solid #000; box-shadow: 4px 4px 0 #000; border-radius: 10px; font-family: var(--font-display); color: #000; }
+  [data-theme="neo-brutal"] :is(.links-grid a, .search-button, .todo-add):hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+  [data-theme="neo-brutal"] :is(.links-grid a, .search-button, .todo-add, .hb-cell):active { transform: translate(4px, 4px); box-shadow: none; }
+  [data-theme="neo-brutal"] .g-editing .w-quote { transform: none; }
+}

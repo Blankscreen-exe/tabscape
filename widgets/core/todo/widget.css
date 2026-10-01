@@ -21,5 +21,11 @@
 
 @layer widgets {
   /* quest-log: "+" button is replaced by a word, so it needs room */
-  .w-todo[data-variant="quest-log"] .todo-add { width: auto; padding: 0 12px; font-size: 13px; font-weight: 700; }
+  .w-todo[data-variant="quest-log"] .todo-add,
+  .w-todo[data-variant="go-no-go"] .todo-add { width: auto; padding: 0 12px; font-size: 13px; font-weight: 700; }
+  .w-todo .todo-go { font: 700 12px var(--font-mono); letter-spacing: .1em; color: var(--danger); }
+  .w-todo li.done .todo-go { color: var(--success); }
+  .w-todo[data-variant="go-no-go"] li.done .todo-text { text-decoration: none; }
+  .w-todo .todo-summary { font: 700 13px var(--font-mono); letter-spacing: .15em; color: var(--warning); margin: 0; }
+  .w-todo .todo-summary.go { color: var(--success); }
 }

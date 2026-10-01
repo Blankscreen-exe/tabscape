@@ -48,3 +48,43 @@ test("terminal: bookmarks and commands", () => {
   assert.equal(interpret("what is love", bm).go, "https://www.google.com/search?q=what%20is%20love");
   assert.deepEqual(interpret("   ", bm), {});
 });
+
+import { parseZones } from "../../widgets/core/worldclock/widget.js";
+import { formatMs } from "../../widgets/core/stopwatch/widget.js";
+import { moonPhase, litPath } from "../../widgets/core/moon/widget.js";
+import { weekKey } from "../../widgets/signature/habits/widget.js";
+import { makeBoard, neighbours } from "../../widgets/signature/minesweeper/widget.js";
+
+test("worldclock: valid and invalid zones", () => {
+  const z = parseZones("London | Europe/London\nMoon Base | Lunar/Crater\nUTC");
+  assert.deepEqual(z.map(x => x.valid), [true, false, true]);
+  assert.equal(z[2].zone, "UTC");
+});
+
+test("stopwatch: formatting", () => {
+  assert.equal(formatMs(0), "00:00.00");
+  assert.equal(formatMs(61_234), "01:01.23");
+  assert.equal(formatMs(3_723_450), "1:02:03.45");
+});
+
+test("moon: known full and new moons", () => {
+  // 2026-10-26 ~04:12 UTC full moon; 2026-10-10 ~15:50 UTC new moon
+  assert.ok(moonPhase(new Date(Date.UTC(2026, 9, 26, 4))).illumination > .97);
+  assert.ok(moonPhase(new Date(Date.UTC(2026, 9, 10, 16))).illumination < .03);
+  assert.match(litPath(.3, 28, 32), /^M32 4 A28 28 0 0 1 32 60 A/);
+});
+
+test("habits: week key is the local Monday", () => {
+  assert.equal(weekKey(new Date(2026, 9, 4, 23, 30)), "2026-09-28"); // Sunday late evening
+  assert.equal(weekKey(new Date(2026, 9, 5, 0, 5)), "2026-10-05");   // Monday just after midnight
+});
+
+test("minesweeper: first click and its neighbours are never mines", () => {
+  for (let t = 0; t < 50; t++) {
+    const cells = makeBoard(9, 10, 40);
+    assert.equal(cells.filter(c => c.mine).length, 10);
+    for (const i of [40, ...neighbours(40, 9)]) assert.equal(cells[i].mine, false);
+  }
+  assert.equal(neighbours(0, 9).length, 3);
+  assert.equal(neighbours(40, 9).length, 8);
+});

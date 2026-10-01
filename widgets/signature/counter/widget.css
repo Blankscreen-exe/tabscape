@@ -1,0 +1,5 @@
+@layer widgets {
+  .w-counter { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; }
+  .w-counter .ctr-lcd { font: 700 22px var(--font-mono); letter-spacing: 3px; background: var(--text); color: var(--success); padding: 2px 8px; }
+  .w-counter .ctr-since { color: var(--muted); font-family: var(--font-mono); }
+}

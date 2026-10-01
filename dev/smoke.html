@@ -352,6 +352,64 @@
     assert(/\d/.test($(".paper-mast .paper-time .t").textContent), "masthead time missing");
   });
 
+  // ---------------------------------------------------------------- batch 3 widgets + hooks
+  await step("concrete: cell tags, stopwatch runs and laps", async () => {
+    await load("concrete");
+    assert($(".g-item[data-cell]")?.dataset.cell === "A1", `first cell is ${$(".g-item")?.dataset.cell}`);
+    const { store } = frame.contentWindow.__homepage;
+    $(".w-stopwatch .sw-go").click();
+    await sleep(120);
+    $(".w-stopwatch .sw-lap").click();
+    await sleep(30);
+    assert(store.snapshot().widgetData.stopwatch?.laps.length === 1, "lap not recorded");
+    $(".w-stopwatch .sw-go").click();
+    await sleep(30);
+    assert(store.snapshot().widgetData.stopwatch.startedAt === null && store.snapshot().widgetData.stopwatch.acc > 0, "stop failed");
+  });
+
+  await step("neo-brutal: habit tick is saved for this week", async () => {
+    await load("neo-brutal");
+    $(".w-habits .hb-cell.today").click();
+    await sleep(50);
+    assert($(".w-habits .hb-cell.today").classList.contains("on"), "cell not ticked");
+    const weeks = frame.contentWindow.__homepage.store.snapshot().widgetData.habits?.weeks ?? {};
+    assert(Object.values(weeks).some(w => Object.keys(w).length === 1), "tick not stored");
+  });
+
+  await step("retro-os: windows titled, Start opens Customize, minesweeper first click is safe", async () => {
+    await load("retro-os");
+    assert($(".w-notes")?.dataset.title === "Notes", "data-title missing");
+    $(".ros-start").click();
+    assert(await until(() => $(".ui-panel") && !$(".ui-panel").hidden), "Start did not open the panel");
+    $$(".w-minesweeper .ms-cell")[40].click();
+    await sleep(50);
+    assert($$(".w-minesweeper .ms-cell.open").length >= 1, "no cells opened");
+    assert($(".w-minesweeper .ms-face").textContent !== "😵", "first click hit a mine");
+  });
+
+  await step("mission-control: go/no-go summary, moon, worldclock-style data", async () => {
+    await load("mission-control");
+    const form = $(".w-todo .todo-form");
+    form.querySelector(".todo-input").value = "coffee systems";
+    form.requestSubmit();
+    await sleep(60);
+    assert(/HOLD · 1 NO-GO/.test($(".w-todo .todo-summary").textContent), "summary not HOLD");
+    $(".w-todo li .todo-text").click();
+    await sleep(60);
+    assert(/ALL STATIONS GO/.test($(".w-todo .todo-summary").textContent), "summary not GO");
+    assert(/Moon|Crescent|Gibbous|Quarter/.test($(".w-moon .moon-name").textContent), "moon name missing");
+    assert(/\d\d:\d\d:\d\d/.test($(".w-orbit .ob-met").textContent), "MET missing");
+  });
+
+  await step("swiss-grid + raw-html + lofi-rain: worldclock, counter, rain sound UI", async () => {
+    await load("swiss-grid");
+    assert($$(".w-worldclock .wc-time").every(t => /\d/.test(t.textContent)), "world times missing");
+    await load("raw-html");
+    assert(Number($(".w-counter .ctr-lcd").textContent) === 1, `counter is ${$(".w-counter .ctr-lcd").textContent}`);
+    await load("lofi-rain");
+    assert($(".lofi-city") && $(".w-rainsound .rs-play"), "lofi decorations or rain widget missing");
+  });
+
   const summary = document.getElementById("summary");
   summary.textContent = `SMOKE RESULT: ${passed} passed, ${failed} failed`;
   summary.className = failed ? "fail" : "pass";
