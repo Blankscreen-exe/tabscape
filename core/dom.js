@@ -52,6 +52,38 @@ export function removeStylesheet(owner) {
   document.querySelectorAll(`link[data-owner="${CSS.escape(owner)}"]`).forEach(l => l.remove());
 }
 
+/** Current value of a CSS custom property on :root, as written (e.g. "#3b6cf6" or "color-mix(…)"). @param {string} name */
+export function readToken(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+/** @type {HTMLElement | null} */
+let probe = null;
+/**
+ * Resolve any CSS colour (including var(--x) and color-mix()) to the browser's computed form,
+ * e.g. "rgb(59, 108, 246)". Use with core/color.js parseColor().
+ * @param {string} value
+ */
+export function resolveColor(value) {
+  if (!probe) {
+    probe = h("span", { "aria-hidden": "true", style: { position: "absolute", width: "0", height: "0", overflow: "hidden", visibility: "hidden" } });
+    document.documentElement.append(probe);
+  }
+  probe.style.color = "";
+  probe.style.color = value;
+  return getComputedStyle(probe).color;
+}
+
+/**
+ * The `ctx.tokens` helper given to themes and widgets.
+ * get("--accent") -> raw value · color("--accent") -> resolved "rgb(…)" (safe for canvas fillStyle)
+ */
+export const tokens = Object.freeze({
+  get: readToken,
+  /** @param {string} name */
+  color: name => resolveColor(`var(${name})`),
+});
+
 /** Short unique id for widget instances. @param {string} prefix */
 export function uid(prefix) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;

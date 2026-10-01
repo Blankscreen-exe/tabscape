@@ -1,6 +1,6 @@
 {
   "name": "browser-home-pages",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Themeable new tab page with movable widgets. Zero dependencies — this file only exists for module type and script shortcuts.",
   "type": "module",

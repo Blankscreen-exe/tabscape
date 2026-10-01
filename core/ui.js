@@ -7,10 +7,15 @@
  */
 import { h } from "./dom.js";
 import { resolveSettings } from "./contracts.js";
+import { MIN_ACCENT_CONTRAST } from "./color.js";
 
 /**
  * @typedef {import("./registry.js").Registry} Registry
  * @typedef {import("./contracts.js").WidgetDef} WidgetDef
+ * @typedef {{
+ *   customizable: boolean, role: string, themeDefault: string, current: string, custom: boolean,
+ *   global: boolean, presets: string[], contrast: (color: string) => number,
+ * }} AccentInfo
  */
 
 /**
@@ -19,6 +24,9 @@ import { resolveSettings } from "./contracts.js";
  *   currentThemeId: () => string, isEditing: () => boolean,
  *   onTheme: (id: string) => void, onEdit: (on: boolean) => void, onAddWidget: (type: string) => void,
  *   onResetLayout: () => void, onExport: () => void, onImport: () => void,
+ *   accent: {
+ *     info: () => AccentInfo, pick: (color: string) => void, setGlobal: (on: boolean) => void, reset: () => void,
+ *   },
  * }} o
  */
 export function createUI(o) {
@@ -47,7 +55,8 @@ export function createUI(o) {
   async function renderPanel() {
     const [themes, widgets] = await Promise.all([o.registry.allThemes(), o.registry.allWidgets()]);
     const active = o.currentThemeId();
-    panel.replaceChildren(
+    // filter(Boolean) drops conditional children (`cond && h(...)`), which would otherwise render as "false"
+    panel.replaceChildren(...[
       h("header", {}, [h("b", { text: "Customize" }), h("button", { class: "ui-x", title: "Close", text: "✕", onclick: close })]),
 
       h("h4", { text: "Theme" }),
@@ -61,6 +70,9 @@ export function createUI(o) {
         ]),
         h("span", { text: t.name }),
       ]))),
+
+      h("h4", { text: "Accent colour" }),
+      accentSection(),
 
       h("h4", { text: "Layout" }),
       h("div", { class: "ui-row" }, [
@@ -82,7 +94,49 @@ export function createUI(o) {
         h("button", { class: "ui-btn", text: "Export", onclick: o.onExport }),
         h("button", { class: "ui-btn", text: "Import", onclick: o.onImport }),
       ]),
-    );
+    ].filter(Boolean));
+  }
+
+  /**
+   * Accent picker. Updates itself in place (never re-renders the panel) so the native
+   * colour dialog stays open while the user drags through colours.
+   */
+  function accentSection() {
+    const info = o.accent.info();
+    if (!info.customizable) return h("p", { class: "ui-note", text: "This theme uses fixed colours." });
+
+    const unique = [...new Set([info.themeDefault, ...info.presets.map(c => c.toLowerCase())])];
+    const swatches = unique.map((c, i) => h("button", {
+      class: "ui-acc-swatch", style: { background: c }, "data-color": c,
+      title: i === 0 ? `Theme colour ${c}` : c, "aria-label": i === 0 ? "Theme colour" : `Accent ${c}`,
+      onclick: () => { i === 0 && !info.global ? o.accent.reset() : o.accent.pick(c); refresh(); },
+    }));
+    const input = /** @type {HTMLInputElement} */ (h("input", { type: "color", class: "ui-acc-input", title: "Custom colour", "aria-label": "Custom accent colour" }));
+    input.addEventListener("input", () => { o.accent.pick(input.value); refresh(false); });
+    const globalBox = /** @type {HTMLInputElement} */ (h("input", { type: "checkbox", onchange: () => { o.accent.setGlobal(globalBox.checked); refresh(); } }));
+    const resetBtn = /** @type {HTMLButtonElement} */ (h("button", { class: "ui-btn", text: "Use theme colour", onclick: () => { o.accent.reset(); refresh(); } }));
+    const warn = h("p", { class: "ui-warn", role: "status" });
+
+    /** @param {boolean} [syncInput] false while the user is dragging in the native picker */
+    function refresh(syncInput = true) {
+      const now = o.accent.info();
+      if (syncInput) input.value = now.current;
+      swatches.forEach(s => s.classList.toggle("on", s.dataset.color === now.current));
+      globalBox.checked = now.global;
+      resetBtn.disabled = !now.custom;
+      const ratio = now.contrast(now.current);
+      warn.hidden = ratio >= MIN_ACCENT_CONTRAST;
+      warn.textContent = `Low contrast with this theme's background (${ratio.toFixed(1)}:1). It may be hard to see.`;
+    }
+
+    const section = h("div", { class: "ui-accent" }, [
+      h("div", { class: "ui-acc-row" }, [...swatches, input]),
+      info.role && h("small", { class: "ui-note", text: `Colours: ${info.role}` }),
+      h("div", { class: "ui-acc-row" }, [h("label", { class: "ui-check" }, [globalBox, h("span", { text: "Use for all themes" })]), resetBtn]),
+      warn,
+    ]);
+    refresh();
+    return section;
   }
 
   function open() { panel.hidden = false; renderPanel(); }
@@ -126,18 +180,23 @@ export function createUI(o) {
       ]);
       dlg.append(form);
       document.body.append(dlg);
-      dlg.addEventListener("close", () => {
-        if (dlg.returnValue === "save") {
-          /** @type {Record<string, any>} */
-          const out = {};
-          for (const { s, input } of fields) {
-            const el = /** @type {HTMLInputElement} */ (input);
-            out[s.key] = s.type === "toggle" ? el.checked : s.type === "number" ? Number(el.value) : el.value;
-          }
-          resolve(out);
-        } else resolve(null);
-        dlg.remove();
+
+      // Resolve on submit (synchronous, the moment Save is clicked). The "close" event is
+      // queued by the browser and can arrive noticeably later; it only handles Esc/cancel + cleanup.
+      let settled = false;
+      /** @param {Record<string, any> | null} value */
+      const settle = value => { if (!settled) { settled = true; resolve(value); } };
+      form.addEventListener("submit", e => {
+        if (/** @type {SubmitEvent} */ (e).submitter?.getAttribute("value") !== "save") return settle(null);
+        /** @type {Record<string, any>} */
+        const out = {};
+        for (const { s, input } of fields) {
+          const el = /** @type {HTMLInputElement} */ (input);
+          out[s.key] = s.type === "toggle" ? el.checked : s.type === "number" ? Number(el.value) : el.value;
+        }
+        settle(out);
       });
+      dlg.addEventListener("close", () => { settle(null); dlg.remove(); });
       dlg.showModal();
     });
   }

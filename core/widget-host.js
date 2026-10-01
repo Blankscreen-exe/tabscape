@@ -7,7 +7,7 @@
  */
 import { EVENTS } from "./events.js";
 import { createScope } from "./scope.js";
-import { esc, loadStylesheet } from "./dom.js";
+import { esc, loadStylesheet, tokens } from "./dom.js";
 import { resolveSettings } from "./contracts.js";
 
 /**
@@ -73,6 +73,7 @@ export function createWidgetHost({ registry, store, bus, isEditing }) {
         every: scope.every, after: scope.after, listen: scope.listen, loop: scope.loop, cleanup: scope.add,
         isEditing,
         assetUrl: (/** @type {string} */ p) => new URL(p, url).href,
+        tokens,
       };
 
       const ret = def.render(el, ctx);

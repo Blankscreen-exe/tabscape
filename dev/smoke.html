@@ -96,6 +96,7 @@
     $$(".ui-btn").find(b => b.textContent === "Edit layout").click();
     await sleep(100);
     assert($("#grid").classList.contains("g-editing"), "edit mode not on");
+    assert(!/(false|undefined|null)/.test($(".ui-panel").textContent), "stray false/undefined/null text in the panel");
     const notes = $$(".g-item").find(f => f.querySelector(".w-notes"));
     [...notes.querySelectorAll(".g-btn")].find(b => b.title === "Remove").click();
     await sleep(150);
@@ -134,7 +135,7 @@
     assert(await until(() => $("dialog.ui-dialog")), "dialog did not open");
     $("#set-seconds").checked = true;
     [...$$("dialog.ui-dialog button")].find(b => b.value === "save").click();
-    assert(await until(() => /\d\d:\d\d:\d\d/.test($(`.g-item[data-id="${id}"] .clock-time`)?.textContent ?? "")), "seconds not shown");
+    assert(await until(() => /\d\d:\d\d:\d\d/.test($(`.g-item[data-id="${id}"] .clock-time`)?.textContent ?? "")), `seconds not shown: text='${$(`.g-item[data-id="${id}"] .clock-time`)?.textContent}' saved=${JSON.stringify(frame.contentWindow.__homepage.store.snapshot().layouts.default?.find(i => i.id === id)?.settings)} dialogs=${$$("dialog").length}`);
     assert($$(".g-item").findIndex(f => f.dataset.id === id) === indexBefore, "frame moved in DOM order after settings change");
   });
 
@@ -151,6 +152,66 @@
     const { store } = frame.contentWindow.__homepage;
     assert(store.snapshot().layouts.default?.length === 6, `default layout has ${store.snapshot().layouts.default?.length} items`);
     assert(!store.snapshot().layouts.midnight, "midnight layout should still be the theme default");
+  });
+
+  // ---------------------------------------------------------------- accent colour
+  const rootToken = name => frame.contentWindow.getComputedStyle(frame.contentDocument.documentElement).getPropertyValue(name).trim();
+  const switchTo = async name => {
+    $$(".ui-theme").find(b => b.textContent.includes(name)).click();
+    assert(await until(() => frame.contentDocument.documentElement.dataset.theme === name.toLowerCase()), `no switch to ${name}`);
+    await until(() => $(".ui-acc-input"));
+    await sleep(150);
+  };
+  let accentEvents = 0;
+
+  await step("accent: custom colour applies to the current theme only, with readable text colour", async () => {
+    const { bus, events, store } = frame.contentWindow.__homepage;
+    bus.on(events.ACCENT_CHANGED, () => accentEvents++);
+    const input = $(".ui-acc-input");
+    input.value = "#ff0000";
+    input.dispatchEvent(new frame.contentWindow.Event("input", { bubbles: true }));
+    await sleep(100);
+    assert(rootToken("--accent") === "#ff0000", `--accent is ${rootToken("--accent")}`);
+    assert(["#111111", "#ffffff"].includes(rootToken("--accent-contrast")), "accent-contrast not recomputed");
+    assert(store.snapshot().settings.accent.themes.midnight === "#ff0000", "not saved per theme");
+    assert(accentEvents >= 1, "ACCENT_CHANGED not emitted");
+    await switchTo("Default");
+    assert(rootToken("--accent") === "#3b6cf6", `Default should keep its own accent, got ${rootToken("--accent")}`);
+  });
+
+  await step("accent: 'use for all themes' applies one colour everywhere", async () => {
+    const box = $(".ui-check input");
+    box.click();
+    await sleep(100);
+    $$(".ui-acc-swatch").find(s => s.dataset.color === "#16a34a").click();
+    await sleep(100);
+    assert(rootToken("--accent") === "#16a34a", `Default accent ${rootToken("--accent")}`);
+    await switchTo("Midnight");
+    assert(rootToken("--accent") === "#16a34a", `Midnight accent ${rootToken("--accent")}`);
+    assert($(".ui-check input").checked, "checkbox not reflecting global mode");
+  });
+
+  await step("accent: reset leaves global mode and restores per-theme picks", async () => {
+    $$(".ui-btn").find(b => b.textContent === "Use theme colour").click();
+    await sleep(100);
+    assert(rootToken("--accent") === "#ff0000", `Midnight should return to its own pick, got ${rootToken("--accent")}`);
+    $$(".ui-btn").find(b => b.textContent === "Use theme colour").click();
+    await sleep(100);
+    assert(rootToken("--accent") === "#9db4ff", `Midnight should return to its theme colour, got ${rootToken("--accent")}`);
+    assert($$(".ui-btn").find(b => b.textContent === "Use theme colour").disabled, "Use theme colour should be disabled with no custom accent");
+  });
+
+  await step("accent: low-contrast colours show a warning", async () => {
+    await switchTo("Default");
+    const input = $(".ui-acc-input");
+    input.value = "#f0f0f0";
+    input.dispatchEvent(new frame.contentWindow.Event("input", { bubbles: true }));
+    await sleep(100);
+    assert(!$(".ui-warn").hidden, "no warning for near-background accent");
+    input.value = "#3b6cf6";
+    input.dispatchEvent(new frame.contentWindow.Event("input", { bubbles: true }));
+    await sleep(100);
+    assert($(".ui-warn").hidden, "warning shown for a fine accent");
   });
 
   await step("export produces a valid backup", () => {

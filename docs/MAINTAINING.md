@@ -50,7 +50,9 @@ These rules keep the project easy to maintain years from now. Each rule has an i
 | **S1** ✅ | Every theme defines all `REQUIRED_TOKENS`. That list is **never** extended. New tokens go in `OPTIONAL_TOKENS` and **must** get a default in `core/tokens.css`. |
 | **S2** ✅ | Widget CSS uses tokens only, with no hard-coded colours, and is wrapped in `@layer widgets` and scoped under `.w-<id>`. |
 | **S3** ✅ | Theme CSS is wrapped in `@layer theme` and every selector starts with `[data-theme="<id>"]`. |
-| S4 | No `!important`. The layer order `reset, core, widgets, theme` already decides who wins. |
+| S4 | No `!important`. The layer order `reset, core, widgets, theme, user` already decides who wins. Only the core writes to the `user` layer. |
+| **S5** ✅ | **Accent:** whatever should follow the user's accent uses `var(--accent)` / `--accent-soft` / `--accent-strong` / `--accent-contrast` / `color-mix(… var(--accent) …)` in CSS, and `ctx.tokens.color("--accent")` + `ACCENT_CHANGED` in canvas/JS. Never repeat the accent hex. Every theme sets `accentRole`. |
+| S6 | Core UI (panel, dialogs) sits on `var(--ui-surface)`, which is opaque even when a theme's `--surface` is translucent. |
 
 ## U: User data
 

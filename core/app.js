@@ -15,7 +15,9 @@ import { createThemeManager } from "./theme-manager.js";
 import { createWidgetHost } from "./widget-host.js";
 import { createGrid } from "./grid.js";
 import { findFreeSpot, sanitize } from "./layout.js";
-import { uid } from "./dom.js";
+import { resolveColor, uid } from "./dom.js";
+import { blend, contrast, parseColor } from "./color.js";
+import { pickAccent, resetAccent, setGlobalMode, userAccentFor } from "./accent.js";
 import { createUI } from "./ui.js";
 
 /**
@@ -77,7 +79,50 @@ async function boot() {
   async function switchTheme(id, opts = { persist: true }) {
     const def = await themes.apply(registry.hasTheme(id) ? id : FALLBACK_THEME);
     if (opts.persist && store.snapshot().settings.themeId !== def.id) store.update(s => { s.settings.themeId = def.id; });
+    applyAccent();
     grid.render(currentLayout(), def, { remountAll: true });
+  }
+
+  // ---------------------------------------------------------------- accent
+  const customizable = () => themes.current?.customAccent !== false;
+
+  function applyAccent() {
+    const theme = /** @type {ThemeDef} */ (themes.current);
+    themes.setAccent(userAccentFor(store.snapshot().settings.accent, theme.id, customizable()));
+  }
+
+  /** @param {(acc: import("./migrations/index.js").AccentSettings, themeId: string) => import("./migrations/index.js").AccentSettings} fn */
+  function changeAccent(fn) {
+    const id = /** @type {ThemeDef} */ (themes.current).id;
+    store.update(s => { s.settings.accent = fn(s.settings.accent, id); });
+    applyAccent();
+  }
+
+  /** Contrast of a colour against the page background (transparent backgrounds composited over white). @param {string} color */
+  function accentContrast(color) {
+    const fg = parseColor(color);
+    const bgRaw = parseColor(resolveColor("var(--bg)"));
+    if (!fg || !bgRaw) return 21;
+    const bg = bgRaw.a < 1 ? blend(bgRaw, { r: 255, g: 255, b: 255, a: 1 }) : bgRaw;
+    return contrast(fg, bg);
+  }
+
+  /** Everything the picker needs to draw itself. */
+  function accentInfo() {
+    const theme = /** @type {ThemeDef} */ (themes.current);
+    const acc = store.snapshot().settings.accent;
+    const user = userAccentFor(acc, theme.id, customizable());
+    const themeDefault = themes.themeAccent();
+    return {
+      customizable: customizable(),
+      role: theme.accentRole ?? "",
+      themeDefault,
+      current: user ?? themeDefault,
+      custom: Boolean(user),
+      global: acc.mode === "global",
+      presets: theme.accentPresets ?? [],
+      contrast: accentContrast,
+    };
   }
 
   /** @param {string} type */
@@ -115,6 +160,12 @@ async function boot() {
     onTheme: id => switchTheme(id),
     onEdit: setEditing,
     onAddWidget: addWidget,
+    accent: {
+      info: accentInfo,
+      pick: color => changeAccent((acc, id) => pickAccent(acc, id, color)),
+      setGlobal: on => changeAccent(acc => setGlobalMode(acc, on, accentInfo().current)),
+      reset: () => changeAccent(resetAccent),
+    },
     onResetLayout: () => {
       const theme = /** @type {ThemeDef} */ (themes.current);
       store.update(s => { delete s.layouts[theme.id]; });
@@ -134,7 +185,7 @@ async function boot() {
     if (source !== "external") return;
     const wanted = store.snapshot().settings.themeId;
     if (!themeOverride && wanted !== themes.current?.id) await switchTheme(wanted, { persist: false });
-    else grid.render(currentLayout(), /** @type {ThemeDef} */ (themes.current));
+    else { applyAccent(); grid.render(currentLayout(), /** @type {ThemeDef} */ (themes.current)); }
   });
 
   // ---------------------------------------------------------------- start

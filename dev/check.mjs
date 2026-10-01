@@ -85,6 +85,19 @@ async function checkTheme(file, registryId) {
       if (registryId && !css.includes(`[data-theme="${def.id}"]`)) warn(rel(cssPath), `selectors should be scoped with [data-theme="${def.id}"]`);
     }
   }
+  // S5: the accent's literal value must not be repeated — repeated copies won't follow the user's accent.
+  const accentLiteral = String(def.tokens?.["--accent"] ?? "").trim().toLowerCase();
+  if (registryId && /^#[0-9a-f]{3,8}$/.test(accentLiteral)) {
+    const count = (/** @type {string} */ text) => text.toLowerCase().split(accentLiteral).length - 1;
+    const jsSrc = readFileSync(file, "utf8");
+    const allowed = 1 + (def.accentPresets ?? []).filter(c => c.toLowerCase() === accentLiteral).length;
+    if (count(jsSrc) > allowed) warn(where, `accent ${accentLiteral} is repeated — use ctx.tokens.color("--accent") so the user's accent applies`);
+    if (def.css && existsSync(join(dirname(file), def.css)) && count(readFileSync(join(dirname(file), def.css), "utf8"))) {
+      warn(rel(join(dirname(file), def.css)), `accent ${accentLiteral} is hard-coded — use var(--accent) / var(--accent-soft) / var(--accent-strong)`);
+    }
+  }
+  if (registryId && def.customAccent !== false && !def.accentRole) warn(where, "add accentRole (shown in the accent picker)");
+
   if (!registryId) return; // templates: contract only
   for (const item of def.defaultLayout ?? []) {
     if (!widgetIds.has(item.widget)) err(where, `defaultLayout uses unregistered widget "${item.widget}"`);

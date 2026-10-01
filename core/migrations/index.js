@@ -23,25 +23,41 @@
  */
 
 /**
+ * @typedef {object} AccentSettings
+ * @property {"per-theme" | "global"} mode   global = one accent for every theme
+ * @property {string | null} global          #rrggbb used in global mode
+ * @property {Record<string, string>} themes themeId -> #rrggbb (per-theme mode)
+ */
+
+/**
  * @typedef {object} State
  * @property {number} schemaVersion
- * @property {{ themeId: string }} settings
+ * @property {{ themeId: string, accent: AccentSettings }} settings
  * @property {Record<string, LayoutItem[]>} layouts     themeId -> layout (absent = use theme default)
  * @property {Record<string, any>} widgetData           widget type -> data shared by all its instances, in all themes
  * @property {Record<string, any>} themeState           themeId -> private theme data (e.g. RPG xp/gold)
  */
 
-export const CURRENT_SCHEMA = 1;
+export const CURRENT_SCHEMA = 2;
+
+/** @returns {AccentSettings} */
+export const defaultAccent = () => ({ mode: "per-theme", global: null, themes: {} });
 
 /** @returns {State} */
 export function emptyState() {
-  return { schemaVersion: CURRENT_SCHEMA, settings: { themeId: "default" }, layouts: {}, widgetData: {}, themeState: {} };
+  return { schemaVersion: CURRENT_SCHEMA, settings: { themeId: "default", accent: defaultAccent() }, layouts: {}, widgetData: {}, themeState: {} };
 }
 
 /** @type {Array<(doc: any) => any>} index n migrates v(n) -> v(n+1) */
 export const MIGRATIONS = [
-  // 0 -> 1: no data / pre-release data -> first real schema
-  doc => ({ ...emptyState(), ...(doc && typeof doc === "object" ? doc : {}), schemaVersion: 1 }),
+  // 0 -> 1: no data / pre-release data -> first real schema (v1 shape written out explicitly; never derive from emptyState)
+  doc => ({
+    settings: { themeId: "default" }, layouts: {}, widgetData: {}, themeState: {},
+    ...(doc && typeof doc === "object" ? doc : {}),
+    schemaVersion: 1,
+  }),
+  // 1 -> 2: user accent colours (2026-10-01)
+  doc => ({ ...doc, settings: { ...doc.settings, accent: defaultAccent() }, schemaVersion: 2 }),
 ];
 
 /**

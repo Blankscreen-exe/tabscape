@@ -31,6 +31,9 @@ A theme is a folder `themes/<id>/` with a `theme.js` that has `export default { 
 | `variants` | | `{ [widgetId]: variantName }`: asks widgets to render differently |
 | `signatureWidgets` | | widget ids designed for this theme |
 | `initialState` | | default value of the theme's private state (`ctx.state`) |
+| `accentRole` | | what the accent colours in this theme, shown in the accent picker (e.g. `"buttons, neon sun, grid"`) |
+| `accentPresets` | | suggested accents (`#rrggbb`) shown as swatches in the picker |
+| `customAccent` | | `false` = the user can't change this theme's accent (default `true`; use only if a custom accent truly can't work) |
 | `defaultLayout` | ✔ | array of layout items (below) used until the user changes the layout |
 | `mount(ctx)` | | starts decorations and services; may return a cleanup function |
 
@@ -54,6 +57,7 @@ A theme is a folder `themes/<id>/` with a `theme.js` that has `export default { 
 | `emit(name, payload)` | publish an event |
 | `every(ms, fn, immediate = true)` · `after(ms, fn)` · `listen(target, type, fn)` · `loop(fn)` · `cleanup(fn)` | auto-cleaned timers, listeners, animation loops and custom cleanups |
 | `assetUrl(path)` | URL of a file in the theme folder (images, sounds) |
+| `tokens` | `get("--x")` raw token value · `color("--x")` resolved `rgb(…)` string, for canvas/JS. Re-read it on `ACCENT_CHANGED`. |
 
 Everything registered through `ctx` is released when the user switches theme.
 
@@ -105,6 +109,7 @@ A widget is a folder `widgets/core/<id>/` or `widgets/signature/<id>/` with a `w
 | `every` · `after` · `listen` · `loop` · `cleanup` | auto-cleaned helpers |
 | `isEditing()` | true while the user edits the layout |
 | `assetUrl(path)` | URL of a file in the widget folder |
+| `tokens` | same helper as for themes |
 
 **Pattern: data down, events up.** User actions change `ctx.data`, `ctx.data.watch` redraws, and meaningful moments are announced with `ctx.emit(ctx.events.X)`. That keeps several instances and tabs in sync, and lets themes react without coupling.
 
@@ -122,22 +127,36 @@ A widget is a folder `widgets/core/<id>/` or `widgets/signature/<id>/` with a `w
 
 Required (v1, frozen forever): `--bg --surface --surface-2 --text --muted --accent --accent-contrast --border --danger --radius --gap --shadow --font-body --font-display --font-mono`
 
-Optional (default in `core/tokens.css`): `--success --warning --focus-ring --widget-padding`
+Optional (default in `core/tokens.css`): `--success --warning --focus-ring --widget-padding --accent-soft --accent-strong`
+
+### Accent colour
+
+Users can pick an accent per theme, or one for all themes. The core writes it in the `user` CSS layer (above `theme`) as `--accent`, plus a recomputed `--accent-contrast` (black or white, whichever reads better).
+
+- **CSS:** anything that should follow the accent uses `var(--accent)`, `var(--accent-soft)`, `var(--accent-strong)` or `var(--accent-contrast)`, or `color-mix(… var(--accent) …)`. Never repeat the accent's hex value. `npm run check` warns about it.
+- **Derived tokens** (`--accent-soft`, `--accent-strong`, `--focus-ring`) may be overridden by a theme only with values that reference `var(--accent)`. This is validated.
+- **Canvas/JS:** read `ctx.tokens.color("--accent")` and re-read it on `ctx.events.ACCENT_CHANGED`.
+- Colours that are part of the theme's identity but are *not* the accent stay hard-coded. That's intended, and `accentRole` tells the user what does change.
+
+Cascade layers: `reset → core → widgets → theme → user`.
 
 ---
 
 ## Events
 
-See `core/events.js`, the single source of truth. Current domain events: `todo:added`, `todo:completed`, `todo:uncompleted`, `todo:removed`, `search:submitted`, `link:opened`, `note:edited`. App events: `theme:applied`, `layout:edit-mode`, `layout:changed`, `store:changed`.
+See `core/events.js`, the single source of truth. Current domain events: `todo:added`, `todo:completed`, `todo:uncompleted`, `todo:removed`, `search:submitted`, `link:opened`, `note:edited`. App events: `theme:applied`, `accent:changed`, `layout:edit-mode`, `layout:changed`, `store:changed`.
 
 ---
 
-## Stored data (schema v1)
+## Stored data (schema v2)
 
 ```js
 {
-  schemaVersion: 1,
-  settings:   { themeId },
+  schemaVersion: 2,
+  settings:   {
+    themeId,
+    accent: { mode: "per-theme" | "global", global: "#rrggbb" | null, themes: { [themeId]: "#rrggbb" } },
+  },
   layouts:    { [themeId]: LayoutItem[] },  // absent = theme default
   widgetData: { [widgetId]: any },          // shared across themes
   themeState: { [themeId]: any },           // private per theme

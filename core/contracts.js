@@ -21,7 +21,14 @@ export const REQUIRED_TOKENS = Object.freeze([
 /** Tokens added after v1. Each MUST have a default in core/tokens.css. */
 export const OPTIONAL_TOKENS = Object.freeze([
   "--success", "--warning", "--focus-ring", "--widget-padding",
+  "--accent-soft", "--accent-strong",
 ]);
+
+/**
+ * Tokens computed from --accent. If a theme overrides one, its value must still reference
+ * var(--accent), otherwise it would ignore the user's accent colour.
+ */
+export const ACCENT_DERIVED_TOKENS = Object.freeze(["--accent-soft", "--accent-strong", "--focus-ring"]);
 
 export const SETTING_TYPES = Object.freeze(["text", "textarea", "toggle", "select", "number"]);
 
@@ -43,6 +50,9 @@ const ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
  * @property {string[]} [signatureWidgets]
  * @property {LayoutItem[]} defaultLayout
  * @property {any} [initialState]           default for the theme's private state (ctx.state)
+ * @property {boolean} [customAccent]       false = theme does not allow a user accent (default true)
+ * @property {string} [accentRole]          what the accent colours in this theme (shown in the picker)
+ * @property {string[]} [accentPresets]     suggested accents (#rrggbb) that suit the theme
  * @property {(ctx: any) => void | (() => void)} [mount]
  *
  * @typedef {object} SettingDef
@@ -99,7 +109,18 @@ export function validateTheme(def) {
   if (!checkCommon(def, errors)) return errors;
   if (!["light", "dark"].includes(def.colorScheme)) errors.push('colorScheme must be "light" or "dark"');
   if (!isObj(def.tokens)) errors.push("tokens object is required");
-  else for (const t of REQUIRED_TOKENS) if (!(t in def.tokens)) errors.push(`missing required token ${t}`);
+  else {
+    for (const t of REQUIRED_TOKENS) if (!(t in def.tokens)) errors.push(`missing required token ${t}`);
+    for (const t of ACCENT_DERIVED_TOKENS) {
+      if (t in def.tokens && !String(def.tokens[t]).includes("var(--accent")) errors.push(`${t} must be derived from var(--accent) so the user's accent colour applies`);
+    }
+  }
+  if (def.customAccent !== undefined && typeof def.customAccent !== "boolean") errors.push("customAccent must be a boolean");
+  if (def.accentRole !== undefined && typeof def.accentRole !== "string") errors.push("accentRole must be a string");
+  if (def.accentPresets !== undefined) {
+    if (!Array.isArray(def.accentPresets)) errors.push("accentPresets must be an array");
+    else def.accentPresets.forEach((c, i) => { if (!/^#[0-9a-f]{6}$/i.test(c)) errors.push(`accentPresets[${i}] must be #rrggbb`); });
+  }
   if (def.mount !== undefined && typeof def.mount !== "function") errors.push("mount must be a function");
   if (!Array.isArray(def.defaultLayout)) errors.push("defaultLayout array is required");
   else {

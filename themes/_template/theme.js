@@ -40,6 +40,13 @@ export default {
   // variants: { todo: "quest-log" },          // ask core widgets to render a different variant
   // signatureWidgets: ["my-widget"],          // widgets designed for this theme
   // initialState: { xp: 0 },                  // private theme data, available as ctx.state
+  accentRole: "what the accent colours, e.g. buttons and highlights",
+  accentPresets: ["#ff5a36", "#3b6cf6"],    // suggested accents (#rrggbb) shown in the picker
+  // customAccent: false,                      // only if a user accent can't work for this theme
+  //
+  // Accent rule (S5): wherever the accent should show, use var(--accent) / var(--accent-soft) /
+  // var(--accent-strong) / var(--accent-contrast) in CSS, and ctx.tokens.color("--accent") +
+  // ctx.on(ctx.events.ACCENT_CHANGED, …) in canvas/JS. Never repeat the accent hex value.
   defaultLayout: [
     { id: "clock-1", widget: "clock", x: 0, y: 0, w: 12, h: 2 },
     { id: "search-1", widget: "search", x: 2, y: 2, w: 8, h: 1 },

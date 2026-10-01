@@ -50,6 +50,16 @@ test("validateTheme catches common mistakes", () => {
   for (const needle of ["apiVersion", "kebab-case", "name", "colorScheme", "--bg", "overflows"]) assert.match(text, new RegExp(needle));
 });
 
+test("validateTheme enforces accent rules", () => {
+  const base = { apiVersion: 1, id: "t", name: "T", colorScheme: "light", defaultLayout: [],
+    tokens: Object.fromEntries(REQUIRED_TOKENS.map(t => [t, "#000"])) };
+  assert.deepEqual(validateTheme(base), []);
+  assert.deepEqual(validateTheme({ ...base, tokens: { ...base.tokens, "--accent-soft": "color-mix(in srgb, var(--accent) 20%, white)" } }), []);
+  assert.match(validateTheme({ ...base, tokens: { ...base.tokens, "--accent-soft": "#ffeeee" } }).join(), /derived from var\(--accent\)/);
+  assert.match(validateTheme({ ...base, accentPresets: ["red"] }).join(), /#rrggbb/);
+  assert.match(validateTheme({ ...base, customAccent: "no" }).join(), /boolean/);
+});
+
 test("validateWidget + resolveSettings", () => {
   assert.deepEqual(validateWidget({ apiVersion: 1, id: "ok", name: "Ok", size: { w: 1, h: 1 }, render() {} }), []);
   assert.ok(validateWidget({ apiVersion: 1, id: "ok", name: "Ok", size: { w: 1, h: 1 }, render() {}, settings: [{ key: "a", label: "A", type: "colour" }] }).length);

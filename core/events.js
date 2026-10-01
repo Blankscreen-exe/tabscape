@@ -10,6 +10,8 @@ export const EVENTS = Object.freeze({
   // ---- app lifecycle -------------------------------------------------------
   /** payload: { themeId } — after a theme has been fully applied */
   THEME_APPLIED: "theme:applied",
+  /** payload: { themeId, accent: string, custom: boolean } — the effective accent changed (user pick, reset, theme switch) */
+  ACCENT_CHANGED: "accent:changed",
   /** payload: { editing: boolean } */
   LAYOUT_EDIT_MODE: "layout:edit-mode",
   /** payload: { themeId } — after the layout for a theme was saved */

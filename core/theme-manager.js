@@ -11,7 +11,8 @@
  */
 import { EVENTS } from "./events.js";
 import { createScope } from "./scope.js";
-import { loadStylesheet, removeStylesheet } from "./dom.js";
+import { loadStylesheet, removeStylesheet, resolveColor, tokens } from "./dom.js";
+import { parseColor, readableOn, toHex } from "./color.js";
 import { FALLBACK_THEME } from "./registry.js";
 
 /**
@@ -30,7 +31,9 @@ export function createThemeManager({ registry, store, bus, decorRoot }) {
   let scope = createScope();
   const tokenStyle = document.createElement("style");
   tokenStyle.id = "theme-tokens";
-  document.head.append(tokenStyle);
+  const accentStyle = document.createElement("style");
+  accentStyle.id = "user-accent";
+  document.head.append(tokenStyle, accentStyle);
 
   /** @param {string} id */
   async function loadWithFallback(id) {
@@ -78,6 +81,7 @@ export function createThemeManager({ registry, store, bus, decorRoot }) {
           on: (name, fn) => scope.add(bus.on(name, fn)),
           every: scope.every, after: scope.after, listen: scope.listen, loop: scope.loop, cleanup: scope.add,
           assetUrl: (/** @type {string} */ p) => new URL(p, url).href,
+          tokens,
         };
         try {
           const ret = def.mount(ctx);
@@ -89,6 +93,26 @@ export function createThemeManager({ registry, store, bus, decorRoot }) {
 
       bus.emit(EVENTS.THEME_APPLIED, { themeId: def.id });
       return def;
+    },
+
+    /**
+     * Apply (or clear, with null) the user's accent on top of the current theme.
+     * --accent-contrast is recomputed so text on the accent stays readable;
+     * --accent-soft / --accent-strong / --focus-ring follow automatically (they derive from --accent).
+     * @param {string | null} color #rrggbb
+     */
+    setAccent(color) {
+      const c = color ? parseColor(color) : null;
+      accentStyle.textContent = c ? `@layer user { :root { --accent: ${toHex(c)}; --accent-contrast: ${readableOn(c)}; } }` : "";
+      const effective = parseColor(resolveColor("var(--accent)"));
+      bus.emit(EVENTS.ACCENT_CHANGED, { themeId: current?.id, accent: effective ? toHex(effective) : "", custom: Boolean(c) });
+    },
+
+    /** The theme's own accent as #rrggbb (ignores the user override). */
+    themeAccent() {
+      const raw = current?.tokens["--accent"];
+      const c = raw ? parseColor(raw) ?? parseColor(resolveColor(raw)) : null;
+      return c ? toHex(c) : "#000000";
     },
   };
 }

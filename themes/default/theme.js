@@ -30,6 +30,8 @@ export default {
     "--font-mono": "\"Cascadia Mono\", Consolas, monospace",
   },
   grid: { columns: 12, rowHeight: 80, maxWidth: "1180px" },
+  accentRole: "buttons, link icons, focus rings",
+  accentPresets: ["#ff5a36", "#16a34a", "#7c3aed", "#db2777", "#0891b2"],
   defaultLayout: [
     { id: "clock-1", widget: "clock", x: 0, y: 0, w: 12, h: 2 },
     { id: "search-1", widget: "search", x: 2, y: 2, w: 8, h: 1 },

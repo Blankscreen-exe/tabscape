@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Look** | Clean, neutral, light. Only tokens plus a borderless hero clock. |
+| **Accent** | Role: buttons, link icons, focus rings. 5 presets. |
 | **Decorations** | None. |
 | **Services** | None. |
 | **Variants requested** | None. |

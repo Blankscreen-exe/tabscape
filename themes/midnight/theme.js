@@ -34,6 +34,8 @@ export default {
   },
   grid: { columns: 12, rowHeight: 80, maxWidth: "1100px" },
   variants: { links: "list" },
+  accentRole: "buttons, link icons, shooting stars",
+  accentPresets: ["#ffd479", "#7ef0c8", "#ff9ecb", "#c3a6ff"],
   initialState: { starsLaunched: 0 },
   defaultLayout: [
     { id: "clock-1", widget: "clock", x: 0, y: 0, w: 12, h: 2, locked: true },
@@ -53,6 +55,9 @@ export default {
     let stars = [];
     /** @type {{x:number,y:number,vx:number,vy:number,life:number}[]} */
     const shooting = [];
+    // Canvas can't use CSS variables, so read the live accent and refresh it when it changes (rule S5).
+    let accent = ctx.tokens.color("--accent");
+    ctx.on(ctx.events.ACCENT_CHANGED, () => { accent = ctx.tokens.color("--accent"); });
 
     const resize = () => {
       canvas.width = innerWidth; canvas.height = innerHeight;
@@ -73,7 +78,7 @@ export default {
       for (let i = shooting.length - 1; i >= 0; i--) {
         const s = shooting[i];
         g.globalAlpha = Math.max(0, s.life);
-        g.strokeStyle = "#ffffff"; g.lineWidth = 2;
+        g.strokeStyle = accent; g.lineWidth = 2;
         g.beginPath(); g.moveTo(s.x, s.y); g.lineTo(s.x - s.vx * 8, s.y - s.vy * 8); g.stroke();
         s.x += s.vx; s.y += s.vy; s.life -= .015;
         if (s.life <= 0) shooting.splice(i, 1);
