@@ -19,13 +19,13 @@ These rules keep the project easy to maintain years from now. Each rule has an i
 | **D1** ✅ | Zero runtime dependencies and no build step. Plain ES modules, CSS and HTML only. `package.json` exists only for `"type": "module"` and script shortcuts. Never add `dependencies` to it. |
 | **D2** ✅ | No remote code: no CDN scripts and no bare imports. Third-party code is copied into `vendor/<name>-<version>.js`, together with its licence, and updated only on purpose. |
 | D3 | Dev tools (`dev/`) use only Node built-ins. |
-| D4 | Anything on the internet (weather, quotes, APIs) sits behind a provider adapter in `providers/<kind>/<name>.js`. When a service dies, you replace one file. |
+| D4 | Anything on the internet sits behind a provider adapter in `providers/<kind>/<name>.js` (see `providers/README.md` for services, licences and what is sent). When a service dies, you replace one file. Only free, no-key, CORS-enabled services; send the minimum (coordinates rounded to ~1 km). |
 
 ## A: Architecture
 
 | Id | Rule |
 |---|---|
-| **A1** ✅ | Themes and widgets import only from `core/`, `vendor/` or their own folder. They never import from each other. |
+| **A1** ✅ | Themes and widgets import only from `core/`, `providers/`, `vendor/` or their own folder. They never import from each other. |
 | **A2** | Only `core/platform.js` may touch `chrome.*`, `browser.*` or raw browser storage. |
 | **A3** ✅ | Every event name is listed in `core/events.js`, with a comment describing its payload. |
 | A4 | Widgets talk to themes only through events ("data down, events up"). A widget never knows which theme is active, except through `ctx.variant`. |

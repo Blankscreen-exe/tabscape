@@ -100,6 +100,24 @@ export function assetUrl(path) {
   return new URL(path, g.document?.baseURI ?? "http://localhost/").href;
 }
 
+/**
+ * The device's position. In the extension this needs the "geolocation" manifest permission
+ * (no prompt); on the dev server the browser asks the user.
+ * @param {{ maximumAge?: number, timeout?: number }} [opts] maximumAge lets the browser reuse a recent fix
+ * @returns {Promise<{ lat: number, lon: number }>}
+ */
+export function getPosition(opts = {}) {
+  return new Promise((resolve, reject) => {
+    const geo = globalThis.navigator?.geolocation;
+    if (!geo) return reject(new Error("location is not available in this browser"));
+    geo.getCurrentPosition(
+      p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
+      err => reject(new Error(err.code === 1 ? "location permission denied" : "location unavailable")),
+      { enableHighAccuracy: false, maximumAge: opts.maximumAge ?? 30 * 60_000, timeout: opts.timeout ?? 10_000 },
+    );
+  });
+}
+
 /** Download a text file (used by export). @param {string} filename @param {string} text */
 export function downloadText(filename, text) {
   const a = document.createElement("a");

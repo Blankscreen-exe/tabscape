@@ -36,7 +36,8 @@ export default {
     { id: "clock-1", widget: "clock", x: 0, y: 0, w: 12, h: 2, settings: { seconds: true } },
     { id: "search-1", widget: "search", x: 2, y: 2, w: 8, h: 1 },
     { id: "links-1", widget: "links", x: 0, y: 3, w: 7, h: 3, settings: { title: "Quick links" } },
-    { id: "todo-1", widget: "todo", x: 7, y: 3, w: 5, h: 5, settings: { title: "Today" } },
+    { id: "weather-1", widget: "weather", x: 7, y: 3, w: 5, h: 3 },
+    { id: "todo-1", widget: "todo", x: 7, y: 6, w: 5, h: 3, settings: { title: "Today" } },
     { id: "quote-1", widget: "quote", x: 0, y: 6, w: 7, h: 2 },
   ],
 

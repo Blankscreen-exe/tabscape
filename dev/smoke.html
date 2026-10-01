@@ -442,6 +442,27 @@
     assert(!$$(".w-links .links-ico").some(t => t.classList.contains("has-img")), "has-img set in letters-only mode");
   });
 
+  // ---------------------------------------------------------------- weather (seeded, no network needed)
+  await step("weather: renders a cached forecast, place picker opens and closes, credit shown", async () => {
+    await load("aurora-glass");
+    const { store } = frame.contentWindow.__homepage;
+    const place = { name: "Testville", region: "Nowhere", country: "XX", lat: 10, lon: 20 };
+    const data = {
+      current: { temp: 21.4, feels: 20, humidity: 40, wind: 9, code: 2, isDay: true },
+      days: ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05"].map((date, i) => ({ date, code: i ? 3 : 61, max: 22 + i, min: 12 })),
+      units: { temp: "°C", wind: "km/h" }, timezone: "UTC",
+    };
+    store.update(s => { s.widgetData.weather = { place, auto: null, cache: { key: "10,20,celsius", at: Date.now(), data } }; });
+    assert(await until(() => /21°C/.test($(".w-weather .wx-temp")?.textContent ?? "")), `temp not shown: ${$(".w-weather")?.textContent}`);
+    assert(/Testville/.test($(".w-weather .wx-place").textContent), "place name missing");
+    assert($$(".w-weather .wx-day").length === 5, `expected 5 forecast days, got ${$$(".w-weather .wx-day").length}`);
+    assert(/Open-Meteo/.test($(".w-weather .wx-credit").textContent), "attribution missing");
+    $(".w-weather .wx-place").click();
+    assert($(".w-weather .wx-search") && $(".w-weather .wx-auto"), "picker did not open");
+    $(".w-weather .wx-cancel").click();
+    assert(await until(() => $(".w-weather .wx-temp")), "picker did not close");
+  });
+
   const summary = document.getElementById("summary");
   summary.textContent = `SMOKE RESULT: ${passed} passed, ${failed} failed`;
   summary.className = failed ? "fail" : "pass";

@@ -1,0 +1,39 @@
+@layer widgets {
+  .w-weather { display: flex; flex-direction: column; gap: 8px; container-type: size; }
+  .w-weather .wx-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .w-weather .wx-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .w-weather .wx-place { background: none; border: none; color: var(--text); cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: calc(var(--radius) * .4); max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .w-weather .wx-place:hover { background: var(--surface-2); }
+
+  .w-weather .wx-now { display: flex; align-items: center; gap: 14px; }
+  .w-weather .wx-icon { font-size: clamp(32px, 18cqh, 56px); line-height: 1; }
+  .w-weather .wx-temp { font: 300 clamp(30px, 17cqh, 54px) / 1 var(--font-display); letter-spacing: -.02em; }
+  .w-weather .wx-label { color: var(--muted); font-size: 14px; }
+  .w-weather .wx-details { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 13px; }
+
+  .w-weather .wx-days { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; margin-top: auto; text-align: center; }
+  .w-weather .wx-day { display: grid; gap: 2px; font-size: 12px; color: var(--muted); padding: 6px 0; border-radius: calc(var(--radius) * .5); }
+  .w-weather .wx-day:first-child { background: var(--accent-soft); color: var(--text); }
+  .w-weather .wx-day span[aria-hidden] { font-size: 18px; }
+  .w-weather .wx-day b { color: var(--text); font-weight: 600; font-size: 13px; }
+
+  .w-weather .wx-empty { color: var(--muted); font-size: 14px; margin: auto 0; }
+  .w-weather .wx-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); }
+  .w-weather .wx-credit { color: var(--muted); text-decoration: none; margin-left: auto; opacity: .7; }
+  .w-weather .wx-credit:hover { opacity: 1; text-decoration: underline; }
+
+  /* small tiles: drop the extras rather than overflow */
+  @container (max-height: 170px) { .w-weather .wx-days, .w-weather .wx-details { display: none; } }
+  @container (max-width: 240px) { .w-weather .wx-days { display: none; } }
+
+  /* place picker */
+  .w-weather .wx-search { padding: 8px 10px; border: 1px solid var(--border); border-radius: calc(var(--radius) * .6); background: var(--surface-2); color: var(--text); outline: none; }
+  .w-weather .wx-search:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .w-weather .wx-results { list-style: none; padding: 0; margin: 0; overflow: auto; min-height: 0; flex: 1; }
+  .w-weather .wx-results button { width: 100%; text-align: left; background: none; border: none; color: var(--text); padding: 6px 8px; border-radius: calc(var(--radius) * .4); cursor: pointer; font-size: 13px; }
+  .w-weather .wx-results button:hover, .w-weather .wx-results button:focus-visible { background: var(--accent-soft); outline: none; }
+  .w-weather .wx-hint { color: var(--muted); font-size: 13px; padding: 6px 8px; }
+  .w-weather .wx-picker-actions { display: flex; gap: 6px; }
+  .w-weather .wx-picker-actions button { padding: 6px 10px; border: 1px solid var(--border); border-radius: calc(var(--radius) * .6); background: var(--surface-2); color: var(--text); cursor: pointer; font-size: 13px; }
+  .w-weather .wx-picker-actions .wx-auto { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+}

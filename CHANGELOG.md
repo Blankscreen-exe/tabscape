@@ -4,6 +4,10 @@ User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Added
+- **Weather widget**: current conditions plus a 3/5/7-day forecast. Your location is detected automatically (named via reverse geocoding), or you can pick any place by searching inside the widget. °C/km/h or °F/mph. Cached 30 minutes and works offline with the last data. Aurora Glass shows it by default.
+- `providers/` for online services: Open-Meteo (forecast + place search) and BigDataCloud (location name). Coordinates are rounded to ~1 km before sending. The extension now requests the `geolocation` permission.
+
 ### Removed
 - Search engine buttons ("pills") on the search bar. They broke narrow layouts as engines were added. The engine is chosen in the widget's settings only.
 

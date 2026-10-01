@@ -156,13 +156,18 @@ Press the **✦** button (bottom right) or **Alt+C** to open **Customize**:
 | **Edit layout** | Drag a widget's bar to move it, drag its corner to resize, ⚙ for its settings, ✕ to remove. Add any widget from the list. Each theme remembers its own layout. 🔒 marks slots a theme keeps fixed. |
 | **Backup** | Export everything to a `.json` file and import it again (e.g. on another computer). |
 
-Data is stored in the browser's own extension storage and is never sent anywhere. The only network requests are the ones you'd expect: search pages, the sites you open, and each link's icon, fetched directly from that site. Switch the Links widget to "Letters only" to turn icons off.
+Data is stored in the browser's own extension storage and is never sent anywhere. The only network requests are the ones you'd expect:
+- search pages and the sites you open
+- each link's icon, fetched directly from that site (turn off with the Links widget's "Letters only" setting)
+- the **Weather** widget: forecasts from [Open-Meteo](https://open-meteo.com), and the name of your location from [BigDataCloud](https://www.bigdatacloud.com/free-api/free-reverse-geocode-to-city-api). Coordinates are rounded to about 1 km first, and results are cached for 30 minutes. No API keys, no accounts. Remove the widget and no weather requests are made.
+
+The extension asks for two permissions: **storage** (your settings) and **geolocation** (only used by the Weather widget's automatic location).
 
 ## Widgets
 
 | Everyday | Theme-flavoured (usable in any theme) |
 |---|---|
-| Clock · Search (9 engines or a custom one) · Links (with site icons) · To-do · Notes · Quote · Progress (day/week/month/year) · Calendar · Pomodoro · Countdown · World Clocks · Stopwatch · Moon Phase | Breathe · Intention · Haiku · Hero (XP, gold, levels) · Oracle · Feeling Lucky dice · Terminal · System Info · Tab Counter · Habit Tracker · Minesweeper · Rain Sound · Orbit |
+| Clock · Weather (your location or any place) · Search (9 engines or a custom one) · Links (with site icons) · To-do · Notes · Quote · Progress (day/week/month/year) · Calendar · Pomodoro · Countdown · World Clocks · Stopwatch · Moon Phase | Breathe · Intention · Haiku · Hero (XP, gold, levels) · Oracle · Feeling Lucky dice · Terminal · System Info · Tab Counter · Habit Tracker · Minesweeper · Rain Sound · Orbit |
 
 The to-do list is shared by every theme, and some themes show it differently: as a **quest log** in RPG Quest, or as a **GO/NO-GO checklist** in Mission Control.
 
@@ -210,6 +215,7 @@ newtab.html          the only page
 registry.json        installed themes + widgets
 core/                small, stable engine: app, store + migrations, events, registry, grid,
                      theme manager, accent, ui, platform (the only file touching browser APIs)
+providers/           adapters for online services (weather, geocoding), one file per service
 themes/<id>/         theme.js + theme.css + README.md        (_template/ to start a new one)
 widgets/core/<id>/   everyday widgets                         (_template/ to start a new one)
 widgets/signature/   theme-flavoured widgets

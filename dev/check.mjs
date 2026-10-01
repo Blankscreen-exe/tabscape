@@ -5,7 +5,7 @@
 //  - every theme/widget passes its contract (core/contracts.js), ids match registry + folder
 //  - declared css files exist; theme css is layered + scoped
 //  - default layouts only reference registered widgets; requested variants exist
-//  - themes/widgets import only from core/ or their own folder
+//  - themes/widgets import only from core/, providers/, vendor/ or their own folder
 //  - every ctx.events.X used exists in core/events.js
 //  - widget css uses tokens, not hard-coded colours (warning)
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -134,8 +134,8 @@ for (const dir of pluginRoots) {
       const spec = m[1];
       if (!spec.startsWith(".")) { err(rel(file), `bare/remote import "${spec}" — vendor it under vendor/ instead`); continue; }
       const target = resolve(dirname(file), spec);
-      if (!target.startsWith(coreDir) && !target.startsWith(dir + sep) && !target.startsWith(join(ROOT, "vendor") + sep)) {
-        err(rel(file), `imports "${spec}" — themes/widgets may only import from core/, vendor/ or their own folder`);
+      if (!target.startsWith(coreDir) && !target.startsWith(dir + sep) && !target.startsWith(join(ROOT, "vendor") + sep) && !target.startsWith(join(ROOT, "providers") + sep)) {
+        err(rel(file), `imports "${spec}" — themes/widgets may only import from core/, providers/, vendor/ or their own folder`);
       }
     }
     for (const m of src.matchAll(/events\.([A-Z][A-Z0-9_]*)/g)) {
