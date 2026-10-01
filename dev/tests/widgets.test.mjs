@@ -88,3 +88,39 @@ test("minesweeper: first click and its neighbours are never mines", () => {
   assert.equal(neighbours(0, 9).length, 3);
   assert.equal(neighbours(40, 9).length, 8);
 });
+
+import { iconUrl, normalizeIcon, normalizeUrl, parse as parseLinks, serialize as serializeLinks } from "../../widgets/core/links/widget.js";
+
+test("links: only web URLs survive, everything else becomes a host name", () => {
+  assert.equal(normalizeUrl("github.com"), "https://github.com");
+  assert.equal(normalizeUrl("http://example.org/x"), "http://example.org/x");
+  assert.equal(normalizeUrl("javascript://%0Aalert(1)"), "https://%0Aalert(1)");
+  assert.ok(!normalizeUrl("javascript:alert(1)").startsWith("javascript:"));
+});
+
+test("links: favicon location and custom icons", () => {
+  assert.equal(iconUrl({ name: "a", url: "https://mail.google.com/mail/u/0" }), "https://mail.google.com/favicon.ico");
+  assert.equal(iconUrl({ name: "a", url: "https://x.com", icon: "https://cdn.x.com/i.png" }), "https://cdn.x.com/i.png");
+  assert.equal(normalizeIcon("javascript:alert(1)"), undefined);
+  assert.equal(normalizeIcon("/docs/icon.png"), "/docs/icon.png");
+});
+
+test("links: parse/serialize round trip with optional icon", () => {
+  const items = parseLinks("GitHub | github.com\nNotes | https://notes.example | https://notes.example/logo.png\nbare.example");
+  assert.deepEqual(items, [
+    { name: "GitHub", url: "https://github.com" },
+    { name: "Notes", url: "https://notes.example", icon: "https://notes.example/logo.png" },
+    { name: "bare.example", url: "https://bare.example" },
+  ]);
+  assert.deepEqual(parseLinks(serializeLinks(items)), items);
+});
+
+import { searchUrl } from "../../widgets/core/search/widget.js";
+
+test("search: engine URLs, custom engine and fallback", () => {
+  assert.equal(searchUrl("duckduckgo", "", "a b"), "https://duckduckgo.com/?q=a%20b");
+  assert.equal(searchUrl("custom", "https://kagi.com/search?q={q}", "x&y"), "https://kagi.com/search?q=x%26y");
+  assert.equal(searchUrl("custom", "javascript:{q}", "x"), "https://www.google.com/search?q=x");
+  assert.equal(searchUrl("custom", "https://no-placeholder.example", "x"), "https://www.google.com/search?q=x");
+  assert.equal(searchUrl("nonsense", "", "x"), "https://www.google.com/search?q=x");
+});

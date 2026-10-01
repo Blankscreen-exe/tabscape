@@ -4,9 +4,17 @@ User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Removed
+- Search engine buttons ("pills") on the search bar. They broke narrow layouts as engines were added. The engine is chosen in the widget's settings only.
+
 ### Added
+- Search engines Brave Search, Ecosia and Startpage, plus a **Custom…** engine (any URL with `{q}`).
+- Links show each site's favicon, fetched directly from the site (no third-party service), and fall back to the first letter when there isn't one. Links can carry their own icon URL (`Name | url | icon-url`). A "Letters only" setting makes no network requests.
 - README with install and usage instructions and a two-column preview gallery of all 17 themes (`docs/previews/`).
 - `npm run previews` regenerates those images with headless Chrome/Edge. Browser detection is shared with the smoke test (`dev/browser.mjs`).
+
+### Fixed
+- Links only allow `http(s)` URLs. A `javascript:` link could previously run code when clicked on the dev server (the installed extension's security policy already blocked it).
 
 ## [0.5.0] - 2026-10-01
 

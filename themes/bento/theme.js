@@ -37,7 +37,7 @@ export default {
     { id: "clock-1", widget: "clock", x: 0, y: 0, w: 6, h: 2 },
     { id: "calendar-1", widget: "calendar", x: 6, y: 0, w: 3, h: 4 },
     { id: "pomodoro-1", widget: "pomodoro", x: 9, y: 0, w: 3, h: 4 },
-    { id: "search-1", widget: "search", x: 0, y: 2, w: 6, h: 1, settings: { placeholder: "Search…", pills: "google, duckduckgo, youtube" } },
+    { id: "search-1", widget: "search", x: 0, y: 2, w: 6, h: 1, settings: { placeholder: "Search…" } },
     { id: "links-1", widget: "links", x: 0, y: 3, w: 6, h: 5, settings: { title: "Favorites" } },
     { id: "intention-1", widget: "intention", x: 6, y: 4, w: 6, h: 2, settings: { title: "🎯 Today's one thing", placeholder: "What matters most today?" } },
     { id: "progress-1", widget: "progress", x: 6, y: 6, w: 6, h: 2, settings: { title: "Time" } },

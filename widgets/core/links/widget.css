@@ -17,6 +17,14 @@
   }
   .w-links .links-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+  /* favicons: shown on a light tile (most favicons are drawn for light browser tabs).
+     Themes may override --links-icon-bg. The letter stays underneath as the fallback. */
+  .w-links { --links-icon-bg: color-mix(in srgb, white 90%, var(--accent)); }
+  .w-links .links-ico { position: relative; overflow: hidden; }
+  .w-links .links-ico.has-img { background: var(--links-icon-bg); }
+  .w-links .links-ico.has-img .links-letter { visibility: hidden; }
+  .w-links .links-img { position: absolute; inset: 0; margin: auto; width: 62%; height: 62%; object-fit: contain; }
+
   .w-links .links-list { display: grid; gap: 2px; }
   .w-links .links-list a { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: calc(var(--radius) * .5); color: var(--text); text-decoration: none; }
   .w-links .links-list a:hover { background: var(--surface-2); }

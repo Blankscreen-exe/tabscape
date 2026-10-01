@@ -7,7 +7,7 @@
 | **Services** | None. |
 | **Accent** | Orange. Role: buttons, today on the calendar, timer ring, progress bars, the "one thing" tile. 5 presets. |
 | **Variants requested** | None. |
-| **Signature widgets** | None. Uses core `calendar`, `pomodoro`, `progress`, search engine pills, and the `intention` widget as "Today's one thing". |
+| **Signature widgets** | None. Uses core `calendar`, `pomodoro`, `progress`, and the `intention` widget as "Today's one thing". |
 | **Locked slots** | None. |
 | **Origin** | `demos/bento.html`. The demo's manual light/dark tile was replaced by following the system setting. |
 

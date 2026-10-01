@@ -319,13 +319,11 @@
     assert($(".w-terminal .term-out").textContent.trim() === "", "clear did not clear");
   });
 
-  await step("bento: engine pills, pomodoro start/pause, calendar navigation", async () => {
+  await step("bento: search has no inline engine buttons, pomodoro start/pause, calendar navigation", async () => {
     await load("bento");
     const { store } = frame.contentWindow.__homepage;
-    $$(".w-search .search-pills button").find(b => b.dataset.e === "youtube").click();
-    await sleep(50);
-    assert($('.w-search .search-pills button[data-e="youtube"]').classList.contains("on"), "pill not selected");
-    assert(store.snapshot().widgetData.search?.picked === "youtube", "pill choice not saved");
+    assert(!$(".w-search button:not(.search-button)"), "unexpected buttons inside the search bar");
+    assert(/Google/.test($(".w-search .search-input").title), "engine hint missing");
 
     $(".w-pomodoro .pomo-start").click();
     await sleep(50);
@@ -408,6 +406,40 @@
     assert(Number($(".w-counter .ctr-lcd").textContent) === 1, `counter is ${$(".w-counter .ctr-lcd").textContent}`);
     await load("lofi-rain");
     assert($(".lofi-city") && $(".w-rainsound .rs-play"), "lofi decorations or rain widget missing");
+  });
+
+  // ---------------------------------------------------------------- link icons
+  await step("links: favicon shown when it loads, letter kept when it fails, unsafe URLs neutralised", async () => {
+    await load("default");
+    $(".w-links .links-edit").click();
+    await until(() => $(".w-links .links-text"));
+    $(".w-links .links-text").value = [
+      "Has icon | https://example.invalid | /docs/previews/default.png",  // local file → loads
+      "Broken icon | https://example.invalid | /no-such-icon.png",        // 404 → letter
+      "Sneaky | javascript://%0Aalert(1)",
+    ].join("\n");
+    $(".w-links .links-save").click();
+    const tiles = () => $$(".w-links .links-ico");
+    assert(await until(() => tiles()[0]?.classList.contains("has-img"), 4000), "icon did not load");
+    await sleep(300);
+    assert(!tiles()[1].classList.contains("has-img"), "broken icon replaced the letter");
+    assert(tiles()[1].textContent.trim() === "B", "letter fallback missing");
+    assert($$(".w-links a")[2].href.startsWith("https://"), `unsafe href: ${$$(".w-links a")[2].href}`);
+  });
+
+  await step("links: 'letters only' makes no icon requests", async () => {
+    await load("default");
+    $(".ui-fab").click();
+    await until(() => $$(".ui-btn").some(b => b.textContent === "Edit layout"));
+    $$(".ui-btn").find(b => b.textContent === "Edit layout").click();
+    const frameEl = $$(".g-item").find(f => f.querySelector(".w-links"));
+    [...frameEl.querySelectorAll(".g-btn")].find(b => b.title === "Settings").click();
+    assert(await until(() => $("#set-icons")), "settings dialog missing");
+    $("#set-icons").value = "letters";
+    [...$$("dialog.ui-dialog button")].find(b => b.value === "save").click();
+    await sleep(600);
+    assert(!$(".w-links .links-img"), "an icon was loaded in letters-only mode");
+    assert(!$$(".w-links .links-ico").some(t => t.classList.contains("has-img")), "has-img set in letters-only mode");
   });
 
   const summary = document.getElementById("summary");

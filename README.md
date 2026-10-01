@@ -156,13 +156,13 @@ Press the **✦** button (bottom right) or **Alt+C** to open **Customize**:
 | **Edit layout** | Drag a widget's bar to move it, drag its corner to resize, ⚙ for its settings, ✕ to remove. Add any widget from the list. Each theme remembers its own layout. 🔒 marks slots a theme keeps fixed. |
 | **Backup** | Export everything to a `.json` file and import it again (e.g. on another computer). |
 
-Data is stored in the browser's own extension storage. Nothing is sent anywhere.
+Data is stored in the browser's own extension storage and is never sent anywhere. The only network requests are the ones you'd expect: search pages, the sites you open, and each link's icon, fetched directly from that site. Switch the Links widget to "Letters only" to turn icons off.
 
 ## Widgets
 
 | Everyday | Theme-flavoured (usable in any theme) |
 |---|---|
-| Clock · Search (engine buttons, custom button) · Links · To-do · Notes · Quote · Progress (day/week/month/year) · Calendar · Pomodoro · Countdown · World Clocks · Stopwatch · Moon Phase | Breathe · Intention · Haiku · Hero (XP, gold, levels) · Oracle · Feeling Lucky dice · Terminal · System Info · Tab Counter · Habit Tracker · Minesweeper · Rain Sound · Orbit |
+| Clock · Search (9 engines or a custom one) · Links (with site icons) · To-do · Notes · Quote · Progress (day/week/month/year) · Calendar · Pomodoro · Countdown · World Clocks · Stopwatch · Moon Phase | Breathe · Intention · Haiku · Hero (XP, gold, levels) · Oracle · Feeling Lucky dice · Terminal · System Info · Tab Counter · Habit Tracker · Minesweeper · Rain Sound · Orbit |
 
 The to-do list is shared by every theme, and some themes show it differently: as a **quest log** in RPG Quest, or as a **GO/NO-GO checklist** in Mission Control.
 
