@@ -10,4 +10,7 @@
   .w-dice .dice-die.roll { transform: rotate(720deg) scale(.85); }
   .w-dice .dice-out { font-size: 14px; }
   .w-dice .dice-out a { color: var(--accent); }
+  .w-dice .dice-src { font-size: 11px; color: var(--muted); margin: 0; }
+  .w-dice .dice-src a { color: inherit; }
+  .w-dice .dice-allow { background: none; border: none; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; font: inherit; }
 }

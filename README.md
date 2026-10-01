@@ -159,15 +159,16 @@ Press the **✦** button (bottom right) or **Alt+C** to open **Customize**:
 Data is stored in the browser's own extension storage and is never sent anywhere. The only network requests are the ones you'd expect:
 - search pages and the sites you open
 - each link's icon, fetched directly from that site (turn off with the Links widget's "Letters only" setting)
+- the **Feeling Lucky** widget's *The Useless Web* source: its site list from theuselessweb.com, about once a week, only after you allow it (asked on the first roll)
 - the **Weather** widget: forecasts from [Open-Meteo](https://open-meteo.com), and the name of your location from [BigDataCloud](https://www.bigdatacloud.com/free-api/free-reverse-geocode-to-city-api). Coordinates are rounded to about 1 km first, and results are cached for 30 minutes. No API keys, no accounts. Remove the widget and no weather requests are made.
 
-The extension asks for two permissions: **storage** (your settings) and **geolocation** (only used by the Weather widget's automatic location).
+The extension asks for two permissions: **storage** (your settings) and **geolocation** (only used by the Weather widget's automatic location). Access to **theuselessweb.com** is optional and requested only if you use that source.
 
 ## Widgets
 
 | Everyday | Theme-flavoured (usable in any theme) |
 |---|---|
-| Clock · Weather (your location or any place) · Search (9 engines or a custom one) · Links (with site icons) · To-do · Notes · Quote · Progress (day/week/month/year) · Calendar · Pomodoro · Countdown · World Clocks · Stopwatch · Moon Phase | Breathe · Intention · Haiku · Hero (XP, gold, levels) · Oracle · Feeling Lucky dice · Terminal · System Info · Tab Counter · Habit Tracker · Minesweeper · Rain Sound · Orbit |
+| Clock · Weather (your location or any place) · Search (9 engines or a custom one) · Links (with site icons) · To-do · Notes · Quote · Progress (day/week/month/year) · Calendar · Pomodoro · Countdown · World Clocks · Stopwatch · Moon Phase | Breathe · Intention · Haiku · Hero (XP, gold, levels) · Oracle · Feeling Lucky (your list or The Useless Web) · Terminal · System Info · Tab Counter · Habit Tracker · Minesweeper · Rain Sound · Orbit |
 
 The to-do list is shared by every theme, and some themes show it differently: as a **quest log** in RPG Quest, or as a **GO/NO-GO checklist** in Mission Control.
 
@@ -186,6 +187,7 @@ npm test           # unit tests (Node's built-in runner)
 npm run verify     # check + test (also run automatically before every commit)
 npm run smoke      # drives the real app in headless Chrome/Edge (dev/smoke.html)
 npm run previews   # regenerates docs/previews/*.png for this README
+npm run update:uselessweb  # refreshes the bundled Useless Web fallback list
 ```
 
 Useful URL parameters: `?theme=<id>` shows a theme without saving the choice, and `?preview` uses throw-away storage.

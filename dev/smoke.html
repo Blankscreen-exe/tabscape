@@ -463,6 +463,32 @@
     assert(await until(() => $(".w-weather .wx-temp")), "picker did not close");
   });
 
+  // ---------------------------------------------------------------- feeling lucky: The Useless Web
+  await step("dice: Useless Web source rolls from the built-in list without permission, credits the site", async () => {
+    await load("anti-design");
+    $(".ui-fab").click();
+    await until(() => $$(".ui-btn").some(b => b.textContent === "Edit layout"));
+    $$(".ui-btn").find(b => b.textContent === "Edit layout").click();
+    const frameEl = $$(".g-item").find(f => f.querySelector(".w-dice"));
+    [...frameEl.querySelectorAll(".g-btn")].find(b => b.title === "Settings").click();
+    assert(await until(() => $("#set-source")), "settings dialog missing");
+    $("#set-source").value = "useless";
+    $("#set-open").value = "show";
+    [...$$("dialog.ui-dialog button")].find(b => b.value === "save").click();
+    $$(".ui-btn").find(b => b.textContent === "Stop editing").click();
+    assert(await until(() => $(".w-dice .dice-src")), "credit line missing");
+    assert(/The Useless Web/.test($(".w-dice .dice-src").textContent), "credit text missing");
+    $(".w-dice .dice-die").click();
+    await sleep(150);
+    const link = $(".w-dice .dice-out a");
+    assert(link && /^https?:\/\//.test(link.href), "no site rolled");
+    assert(await until(() => /built-in list/.test($(".w-dice .dice-src").textContent)), "should fall back to the built-in list on the dev server");
+    assert(await until(() => $(".w-dice .dice-allow")), "no way to allow the live list after the request failed");
+    const seen = frame.contentWindow.__homepage.store.snapshot().widgetData.dice?.seen?.useless ?? [];
+    const same = (a, b) => new URL(a).href === new URL(b).href;
+    assert(seen.length === 1 && same(seen[0], link.href), `seen not recorded: ${seen}`);
+  });
+
   const summary = document.getElementById("summary");
   summary.textContent = `SMOKE RESULT: ${passed} passed, ${failed} failed`;
   summary.className = failed ? "fail" : "pass";

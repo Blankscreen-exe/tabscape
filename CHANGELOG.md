@@ -5,6 +5,8 @@ User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 ## [Unreleased]
 
 ### Added
+- **Feeling Lucky** can roll from **The Useless Web**'s collection: the live list (fetched weekly once you allow access to theuselessweb.com on the first roll) with a bundled 118-site fallback, credited in the widget. Also new: no repeats until every site was shown, and "go there right away".
+- `npm run update:uselessweb` refreshes the bundled list. `core/url.js` holds the shared safe-link rule.
 - **Weather widget**: current conditions plus a 3/5/7-day forecast. Your location is detected automatically (named via reverse geocoding), or you can pick any place by searching inside the widget. °C/km/h or °F/mph. Cached 30 minutes and works offline with the last data. Aurora Glass shows it by default.
 - `providers/` for online services: Open-Meteo (forecast + place search) and BigDataCloud (location name). Coordinates are rounded to ~1 km before sending. The extension now requests the `geolocation` permission.
 
@@ -18,6 +20,7 @@ User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 - `npm run previews` regenerates those images with headless Chrome/Edge. Browser detection is shared with the smoke test (`dev/browser.mjs`).
 
 ### Fixed
+- Feeling Lucky's own list now also only allows web links (it accepted `javascript:` URLs like Links did).
 - Links only allow `http(s)` URLs. A `javascript:` link could previously run code when clicked on the dev server (the installed extension's security policy already blocked it).
 
 ## [0.5.0] - 2026-10-01

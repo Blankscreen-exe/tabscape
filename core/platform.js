@@ -100,6 +100,37 @@ export function assetUrl(path) {
   return new URL(path, g.document?.baseURI ?? "http://localhost/").href;
 }
 
+/** @returns {any} the extension API namespace, or undefined outside an extension */
+function extApi() {
+  const g = /** @type {any} */ (globalThis);
+  const api = g.browser ?? g.chrome;
+  return api?.runtime?.id ? api : undefined;
+}
+
+/**
+ * Do we already have access to an origin listed in the manifest's optional_host_permissions?
+ * Outside the extension (dev server) this is always false.
+ * @param {string} origin e.g. "https://theuselessweb.com/*"
+ */
+export async function hasHostAccess(origin) {
+  const api = extApi();
+  if (!api?.permissions?.contains) return false;
+  try { return await api.permissions.contains({ origins: [origin] }); } catch { return false; }
+}
+
+/**
+ * Ask for access to an optional origin. MUST be called synchronously inside a click handler
+ * (browsers only allow permission prompts from a user gesture) — call it before any `await`.
+ * Resolves true if granted (no prompt if already granted), false if declined or unavailable.
+ * @param {string} origin
+ */
+export function requestHostAccess(origin) {
+  const api = extApi();
+  if (!api?.permissions?.request) return Promise.resolve(false);
+  try { return Promise.resolve(api.permissions.request({ origins: [origin] })).then(Boolean, () => false); }
+  catch { return Promise.resolve(false); }
+}
+
 /**
  * The device's position. In the extension this needs the "geolocation" manifest permission
  * (no prompt); on the dev server the browser asks the user.

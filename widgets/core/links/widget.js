@@ -9,14 +9,12 @@
  * they would receive the whole link list on every new tab, and they can disappear.
  */
 import { esc } from "../../../core/dom.js";
+import { safeWebUrl } from "../../../core/url.js";
 
 /** @typedef {{ name: string, url: string, icon?: string }} Link */
 
-/** Only web links; anything else (javascript:, data:, …) is treated as a host name. @param {string} url */
-export function normalizeUrl(url) {
-  const u = url.trim();
-  return /^https?:\/\//i.test(u) ? u : `https://${u.replace(/^[a-z][a-z0-9+.-]*:\/*/i, "")}`;
-}
+/** Only web links (shared rule in core/url.js). */
+export const normalizeUrl = safeWebUrl;
 
 /** Custom icon: http(s) URL or a path inside the extension; anything else is dropped. @param {string | undefined} icon */
 export function normalizeIcon(icon) {

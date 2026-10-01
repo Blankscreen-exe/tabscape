@@ -10,6 +10,7 @@
     "test": "node --test \"dev/tests/*.test.mjs\"",
     "smoke": "node dev/smoke.mjs",
     "previews": "node dev/previews.mjs",
+    "update:uselessweb": "node dev/update-uselessweb.mjs",
     "verify": "node dev/check.mjs && node --test \"dev/tests/*.test.mjs\""
   }
 }
