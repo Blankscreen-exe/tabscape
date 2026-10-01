@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theme Demos</title>
+<style>
+  :root { --bg: #111318; --card: #1a1d24; --line: #2a2e38; --text: #eef0f4; --muted: #8b91a0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 6vh 24px; }
+  h1 { font-weight: 600; font-size: 28px; }
+  p.sub { color: var(--muted); margin: 6px 0 32px; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+  a.card { display: block; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; transition: transform .15s, border-color .15s; }
+  a.card:hover { transform: translateY(-3px); border-color: #4b5263; }
+  .preview { height: 190px; position: relative; overflow: hidden; }
+  .preview iframe { width: 1280px; height: 760px; border: 0; transform: scale(.26); transform-origin: 0 0; pointer-events: none; }
+  .info { padding: 14px 16px; }
+  .info b { display: block; font-size: 16px; }
+  .info span { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Home page theme demos</h1>
+  <p class="sub">Click a card to open the full page.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+  const demos = [
+    ["aurora-glass.html", "Aurora Glass", "Dark, animated gradient blobs, frosted-glass cards · clock, search, links, weather, to-do, quote"],
+    ["paper-ink.html", "Paper & Ink", "Warm newspaper look with serif type · bookmarks, lined notebook, almanac"],
+    ["terminal.html", "Terminal", "CRT phosphor console · command-line search (try `help`), sys info, bookmarks, colour switch"],
+    ["synthwave.html", "Synthwave", "Retro 80s neon sun + moving grid · neon clock, links, fake player, weekend countdown"],
+    ["bento.html", "Bento", "Clean bento-box grid with light/dark · calendar, pomodoro, engine switcher, progress stats"],
+    ["brutalist/index.html", "Brutalist Pack (5 themes)", "Raw HTML, Neo Brutal, Swiss Grid, Concrete, Anti-Design · shared core widgets"],
+    ["variety/index.html", "Variety Pack (5 themes)", "Retro OS, Lo-fi Rain, Zen, RPG Quest, Mission Control · different style families"],
+  ];
+  document.getElementById("grid").innerHTML = demos.map(([f, n, d]) => `
+    <a class="card" href="${f}">
+      <div class="preview"><iframe src="${f}" loading="lazy" tabindex="-1"></iframe></div>
+      <div class="info"><b>${n}</b><span>${d}</span></div>
+    </a>`).join("");
+</script>
+</body>
+</html>

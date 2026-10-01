@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Smoke test</title>
+<style>
+  body { font: 14px/1.5 Consolas, monospace; background: #111; color: #ddd; padding: 20px; }
+  .pass { color: #5f5; } .fail { color: #f66; }
+  iframe { width: 1280px; height: 860px; border: 1px solid #333; margin-top: 16px; }
+</style>
+</head>
+<body>
+<h1>Browser smoke test</h1>
+<p>Drives the real app in an iframe (preview mode, nothing saved). Run headless with <code>npm run smoke</code>.</p>
+<ol id="out"></ol>
+<p id="summary">running…</p>
+<iframe id="app"></iframe>
+<script type="module">
+  const out = document.getElementById("out");
+  const frame = document.getElementById("app");
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let passed = 0, failed = 0;
+
+  const load = theme => new Promise(resolve => {
+    frame.onload = async () => {
+      for (let i = 0; i < 100 && !frame.contentDocument.documentElement.classList.contains("ready"); i++) await sleep(50);
+      await sleep(200);
+      frame.contentWindow.confirm = () => true; // auto-accept "reset layout?"
+      resolve();
+    };
+    frame.src = `../newtab.html?preview&theme=${theme}`;
+  });
+  const $ = sel => frame.contentDocument.querySelector(sel);
+  const $$ = sel => [...frame.contentDocument.querySelectorAll(sel)];
+  const until = async (fn, ms = 2000) => { for (let t = 0; t < ms; t += 50) { if (fn()) return true; await sleep(50); } return false; };
+
+  async function step(name, fn) {
+    try { await fn(); passed++; out.insertAdjacentHTML("beforeend", `<li class="pass">PASS ${name}</li>`); }
+    catch (e) { failed++; out.insertAdjacentHTML("beforeend", `<li class="fail">FAIL ${name} — ${String(e.message).replace(/</g, "&lt;")}</li>`); }
+  }
+  const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
+
+  async function addTodo(text) {
+    const input = $(".w-todo .todo-input");
+    input.value = text;
+    input.form.requestSubmit();
+    await sleep(100);
+  }
+
+  await load("default");
+
+  await step("default theme boots with 5 widgets, no widget errors", () => {
+    assert($$(".g-item").length === 5, `expected 5 frames, got ${$$(".g-item").length}`);
+    assert(!$(".w-error") && !$(".boot-error"), "error card present");
+    assert(frame.contentDocument.documentElement.dataset.theme === "default", "data-theme not set");
+  });
+
+  await step("to-do: add and complete an item, events fire", async () => {
+    const { bus, events } = frame.contentWindow.__homepage;
+    let completed = 0;
+    bus.on(events.TODO_COMPLETED, () => completed++);
+    await addTodo("smoke item");
+    assert($$(".w-todo li").length === 1, "item not rendered");
+    $(".w-todo li .todo-text").click();
+    await sleep(100);
+    assert($(".w-todo li").classList.contains("done"), "item not marked done");
+    assert(completed === 1, "TODO_COMPLETED not emitted");
+  });
+
+  await step("theme picker switches to Midnight and keeps shared data", async () => {
+    $(".ui-fab").click();
+    await until(() => $$(".ui-theme").length >= 2);
+    $$(".ui-theme").find(b => b.textContent.includes("Midnight")).click();
+    assert(await until(() => frame.contentDocument.documentElement.dataset.theme === "midnight"), "theme did not switch");
+    await sleep(300);
+    assert($$(".w-todo li").length === 1, "to-do item lost on theme switch");
+    assert($(".midnight-stars"), "midnight decoration not mounted");
+    assert($('.w-links[data-variant="list"]'), "links variant not applied");
+  });
+
+  await step("theme service reacts to widget events (Midnight counts stars)", async () => {
+    await addTodo("second");
+    $$(".w-todo li .todo-text")[1].click();
+    await sleep(100);
+    const { store } = frame.contentWindow.__homepage;
+    assert(store.snapshot().themeState.midnight?.starsLaunched === 1, `starsLaunched = ${store.snapshot().themeState.midnight?.starsLaunched}`);
+  });
+
+  await step("switching back unmounts the old theme's decorations", async () => {
+    $$(".ui-theme").find(b => b.textContent.includes("Default")).click();
+    assert(await until(() => frame.contentDocument.documentElement.dataset.theme === "default"), "theme did not switch back");
+    assert(!$(".midnight-stars"), "midnight decoration leaked");
+  });
+
+  await step("edit mode: remove a widget, then reset layout restores it", async () => {
+    $$(".ui-btn").find(b => b.textContent === "Edit layout").click();
+    await sleep(100);
+    assert($("#grid").classList.contains("g-editing"), "edit mode not on");
+    const notes = $$(".g-item").find(f => f.querySelector(".w-notes"));
+    [...notes.querySelectorAll(".g-btn")].find(b => b.title === "Remove").click();
+    await sleep(150);
+    assert($$(".g-item").length === 4, `expected 4 frames, got ${$$(".g-item").length}`);
+    $$(".ui-btn").find(b => b.textContent.startsWith("Reset")).click();
+    await sleep(300);
+    assert($$(".g-item").length === 5, "reset did not restore");
+  });
+
+  await step("drag moves a widget to a free cell", async () => {
+    const frameEl = $$(".g-item").find(f => f.querySelector(".w-todo"));
+    const before = frameEl.style.gridRow;
+    const bar = frameEl.querySelector(".g-bar");
+    const r = bar.getBoundingClientRect();
+    const win = frame.contentWindow;
+    const ev = (type, x, y, target) => target.dispatchEvent(new win.PointerEvent(type, { clientX: x, clientY: y, button: 0, bubbles: true, pointerId: 1 }));
+    ev("pointerdown", r.left + 20, r.top + 5, bar);
+    ev("pointermove", r.left + 20, r.top + 5 + 5 * 96, win);   // ~5 rows down (80px row + 16px gap)
+    ev("pointerup", r.left + 20, r.top + 5 + 5 * 96, win);
+    await sleep(200);
+    const moved = $$(".g-item").find(f => f.querySelector(".w-todo"));
+    assert(moved.style.gridRow !== before, `gridRow unchanged (${before})`);
+  });
+
+  await step("add widget from the picker", async () => {
+    const n = $$(".g-item").length;
+    $$(".ui-chip").find(b => b.textContent.startsWith("Clock")).click();
+    assert(await until(() => $$(".g-item").length === n + 1), "widget not added");
+  });
+
+  await step("settings dialog changes a widget (clock shows seconds)", async () => {
+    const clockFrame = $$(".g-item").find(f => f.querySelector(".w-clock"));
+    const id = clockFrame.dataset.id;
+    const indexBefore = $$(".g-item").indexOf(clockFrame);
+    [...clockFrame.querySelectorAll(".g-btn")].find(b => b.title === "Settings").click();
+    assert(await until(() => $("dialog.ui-dialog")), "dialog did not open");
+    $("#set-seconds").checked = true;
+    [...$$("dialog.ui-dialog button")].find(b => b.value === "save").click();
+    assert(await until(() => /\d\d:\d\d:\d\d/.test($(`.g-item[data-id="${id}"] .clock-time`)?.textContent ?? "")), "seconds not shown");
+    assert($$(".g-item").findIndex(f => f.dataset.id === id) === indexBefore, "frame moved in DOM order after settings change");
+  });
+
+  await step("locked slot (Midnight clock) has no remove button", async () => {
+    $$(".ui-theme").find(b => b.textContent.includes("Midnight")).click();
+    assert(await until(() => frame.contentDocument.documentElement.dataset.theme === "midnight"), "no switch");
+    await sleep(300);
+    const locked = $(".g-item.g-locked");
+    assert(locked, "no locked frame");
+    assert(![...locked.querySelectorAll(".g-btn")].some(b => b.title === "Remove"), "locked item is removable");
+  });
+
+  await step("per-theme layouts: Default keeps its edited layout", async () => {
+    const { store } = frame.contentWindow.__homepage;
+    assert(store.snapshot().layouts.default?.length === 6, `default layout has ${store.snapshot().layouts.default?.length} items`);
+    assert(!store.snapshot().layouts.midnight, "midnight layout should still be the theme default");
+  });
+
+  await step("export produces a valid backup", () => {
+    const json = JSON.parse(frame.contentWindow.__homepage.store.exportJSON());
+    assert(json.app === "browser-home-pages" && json.data.schemaVersion >= 1, "bad export");
+  });
+
+  const summary = document.getElementById("summary");
+  summary.textContent = `SMOKE RESULT: ${passed} passed, ${failed} failed`;
+  summary.className = failed ? "fail" : "pass";
+</script>
+</body>
+</html>

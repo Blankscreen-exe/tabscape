@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theme Gallery</title>
+<style>
+  /* Dev tool: every registered theme, live, in preview mode (nothing is saved).
+     Look at this page after every change — it is the visual regression test. */
+  :root { --bg: #111318; --card: #1a1d24; --line: #2a2e38; --text: #eef0f4; --muted: #8b91a0; --bad: #ff6b6b; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 24px; }
+  header { display: flex; flex-wrap: wrap; gap: 16px; align-items: baseline; margin-bottom: 20px; }
+  h1 { font-size: 22px; font-weight: 600; }
+  header span, label { color: var(--muted); font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--card-w, 420px), 1fr)); gap: 18px; }
+  figure { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .frame { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+  iframe { position: absolute; top: 0; left: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; pointer-events: none; }
+  figcaption { display: flex; justify-content: space-between; padding: 10px 14px; font-size: 14px; }
+  figcaption a { color: var(--muted); }
+  .error { color: var(--bad); padding: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Theme gallery</h1>
+  <span id="count"></span>
+  <label>Card width <input type="range" id="size" min="300" max="900" value="420"></label>
+  <label><input type="checkbox" id="mobile"> Phone width</label>
+</header>
+<div class="grid" id="grid"></div>
+<script type="module">
+  const grid = document.getElementById("grid");
+  const registry = await (await fetch("../registry.json")).json();
+  document.getElementById("count").textContent = `${registry.themes.length} themes · ${registry.widgets.length} widgets · preview mode (nothing is saved)`;
+
+  function render() {
+    const mobile = document.getElementById("mobile").checked;
+    const vw = mobile ? 390 : 1440, vh = mobile ? 844 : 900;
+    grid.innerHTML = registry.themes.map(t => `
+      <figure>
+        <div class="frame" style="aspect-ratio:${vw}/${vh}"><iframe src="../newtab.html?preview&embed&theme=${t.id}" loading="lazy" tabindex="-1" style="width:${vw}px;height:${vh}px"></iframe></div>
+        <figcaption><b>${t.id}</b><a href="../newtab.html?preview&theme=${t.id}" target="_blank">open ↗</a></figcaption>
+      </figure>`).join("");
+    fit();
+  }
+  function fit() {
+    document.querySelectorAll(".frame").forEach(f => {
+      const iframe = f.querySelector("iframe");
+      iframe.style.transform = `scale(${f.clientWidth / parseFloat(iframe.style.width)})`;
+    });
+  }
+  document.getElementById("size").oninput = e => { grid.style.setProperty("--card-w", e.target.value + "px"); fit(); };
+  document.getElementById("mobile").onchange = render;
+  addEventListener("resize", fit);
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retro OS</title>
+<style>
+  /* 90s desktop OS: every widget is a draggable window. Positions are remembered. */
+  :root {
+    --desk: #008080;
+    --face: #c0c0c0;
+    --hi: #ffffff;
+    --lo: #808080;
+    --dark: #000000;
+    --title: #000080;
+    --title-2: #1084d0;
+    --title-off: #808080;
+    --font: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { font: 12px var(--font); background: var(--desk); color: #000; user-select: none; }
+
+  .raised { background: var(--face); box-shadow: inset -1px -1px var(--dark), inset 1px 1px var(--hi), inset -2px -2px var(--lo), inset 2px 2px #dfdfdf; }
+  .sunken { background: var(--hi); box-shadow: inset 1px 1px var(--lo), inset -1px -1px var(--hi), inset 2px 2px var(--dark), inset -2px -2px #dfdfdf; }
+  button.b95 { font: inherit; padding: 4px 12px; min-width: 70px; border: none; cursor: pointer; }
+  button.b95:active { box-shadow: inset 1px 1px var(--dark), inset -1px -1px var(--hi), inset 2px 2px var(--lo); }
+  input.i95 { font: inherit; border: none; padding: 4px 6px; outline: none; }
+
+  /* desktop icons */
+  .icons { position: absolute; top: 10px; left: 10px; display: grid; gap: 14px; }
+  .icon { width: 76px; text-align: center; color: #fff; text-decoration: none; cursor: pointer; padding: 2px; }
+  .icon .img { font-size: 32px; display: block; filter: drop-shadow(1px 1px 0 rgba(0,0,0,.4)); }
+  .icon span { display: inline-block; margin-top: 4px; padding: 0 2px; }
+  .icon:focus span, .icon:hover span { background: var(--title); outline: 1px dotted #fff; }
+
+  /* windows */
+  .win { position: absolute; padding: 3px; min-width: 220px; }
+  .win .bar {
+    background: linear-gradient(90deg, var(--title), var(--title-2)); color: #fff; font-weight: bold;
+    padding: 3px 4px 3px 6px; display: flex; align-items: center; gap: 6px; cursor: move;
+  }
+  .win:not(.active) .bar { background: linear-gradient(90deg, var(--title-off), #b5b5b5); }
+  .win .bar .t { flex: 1; white-space: nowrap; overflow: hidden; }
+  .win .bar button { width: 16px; height: 14px; min-width: 0; padding: 0; font: bold 10px var(--font); line-height: 1; color: #000; }
+  .win .menu { display: flex; gap: 12px; padding: 3px 6px; }
+  .win .menu u { text-decoration: underline; }
+  .win .body { padding: 8px; }
+  .win.min .body, .win.min .menu, .win.min .status { display: none; }
+  .win .status { margin: 2px; padding: 2px 6px; font-size: 11px; }
+
+  .clockface { font: bold 44px "Courier New", monospace; text-align: center; padding: 10px 14px; background: #000; color: #0f0; letter-spacing: 2px; }
+
+  .note textarea { width: 100%; height: 180px; resize: both; font: 13px "Courier New", monospace; border: none; padding: 6px; outline: none; user-select: text; }
+
+  .todo ul { list-style: none; height: 150px; overflow: auto; padding: 4px; margin-top: 6px; }
+  .todo li { display: flex; align-items: center; gap: 6px; padding: 2px; }
+  .todo li.done span { color: var(--lo); text-decoration: line-through; }
+  .todo li:hover { background: var(--title); color: #fff; }
+  .todo form { display: flex; gap: 6px; }
+  .todo form input { flex: 1; }
+
+  .mine { display: grid; grid-template-columns: repeat(9, 20px); gap: 0; margin: 6px auto 0; width: max-content; padding: 3px; }
+  .mine button { width: 20px; height: 20px; min-width: 0; padding: 0; font: bold 12px var(--font); border: none; cursor: pointer; }
+  .mine button.open { box-shadow: none; background: var(--face); border: 1px solid var(--lo); border-width: 0 1px 1px 0; cursor: default; }
+  .mine-top { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; }
+  .mine-top .lcd { background: #000; color: #f00; font: bold 18px "Courier New", monospace; padding: 0 4px; }
+  .mine-top button { min-width: 0; width: 28px; height: 28px; padding: 0; font-size: 16px; }
+
+  /* taskbar */
+  .taskbar { position: fixed; left: 0; right: 0; bottom: 0; height: 32px; padding: 3px; display: flex; gap: 4px; align-items: center; z-index: 9999; }
+  .start { font-weight: bold; display: flex; align-items: center; gap: 4px; min-width: 0 !important; }
+  .tasks { flex: 1; display: flex; gap: 4px; overflow: hidden; }
+  .tasks button { max-width: 160px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tasks button.on { box-shadow: inset 1px 1px var(--dark), inset -1px -1px var(--hi), inset 2px 2px var(--lo); background: #dcdcdc; font-weight: bold; }
+  .tray { padding: 4px 10px; height: 100%; display: flex; align-items: center; gap: 8px; }
+
+  .startmenu { position: fixed; bottom: 30px; left: 2px; width: 220px; display: none; padding: 3px; z-index: 10000; }
+  .startmenu.open { display: flex; }
+  .startmenu .side { width: 24px; background: linear-gradient(to top, var(--title), var(--title-2)); color: var(--face); writing-mode: vertical-rl; transform: rotate(180deg); font: bold 16px var(--font); padding: 6px 2px; }
+  .startmenu .side b { color: #fff; }
+  .startmenu ul { list-style: none; flex: 1; }
+  .startmenu a, .startmenu li > span { display: flex; align-items: center; gap: 10px; padding: 7px 10px; color: #000; text-decoration: none; cursor: pointer; }
+  .startmenu a:hover, .startmenu li > span:hover { background: var(--title); color: #fff; }
+  .startmenu hr { border: none; border-top: 1px solid var(--lo); border-bottom: 1px solid var(--hi); margin: 2px 4px; }
+</style>
+</head>
+<body>
+<div class="icons">
+  <a class="icon" href="https://github.com"><span class="img">💾</span><span>GitHub</span></a>
+  <a class="icon" href="https://youtube.com"><span class="img">📺</span><span>YouTube</span></a>
+  <a class="icon" href="https://mail.google.com"><span class="img">📬</span><span>Inbox</span></a>
+  <a class="icon" href="https://reddit.com"><span class="img">🌐</span><span>Internet</span></a>
+  <a class="icon" href="https://wikipedia.org"><span class="img">📚</span><span>Encyclopedia</span></a>
+  <a class="icon" tabindex="0" id="reset-layout"><span class="img">🗑️</span><span>Reset layout</span></a>
+</div>
+
+<!-- windows: data-x / data-y are default positions (% of viewport) -->
+<div class="win raised" id="w-search" data-title="Search Wizard" data-x="30" data-y="8" style="width:440px">
+  <div class="bar"><span>🔍</span><span class="t">Search Wizard</span><button class="b95 raised" data-act="min">_</button></div>
+  <div class="body">
+    <p style="margin-bottom:8px">Type what you are looking for, then click <b>Search</b>.</p>
+    <form action="https://www.google.com/search" method="get" style="display:flex;gap:6px">
+      <input class="i95 sunken" name="q" style="flex:1" autocomplete="off" autofocus>
+      <button class="b95 raised">Search</button>
+    </form>
+  </div>
+</div>
+
+<div class="win raised" id="w-clock" data-title="Clock" data-x="72" data-y="8" style="width:250px">
+  <div class="bar"><span>🕒</span><span class="t">Clock</span><button class="b95 raised" data-act="min">_</button></div>
+  <div class="body"><div class="clockface sunken" id="clock">00:00:00</div><p style="text-align:center;margin-top:6px" id="date"></p></div>
+</div>
+
+<div class="win raised note" id="w-note" data-title="Notepad" data-x="12" data-y="40" style="width:340px">
+  <div class="bar"><span>📝</span><span class="t">Untitled - Notepad</span><button class="b95 raised" data-act="min">_</button></div>
+  <div class="menu"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>S</u>earch</span><span><u>H</u>elp</span></div>
+  <div class="body" style="padding:2px"><textarea class="sunken" id="note" spellcheck="false"></textarea></div>
+</div>
+
+<div class="win raised todo" id="w-todo" data-title="To Do List" data-x="42" data-y="40" style="width:300px">
+  <div class="bar"><span>✅</span><span class="t">To Do List</span><button class="b95 raised" data-act="min">_</button></div>
+  <div class="body">
+    <form id="todo-form"><input class="i95 sunken" id="todo-input" placeholder="New task..."><button class="b95 raised">Add</button></form>
+    <ul class="sunken" id="todo"></ul>
+  </div>
+  <div class="status sunken" id="todo-status">0 object(s)</div>
+</div>
+
+<div class="win raised" id="w-mine" data-title="Minesweeper" data-x="72" data-y="36" style="min-width:0">
+  <div class="bar"><span>💣</span><span class="t">Minesweeper</span><button class="b95 raised" data-act="min">_</button></div>
+  <div class="body" style="padding:6px">
+    <div class="mine-top sunken"><span class="lcd" id="mines-left">010</span><button class="b95 raised" id="mine-face">🙂</button><span class="lcd" id="mine-time">000</span></div>
+    <div class="mine sunken" id="mine"></div>
+  </div>
+</div>
+
+<div class="startmenu raised" id="startmenu">
+  <div class="side"><b>Tab</b>OS 95</div>
+  <ul>
+    <li><a href="https://github.com">💾 GitHub</a></li>
+    <li><a href="https://youtube.com">📺 YouTube</a></li>
+    <li><a href="https://mail.google.com">📬 Mail</a></li>
+    <li><a href="https://maps.google.com">🗺️ Maps</a></li>
+    <li><hr></li>
+    <li><span id="sm-reset">🔄 Reset window layout</span></li>
+  </ul>
+</div>
+
+<div class="taskbar raised">
+  <button class="b95 raised start" id="start">🪟 Start</button>
+  <div class="tasks" id="tasks"></div>
+  <div class="tray sunken"><span>🔊</span><span id="tray">00:00</span></div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+  // ---------- window manager ----------
+  const wins = [...document.querySelectorAll(".win")];
+  let layout = store.get("os-layout", {}), z = 10;
+  function place(w) {
+    const saved = layout[w.id];
+    const x = saved ? saved.x : innerWidth * w.dataset.x / 100;
+    const y = saved ? saved.y : innerHeight * w.dataset.y / 100;
+    w.style.left = Math.max(0, Math.min(x, innerWidth - 120)) + "px";
+    w.style.top = Math.max(0, Math.min(y, innerHeight - 70)) + "px";
+    w.classList.toggle("min", !!(saved && saved.min));
+  }
+  function focusWin(w) {
+    wins.forEach(x => x.classList.remove("active"));
+    w.classList.add("active"); w.style.zIndex = ++z; renderTasks();
+  }
+  function save(w) { layout[w.id] = { x: w.offsetLeft, y: w.offsetTop, min: w.classList.contains("min") }; store.set("os-layout", layout); }
+
+  wins.forEach(w => {
+    place(w);
+    w.addEventListener("pointerdown", () => focusWin(w));
+    const bar = w.querySelector(".bar");
+    bar.addEventListener("pointerdown", e => {
+      if (e.target.closest("button")) return;
+      const ox = e.clientX - w.offsetLeft, oy = e.clientY - w.offsetTop;
+      bar.setPointerCapture(e.pointerId);
+      const move = ev => { w.style.left = Math.max(-w.offsetWidth + 60, Math.min(ev.clientX - ox, innerWidth - 60)) + "px"; w.style.top = Math.max(0, Math.min(ev.clientY - oy, innerHeight - 60)) + "px"; };
+      const up = () => { bar.removeEventListener("pointermove", move); bar.removeEventListener("pointerup", up); save(w); };
+      bar.addEventListener("pointermove", move); bar.addEventListener("pointerup", up);
+    });
+    w.querySelector("[data-act=min]").onclick = () => { w.classList.toggle("min"); save(w); renderTasks(); };
+  });
+  function renderTasks() {
+    $("tasks").innerHTML = "";
+    wins.forEach(w => {
+      const b = document.createElement("button");
+      b.className = "b95 raised" + (w.classList.contains("active") && !w.classList.contains("min") ? " on" : "");
+      b.textContent = w.querySelector(".bar span").textContent + " " + w.dataset.title;
+      b.onclick = () => { w.classList.remove("min"); save(w); focusWin(w); };
+      $("tasks").appendChild(b);
+    });
+  }
+  function resetLayout() { layout = {}; store.set("os-layout", layout); wins.forEach(place); renderTasks(); $("startmenu").classList.remove("open"); }
+  $("reset-layout").onclick = resetLayout; $("sm-reset").onclick = resetLayout;
+  focusWin($("w-search"));
+
+  $("start").onclick = e => { e.stopPropagation(); $("startmenu").classList.toggle("open"); };
+  document.addEventListener("pointerdown", e => { if (!e.target.closest("#startmenu, #start")) $("startmenu").classList.remove("open"); });
+
+  // ---------- clock ----------
+  function tick() {
+    const d = new Date();
+    $("clock").textContent = d.toLocaleTimeString([], { hour12: false });
+    $("date").textContent = d.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    $("tray").textContent = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+  tick(); setInterval(tick, 1000);
+
+  // ---------- notepad ----------
+  $("note").value = store.get("os-note", "Welcome to TabOS 95!\r\n\r\nDrag windows by their title bar.\r\nPositions are saved.\r\nPress _ to minimize.");
+  $("note").oninput = () => store.set("os-note", $("note").value);
+
+  // ---------- todo ----------
+  let todos = store.get("os-todos", [{ t: "Defragment hard drive", d: true }, { t: "Pick a theme", d: false }]);
+  function renderTodos() {
+    $("todo").innerHTML = "";
+    todos.forEach((td, i) => {
+      const li = document.createElement("li");
+      li.className = td.d ? "done" : "";
+      li.innerHTML = `<input type="checkbox" ${td.d ? "checked" : ""}><span></span>`;
+      li.querySelector("span").textContent = td.t;
+      li.querySelector("input").onchange = () => { td.d = !td.d; store.set("os-todos", todos); renderTodos(); };
+      li.ondblclick = () => { todos.splice(i, 1); store.set("os-todos", todos); renderTodos(); };
+      $("todo").appendChild(li);
+    });
+    $("todo-status").textContent = `${todos.length} object(s) · double-click to delete`;
+  }
+  $("todo-form").onsubmit = e => { e.preventDefault(); const v = $("todo-input").value.trim(); if (v) { todos.push({ t: v, d: false }); $("todo-input").value = ""; store.set("os-todos", todos); renderTodos(); } };
+  renderTodos();
+
+  // ---------- minesweeper 9x9, 10 mines ----------
+  const N = 9, M = 10, colors = ["", "#00f", "#080", "#f00", "#008", "#800", "#088", "#000", "#888"];
+  let cells, over, opened, flags, timer, secs;
+  function newGame() {
+    cells = Array.from({ length: N * N }, () => ({ mine: false, open: false, flag: false, n: 0 }));
+    let placed = 0;
+    while (placed < M) { const c = cells[Math.floor(Math.random() * N * N)]; if (!c.mine) { c.mine = true; placed++; } }
+    cells.forEach((c, i) => c.n = nbrs(i).filter(j => cells[j].mine).length);
+    over = false; opened = 0; flags = 0; secs = 0; clearInterval(timer); timer = null;
+    $("mine-face").textContent = "🙂"; drawMines();
+  }
+  function nbrs(i) { const r = Math.floor(i / N), c = i % N, out = []; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const rr = r + dr, cc = c + dc; if ((dr || dc) && rr >= 0 && rr < N && cc >= 0 && cc < N) out.push(rr * N + cc); } return out; }
+  function open(i) {
+    const c = cells[i]; if (c.open || c.flag) return;
+    c.open = true; opened++;
+    if (c.mine) { over = true; clearInterval(timer); cells.forEach(x => { if (x.mine) x.open = true; }); $("mine-face").textContent = "😵"; return; }
+    if (!c.n) nbrs(i).forEach(open);
+  }
+  function drawMines() {
+    $("mine").innerHTML = "";
+    cells.forEach((c, i) => {
+      const b = document.createElement("button");
+      b.className = "b95 " + (c.open ? "open" : "raised");
+      b.textContent = c.open ? (c.mine ? "💣" : c.n || "") : c.flag ? "🚩" : "";
+      if (c.open && c.n) b.style.color = colors[c.n];
+      b.onclick = () => {
+        if (over) return;
+        if (!timer) timer = setInterval(() => { secs++; $("mine-time").textContent = String(Math.min(secs, 999)).padStart(3, "0"); }, 1000);
+        open(i);
+        if (!over && opened === N * N - M) { over = true; clearInterval(timer); $("mine-face").textContent = "😎"; }
+        drawMines();
+      };
+      b.oncontextmenu = e => { e.preventDefault(); if (over || c.open) return; c.flag = !c.flag; flags += c.flag ? 1 : -1; drawMines(); };
+      $("mine").appendChild(b);
+    });
+    $("mines-left").textContent = String(M - flags).padStart(3, "0");
+    if (!timer) $("mine-time").textContent = String(secs).padStart(3, "0");
+  }
+  $("mine-face").onclick = newGame;
+  newGame();
+</script>
+</body>
+</html>

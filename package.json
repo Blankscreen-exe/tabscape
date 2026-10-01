@@ -1,0 +1,14 @@
+{
+  "name": "browser-home-pages",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Themeable new tab page with movable widgets. Zero dependencies — this file only exists for module type and script shortcuts.",
+  "type": "module",
+  "scripts": {
+    "serve": "node dev/serve.mjs",
+    "check": "node dev/check.mjs",
+    "test": "node --test \"dev/tests/*.test.mjs\"",
+    "smoke": "node dev/smoke.mjs",
+    "verify": "node dev/check.mjs && node --test \"dev/tests/*.test.mjs\""
+  }
+}

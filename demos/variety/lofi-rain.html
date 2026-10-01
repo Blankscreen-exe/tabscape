@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lo-fi Rain</title>
+<style>
+  /* Cozy night: rain on the window, city lights, generated rain sound. */
+  :root {
+    --sky-1: #0b1026;
+    --sky-2: #1b2347;
+    --sky-3: #3a3360;
+    --city: #070a18;
+    --window-lit: #ffcf7a;
+    --glass: rgba(20, 24, 48, .55);
+    --border: rgba(255, 207, 122, .18);
+    --text: #f3e9dc;
+    --muted: #a59fb8;
+    --warm: #ffb46b;
+    --font: "Segoe UI", system-ui, sans-serif;
+    --serif: Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); color: var(--text); min-height: 100vh; overflow-x: hidden; background: linear-gradient(to bottom, var(--sky-1), var(--sky-2) 55%, var(--sky-3)); }
+  #city, #rain { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  /* fog on the glass */
+  .fog { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at 50% 120%, rgba(255,180,107,.18), transparent 60%), radial-gradient(ellipse at center, transparent 50%, rgba(5,6,15,.6)); }
+
+  .page { position: relative; z-index: 2; max-width: 1000px; margin: 0 auto; padding: 9vh 24px 40px; display: flex; flex-direction: column; align-items: center; gap: 26px; }
+  .clock { font: 300 clamp(72px, 12vw, 140px) var(--font); letter-spacing: -.02em; line-height: 1; text-shadow: 0 0 30px rgba(255,180,107,.35); }
+  .sub { font: italic 20px var(--serif); color: var(--muted); margin-top: -10px; }
+
+  .glass { background: var(--glass); border: 1px solid var(--border); border-radius: 18px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .search { width: min(560px, 100%); display: flex; align-items: center; padding: 4px 6px 4px 18px; }
+  .search input { flex: 1; background: none; border: none; outline: none; color: var(--text); font: inherit; font-size: 17px; padding: 12px 0; }
+  .search input::placeholder { color: var(--muted); }
+  .search span { color: var(--warm); padding: 0 10px; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; width: 100%; margin-top: 4vh; }
+  .card { padding: 18px 20px; }
+  .card h3 { font: 600 11px var(--font); letter-spacing: .2em; text-transform: uppercase; color: var(--warm); margin-bottom: 12px; }
+
+  .sound .btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,180,107,.08); color: var(--text); font: 500 15px var(--font); cursor: pointer; }
+  .sound .btn:hover { background: rgba(255,180,107,.16); }
+  .sound .btn.on { background: var(--warm); color: #1b1530; }
+  .sound label { display: flex; align-items: center; gap: 10px; margin-top: 14px; color: var(--muted); font-size: 13px; }
+  .sound input[type=range] { flex: 1; accent-color: var(--warm); }
+  .sound small { display: block; margin-top: 10px; color: var(--muted); font-size: 12px; }
+
+  .links ul { list-style: none; display: grid; gap: 4px; }
+  .links a { display: flex; justify-content: space-between; color: var(--text); text-decoration: none; padding: 7px 10px; border-radius: 10px; }
+  .links a:hover { background: rgba(255,180,107,.1); }
+  .links a span { color: var(--muted); font-size: 12px; }
+
+  .todo form input { width: 100%; background: rgba(0,0,0,.2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 9px 12px; font: inherit; outline: none; margin-bottom: 8px; }
+  .todo ul { list-style: none; max-height: 170px; overflow: auto; }
+  .todo li { padding: 6px 4px; cursor: pointer; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .todo li::before { content: "○"; color: var(--warm); }
+  .todo li.done::before { content: "●"; }
+  .todo li.done span { color: var(--muted); text-decoration: line-through; }
+  .todo li button { margin-left: auto; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; }
+
+  @media (max-width: 820px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<canvas id="city"></canvas>
+<canvas id="rain"></canvas>
+<div class="fog"></div>
+
+<main class="page">
+  <div class="clock" id="clock">00:00</div>
+  <div class="sub" id="sub">it's raining. stay in.</div>
+
+  <form class="glass search" action="https://www.youtube.com/results" method="get">
+    <input name="search_query" placeholder="search youtube for something cozy…" autocomplete="off" autofocus>
+    <span>♫</span>
+  </form>
+
+  <div class="row">
+    <section class="glass card sound">
+      <h3>Rain sound</h3>
+      <button class="btn" id="snd"><span id="snd-ico">▶</span><span id="snd-txt">Play rain</span></button>
+      <label>vol <input type="range" id="vol" min="0" max="1" step="0.01" value="0.5"></label>
+      <label>storm <input type="range" id="storm" min="0" max="1" step="0.01" value="0.3"></label>
+      <small>made live in your browser · no audio files</small>
+    </section>
+
+    <section class="glass card links">
+      <h3>Places</h3>
+      <ul>
+        <li><a href="https://youtube.com">YouTube<span>watch</span></a></li>
+        <li><a href="https://open.spotify.com">Spotify<span>listen</span></a></li>
+        <li><a href="https://www.goodreads.com">Goodreads<span>read</span></a></li>
+        <li><a href="https://mail.google.com">Mail<span>reply</span></a></li>
+        <li><a href="https://github.com">GitHub<span>build</span></a></li>
+      </ul>
+    </section>
+
+    <section class="glass card todo">
+      <h3>Tonight</h3>
+      <form id="todo-form"><input id="todo-input" placeholder="+ something small"></form>
+      <ul id="todo"></ul>
+    </section>
+  </div>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+  // clock
+  const subs = ["it's raining. stay in.", "tea's getting cold.", "one more chapter.", "the city hums quietly.", "nowhere to be."];
+  $("sub").textContent = subs[new Date().getHours() % subs.length];
+  const tick = () => { $("clock").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); };
+  tick(); setInterval(tick, 1000);
+
+  // city skyline (drawn once per resize, deterministic per width)
+  const city = $("city"), cc = city.getContext("2d");
+  function drawCity() {
+    city.width = innerWidth * devicePixelRatio; city.height = innerHeight * devicePixelRatio;
+    cc.scale(devicePixelRatio, devicePixelRatio);
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const H = innerHeight, W = innerWidth;
+    [[.62, "#121633", .5], [.72, "#070a18", 1]].forEach(([base, col, lit]) => {
+      let x = 0;
+      while (x < W) {
+        const w = 40 + rnd() * 90, h = H * (1 - base) + rnd() * H * .28;
+        cc.fillStyle = col; cc.fillRect(x, H - h, w, h);
+        for (let wy = H - h + 10; wy < H - 10; wy += 16) for (let wx = x + 6; wx < x + w - 8; wx += 12) {
+          if (rnd() < .22 * lit) { cc.fillStyle = rnd() < .8 ? "rgba(255,207,122,.85)" : "rgba(140,190,255,.7)"; cc.fillRect(wx, wy, 5, 7); }
+        }
+        x += w + 2;
+      }
+    });
+  }
+  drawCity(); addEventListener("resize", drawCity);
+
+  // rain on canvas
+  const rain = $("rain"), rc = rain.getContext("2d");
+  let drops = [], intensity = .3;
+  function resizeRain() { rain.width = innerWidth; rain.height = innerHeight; }
+  resizeRain(); addEventListener("resize", resizeRain);
+  function frame() {
+    rc.clearRect(0, 0, rain.width, rain.height);
+    const target = 250 + intensity * 900;
+    while (drops.length < target) drops.push({ x: Math.random() * rain.width * 1.2, y: -Math.random() * rain.height, l: 10 + Math.random() * 18, v: 9 + Math.random() * 9 });
+    if (drops.length > target) drops.length = target;
+    rc.strokeStyle = "rgba(180,200,255,.28)"; rc.lineWidth = 1; rc.beginPath();
+    for (const d of drops) {
+      rc.moveTo(d.x, d.y); rc.lineTo(d.x - d.l * .25, d.y + d.l);
+      d.y += d.v; d.x -= d.v * .25;
+      if (d.y > rain.height) { d.y = -20; d.x = Math.random() * rain.width * 1.2; }
+    }
+    rc.stroke();
+    requestAnimationFrame(frame);
+  }
+  frame();
+
+  // generated rain audio: filtered noise + random droplet ticks
+  let ctx, master, noiseGain, playing = false;
+  function startAudio() {
+    ctx = new AudioContext();
+    master = ctx.createGain(); master.gain.value = +$("vol").value; master.connect(ctx.destination);
+    const len = ctx.sampleRate * 2, buf = ctx.createBuffer(1, len, ctx.sampleRate), data = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) { const w = Math.random() * 2 - 1; last = (last + .02 * w) / 1.02; data[i] = last * 3.5 + w * .08; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1400;
+    noiseGain = ctx.createGain(); noiseGain.gain.value = .6 + intensity;
+    src.connect(lp).connect(noiseGain).connect(master); src.start();
+    (function drip() {
+      if (ctx.state === "closed") return;
+      const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime;
+      o.frequency.value = 1800 + Math.random() * 2500;
+      g.gain.setValueAtTime(.04 + Math.random() * .04, t); g.gain.exponentialRampToValueAtTime(.0001, t + .05);
+      o.connect(g).connect(master); o.start(t); o.stop(t + .06);
+      setTimeout(drip, 40 + Math.random() * (300 - intensity * 240));
+    })();
+  }
+  $("snd").onclick = async () => {
+    if (!playing) { if (!ctx) startAudio(); else await ctx.resume(); }
+    else await ctx.suspend();
+    playing = !playing;
+    $("snd").classList.toggle("on", playing);
+    $("snd-ico").textContent = playing ? "❚❚" : "▶"; $("snd-txt").textContent = playing ? "Pause rain" : "Play rain";
+  };
+  $("vol").oninput = e => { if (master) master.gain.value = +e.target.value; };
+  $("storm").oninput = e => { intensity = +e.target.value; if (noiseGain) noiseGain.gain.value = .6 + intensity; };
+
+  // todo
+  let todos = store.get("lofi-todos", [{ t: "make tea", d: false }, { t: "read 20 pages", d: false }]);
+  function render() {
+    $("todo").innerHTML = "";
+    todos.forEach((td, i) => {
+      const li = document.createElement("li");
+      li.className = td.d ? "done" : "";
+      li.innerHTML = `<span></span><button>×</button>`;
+      li.querySelector("span").textContent = td.t;
+      li.onclick = e => { if (e.target.tagName === "BUTTON") todos.splice(i, 1); else td.d = !td.d; store.set("lofi-todos", todos); render(); };
+      $("todo").appendChild(li);
+    });
+  }
+  $("todo-form").onsubmit = e => { e.preventDefault(); const v = $("todo-input").value.trim(); if (v) { todos.push({ t: v, d: false }); $("todo-input").value = ""; store.set("lofi-todos", todos); render(); } };
+  render();
+</script>
+</body>
+</html>

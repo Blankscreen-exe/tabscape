@@ -1,0 +1,5 @@
+@layer widgets {
+  .w-clock { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; container-type: size; }
+  .w-clock .clock-time { font: 300 clamp(36px, 45cqh, 140px) var(--font-display); letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .w-clock .clock-sub { color: var(--muted); margin-top: 6px; font-size: clamp(13px, 11cqh, 20px); }
+}

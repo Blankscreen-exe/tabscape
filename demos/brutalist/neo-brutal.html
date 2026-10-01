@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neo Brutal</title>
+<style>
+  /* Neo-brutalism: loud flat colors, thick black borders, hard offset shadows. */
+  :root {
+    --bg: #fff4d6;
+    --ink: #000000;
+    --paper: #ffffff;
+    --yellow: #ffd23f;
+    --pink: #ff8fd8;
+    --blue: #7aa2ff;
+    --green: #74f0a7;
+    --orange: #ff7a45;
+    --border: 3px solid var(--ink);
+    --shadow: 6px 6px 0 var(--ink);
+    --radius: 10px;
+    --font: "Arial Black", "Segoe UI Black", "Segoe UI", sans-serif;
+    --body: "Segoe UI", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--body); color: var(--ink); min-height: 100vh;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--ink) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .page { max-width: 1140px; margin: 0 auto; padding: 5vh 24px 48px; display: grid; gap: 22px; grid-template-columns: repeat(6, 1fr); }
+  .box { background: var(--paper); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+  .tag {
+    display: inline-block; font-family: var(--font); font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+    border: var(--border); border-width: 2px; border-radius: 99px; padding: 3px 12px; margin-bottom: 14px; background: var(--paper);
+  }
+  .btn {
+    font-family: var(--font); font-size: 15px; border: var(--border); border-radius: var(--radius); box-shadow: 4px 4px 0 var(--ink);
+    padding: 10px 18px; cursor: pointer; background: var(--yellow); color: var(--ink); transition: transform .08s, box-shadow .08s;
+  }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
+
+  .hero { grid-column: span 4; background: var(--yellow); display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .clock { font-family: var(--font); font-size: clamp(64px, 10vw, 128px); line-height: .9; letter-spacing: -.03em; }
+  .hero .date { font-family: var(--font); font-size: 20px; text-align: right; }
+  .hero .date span { display: inline-block; background: var(--ink); color: var(--yellow); padding: 2px 10px; margin-top: 6px; transform: rotate(-3deg); }
+
+  .sticker { grid-column: span 2; background: var(--pink); display: grid; place-items: center; text-align: center; transform: rotate(2deg); }
+  .sticker b { font-family: var(--font); font-size: 34px; line-height: 1.05; display: block; }
+  .sticker small { font-weight: 700; }
+
+  .search { grid-column: 1 / -1; display: flex; gap: 14px; padding: 14px; background: var(--blue); }
+  .search input { flex: 1; min-width: 0; font: 700 20px var(--body); border: var(--border); border-radius: var(--radius); padding: 12px 16px; background: var(--paper); outline: none; }
+  .search input:focus { box-shadow: 4px 4px 0 var(--ink); }
+
+  .links { grid-column: span 3; }
+  .link-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .link-grid a {
+    font-family: var(--font); font-size: 14px; text-decoration: none; color: var(--ink); text-align: center;
+    border: var(--border); border-radius: var(--radius); box-shadow: 4px 4px 0 var(--ink); padding: 18px 6px; transition: transform .08s, box-shadow .08s;
+  }
+  .link-grid a:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .link-grid a:active { transform: translate(4px, 4px); box-shadow: none; }
+
+  .todo { grid-column: span 3; background: var(--green); }
+  .todo form { display: flex; gap: 10px; margin-bottom: 14px; }
+  .todo input { flex: 1; min-width: 0; font: 600 16px var(--body); border: var(--border); border-radius: var(--radius); padding: 10px 12px; outline: none; }
+  .todo ul { list-style: none; display: grid; gap: 8px; }
+  .todo li { display: flex; align-items: center; gap: 10px; background: var(--paper); border: var(--border); border-width: 2px; border-radius: 8px; padding: 8px 10px; font-weight: 600; }
+  .todo li.done span { text-decoration: line-through 3px; opacity: .5; }
+  .check { width: 22px; height: 22px; border: var(--border); border-width: 2px; border-radius: 5px; background: var(--paper); cursor: pointer; display: grid; place-items: center; font-weight: 900; flex: none; }
+  .todo li.done .check { background: var(--ink); color: var(--green); }
+  .todo .del { margin-left: auto; background: none; border: none; font: 900 18px var(--font); cursor: pointer; }
+
+  .habits { grid-column: 1 / -1; background: var(--orange); }
+  .habits table { width: 100%; border-collapse: separate; border-spacing: 6px; }
+  .habits th { font-family: var(--font); font-size: 13px; text-align: center; }
+  .habits th:first-child { text-align: left; }
+  .habits td:first-child { font-weight: 800; background: var(--paper); border: var(--border); border-width: 2px; border-radius: 8px; padding: 6px 10px; }
+  .cell { width: 100%; height: 38px; border: var(--border); border-width: 2px; border-radius: 8px; background: var(--paper); cursor: pointer; font: 900 18px var(--font); }
+  .cell.on { background: var(--ink); color: var(--yellow); }
+  .cell.today { outline: 3px dashed var(--ink); outline-offset: 2px; }
+
+  @media (max-width: 860px) { .page > * { grid-column: 1 / -1 !important; } .link-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="box hero">
+    <div><span class="tag">Right now</span><div class="clock" id="clock">00:00</div></div>
+    <div class="date" id="date"></div>
+  </section>
+
+  <section class="box sticker"><div><b id="stick">SHIP<br>IT!</b><small id="stick-sub">a new tab, a new chance</small></div></section>
+
+  <form class="box search" id="search">
+    <input id="q" placeholder="Search anything…" autocomplete="off" autofocus>
+    <button class="btn">SEARCH →</button>
+  </form>
+
+  <section class="box links">
+    <span class="tag">Links</span>
+    <div class="link-grid" id="links"></div>
+  </section>
+
+  <section class="box todo">
+    <span class="tag">To-do</span>
+    <form id="todo-form"><input id="todo-input" placeholder="Add a thing…"><button class="btn">ADD</button></form>
+    <ul id="todo"></ul>
+  </section>
+
+  <section class="box habits">
+    <span class="tag">Habit tracker · this week</span>
+    <table id="habits"></table>
+  </section>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+  function tick() {
+    const d = new Date();
+    $("clock").textContent = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+    $("date").innerHTML = `${d.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase()}<br><span>${d.toLocaleDateString(undefined, { day: "numeric", month: "short" }).toUpperCase()}</span>`;
+  }
+  tick(); setInterval(tick, 1000);
+
+  const stickers = [["SHIP<br>IT!", "a new tab, a new chance"], ["DO<br>LESS", "but do it well"], ["STAY<br>LOUD", "no gradients allowed"], ["BIG<br>MOOD", "hydrate, maybe"]];
+  const s = stickers[new Date().getDate() % stickers.length];
+  $("stick").innerHTML = s[0]; $("stick-sub").textContent = s[1];
+
+  $("search").onsubmit = e => { e.preventDefault(); const q = $("q").value.trim(); if (q) location.href = "https://www.google.com/search?q=" + encodeURIComponent(q); };
+
+  const links = [["GitHub", "https://github.com", "--yellow"], ["YouTube", "https://youtube.com", "--pink"], ["Gmail", "https://mail.google.com", "--blue"],
+                 ["Reddit", "https://reddit.com", "--orange"], ["Figma", "https://figma.com", "--green"], ["Wiki", "https://wikipedia.org", "--paper"]];
+  $("links").innerHTML = links.map(([n, u, c]) => `<a href="${u}" style="background:var(${c})">${n}</a>`).join("");
+
+  let todos = store.get("brutal-todos", ["pick a brutalist theme", "touch grass"].map(t => ({ t, d: false })));
+  function renderTodos() {
+    $("todo").innerHTML = "";
+    todos.forEach((td, i) => {
+      const li = document.createElement("li");
+      li.className = td.d ? "done" : "";
+      li.innerHTML = `<button class="check">${td.d ? "✓" : ""}</button><span></span><button class="del" title="Delete">×</button>`;
+      li.querySelector("span").textContent = td.t;
+      li.querySelector(".check").onclick = () => { td.d = !td.d; store.set("brutal-todos", todos); renderTodos(); };
+      li.querySelector(".del").onclick = () => { todos.splice(i, 1); store.set("brutal-todos", todos); renderTodos(); };
+      $("todo").appendChild(li);
+    });
+  }
+  $("todo-form").onsubmit = e => { e.preventDefault(); const v = $("todo-input").value.trim(); if (v) { todos.push({ t: v, d: false }); $("todo-input").value = ""; store.set("brutal-todos", todos); renderTodos(); } };
+  renderTodos();
+
+  // habit tracker — keyed by ISO date of this week's Monday
+  const now = new Date(), monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const weekKey = "neo-habits-" + monday.toLocaleDateString("sv"); // local YYYY-MM-DD
+  const habits = ["Water 💧", "Move 🏃", "Read 📖", "No doomscroll 📵"];
+  let marks = store.get(weekKey, {});
+  const todayIdx = (now.getDay() + 6) % 7;
+  function renderHabits() {
+    let html = "<tr><th></th>" + ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map(x => `<th>${x}</th>`).join("") + "</tr>";
+    habits.forEach((h, hi) => {
+      html += `<tr><td>${h}</td>`;
+      for (let d = 0; d < 7; d++) {
+        const on = marks[hi + "-" + d];
+        html += `<td><button class="cell ${on ? "on" : ""} ${d === todayIdx ? "today" : ""}" data-k="${hi}-${d}">${on ? "✓" : ""}</button></td>`;
+      }
+      html += "</tr>";
+    });
+    $("habits").innerHTML = html;
+  }
+  $("habits").onclick = e => { const b = e.target.closest(".cell"); if (!b) return; marks[b.dataset.k] = !marks[b.dataset.k]; store.set(weekKey, marks); renderHabits(); };
+  renderHabits();
+</script>
+</body>
+</html>

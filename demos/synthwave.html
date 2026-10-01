@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Synthwave</title>
+<style>
+  :root {
+    --sky-top: #0d0221;
+    --sky-mid: #261447;
+    --horizon: #ff3864;
+    --pink: #ff2a6d;
+    --cyan: #05d9e8;
+    --yellow: #f9c80e;
+    --text: #fbe7ff;
+    --panel: rgba(13, 2, 33, .6);
+    --font: "Segoe UI", system-ui, sans-serif;
+    --display: "Arial Black", "Segoe UI Black", Impact, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font); color: var(--text); min-height: 100vh; overflow-x: hidden;
+    background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-mid) 45%, #3d1a5b 55%, #120327 55.1%, #090118 100%);
+  }
+
+  /* stars */
+  .stars { position: fixed; inset: 0 0 45% 0; pointer-events: none; }
+  .stars i { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: twinkle 3s ease-in-out infinite; }
+  @keyframes twinkle { 50% { opacity: .2; } }
+
+  /* sun */
+  .sun {
+    position: fixed; left: 50%; top: 55%; width: min(46vw, 460px); aspect-ratio: 1; transform: translate(-50%, -78%);
+    border-radius: 50%;
+    background: linear-gradient(to bottom, var(--yellow) 10%, #ff6c11 50%, var(--pink) 85%);
+    box-shadow: 0 0 80px rgba(255, 56, 100, .6), 0 0 160px rgba(249, 200, 14, .25);
+    -webkit-mask-image: linear-gradient(#000 0 55%, transparent 55%),
+                        repeating-linear-gradient(to bottom, #000 0 14px, transparent 14px 22px);
+            mask-image: linear-gradient(#000 0 55%, transparent 55%),
+                        repeating-linear-gradient(to bottom, #000 0 14px, transparent 14px 22px);
+    z-index: -1;
+  }
+
+  /* perspective grid floor */
+  .floor { position: fixed; left: 0; right: 0; bottom: 0; height: 45%; perspective: 300px; overflow: hidden; z-index: -1; }
+  .floor::before {
+    content: ""; position: absolute; left: -50%; right: -50%; top: 0; height: 200%;
+    transform-origin: top; transform: rotateX(70deg);
+    background-image:
+      linear-gradient(var(--pink) 2px, transparent 2px),
+      linear-gradient(90deg, var(--pink) 2px, transparent 2px);
+    background-size: 60px 60px;
+    animation: run 1.2s linear infinite;
+    filter: drop-shadow(0 0 4px var(--pink));
+  }
+  .floor::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, #120327 0%, transparent 35%); }
+  @keyframes run { to { background-position: 0 60px; } }
+
+  .page { position: relative; max-width: 1100px; margin: 0 auto; padding: 5vh 24px 40px; display: flex; flex-direction: column; align-items: center; gap: 28px; }
+
+  .clock {
+    font-family: var(--display); font-size: clamp(64px, 12vw, 150px); letter-spacing: .04em; line-height: 1;
+    background: linear-gradient(to bottom, #fff 0%, var(--cyan) 45%, #2b2be0 50%, var(--pink) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 12px rgba(5, 217, 232, .55));
+    font-style: italic;
+  }
+  .tagline { font-family: "Brush Script MT", "Segoe Script", cursive; font-size: 34px; color: var(--pink); transform: rotate(-4deg); margin-top: -26px; text-shadow: 0 0 10px var(--pink), 0 0 30px var(--pink); }
+
+  .search { width: min(640px, 100%); display: flex; border: 2px solid var(--cyan); background: var(--panel); box-shadow: 0 0 14px rgba(5,217,232,.5), inset 0 0 14px rgba(5,217,232,.2); }
+  .search input { flex: 1; background: none; border: none; outline: none; color: var(--text); font: inherit; font-size: 18px; padding: 14px 18px; letter-spacing: .04em; }
+  .search input::placeholder { color: rgba(251, 231, 255, .5); }
+  .search button { background: var(--cyan); color: var(--sky-top); border: none; font-family: var(--display); padding: 0 22px; cursor: pointer; letter-spacing: .1em; }
+
+  .row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 22px; width: 100%; margin-top: 12vh; }
+  .panel {
+    background: var(--panel); border: 1px solid rgba(255, 42, 109, .6); padding: 18px 20px;
+    box-shadow: 0 0 20px rgba(255, 42, 109, .25); backdrop-filter: blur(6px);
+  }
+  .panel h3 { font-family: var(--display); font-size: 12px; letter-spacing: .3em; color: var(--cyan); margin-bottom: 14px; }
+
+  .links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .links a {
+    text-align: center; padding: 10px 6px; color: var(--text); text-decoration: none; font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+    border: 1px solid var(--pink); transition: all .15s;
+  }
+  .links a:hover { background: var(--pink); color: #fff; box-shadow: 0 0 18px var(--pink); }
+
+  .player .track { font-weight: 700; font-size: 17px; }
+  .player .artist { color: rgba(251,231,255,.6); font-size: 14px; }
+  .eq { display: flex; align-items: flex-end; gap: 3px; height: 34px; margin: 12px 0; }
+  .eq span { flex: 1; background: linear-gradient(to top, var(--pink), var(--yellow)); animation: eq 1s ease-in-out infinite alternate; }
+  .eq.paused span { animation-play-state: paused; }
+  @keyframes eq { from { height: 15%; } to { height: 100%; } }
+  .controls { display: flex; gap: 10px; }
+  .controls button { flex: 1; background: none; border: 1px solid var(--cyan); color: var(--cyan); padding: 6px; cursor: pointer; font-size: 15px; }
+  .controls button:hover { background: var(--cyan); color: var(--sky-top); }
+
+  .countdown .big { font-family: var(--display); font-size: 40px; color: var(--yellow); text-shadow: 0 0 12px rgba(249, 200, 14, .6); }
+  .countdown small { display: block; color: rgba(251,231,255,.6); margin-top: 4px; }
+
+  @media (max-width: 860px) { .row { grid-template-columns: 1fr; margin-top: 4vh; } }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="sun"></div>
+<div class="floor"></div>
+
+<main class="page">
+  <div class="clock" id="clock">00:00</div>
+  <div class="tagline" id="tagline">Outrun</div>
+
+  <form class="search" action="https://www.google.com/search" method="get">
+    <input name="q" placeholder="ENTER THE GRID…" autocomplete="off" autofocus>
+    <button>GO</button>
+  </form>
+
+  <div class="row">
+    <section class="panel">
+      <h3>WARP LINKS</h3>
+      <div class="links">
+        <a href="https://youtube.com">YouTube</a>
+        <a href="https://github.com">GitHub</a>
+        <a href="https://twitch.tv">Twitch</a>
+        <a href="https://reddit.com">Reddit</a>
+        <a href="https://open.spotify.com">Spotify</a>
+        <a href="https://mail.google.com">Mail</a>
+      </div>
+    </section>
+
+    <section class="panel player">
+      <h3>NOW PLAYING · DEMO</h3>
+      <div class="track" id="track"></div>
+      <div class="artist" id="artist"></div>
+      <div class="eq" id="eq"></div>
+      <div class="controls">
+        <button id="prev" title="Previous">⏮</button>
+        <button id="play" title="Play/Pause">⏸</button>
+        <button id="next" title="Next">⏭</button>
+      </div>
+    </section>
+
+    <section class="panel countdown">
+      <h3>WEEKEND IN</h3>
+      <div class="big" id="cd">--</div>
+      <small id="cd-sub"></small>
+    </section>
+  </div>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  // stars
+  const stars = $("stars");
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement("i");
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.animationDelay = Math.random() * 3 + "s";
+    s.style.opacity = .3 + Math.random() * .7;
+    stars.appendChild(s);
+  }
+
+  const taglines = ["Outrun", "Night Drive", "Neon Dreams", "Midnight City", "Turbo Mode"];
+  $("tagline").textContent = taglines[new Date().getDay() % taglines.length];
+
+  function tick() {
+    const d = new Date();
+    $("clock").textContent = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+
+    // countdown to Saturday 00:00
+    const sat = new Date(d); sat.setHours(0, 0, 0, 0);
+    sat.setDate(sat.getDate() + ((6 - d.getDay() + 7) % 7));
+    if (d.getDay() === 6 || d.getDay() === 0) {
+      $("cd").textContent = "IT'S NOW";
+      $("cd-sub").textContent = "Enjoy the weekend 🌴";
+    } else {
+      const ms = sat - d, dd = Math.floor(ms / 864e5), hh = Math.floor(ms / 36e5) % 24, mm = Math.floor(ms / 6e4) % 60;
+      $("cd").textContent = `${dd}d ${String(hh).padStart(2, "0")}h ${String(mm).padStart(2, "0")}m`;
+      $("cd-sub").textContent = "until Saturday 00:00";
+    }
+  }
+  tick(); setInterval(tick, 1000);
+
+  // fake player
+  const tracks = [["Nightcall", "Kavinsky"], ["Turbo Killer", "Carpenter Brut"], ["Resonance", "HOME"], ["Sunset", "The Midnight"], ["Tech Noir", "Gunship"]];
+  let ti = 0, playing = true;
+  const eq = $("eq");
+  for (let i = 0; i < 24; i++) {
+    const b = document.createElement("span");
+    b.style.animationDuration = (.4 + Math.random() * .8) + "s";
+    b.style.animationDelay = (-Math.random()) + "s";
+    eq.appendChild(b);
+  }
+  const showTrack = () => { $("track").textContent = tracks[ti][0]; $("artist").textContent = tracks[ti][1]; };
+  showTrack();
+  $("next").onclick = () => { ti = (ti + 1) % tracks.length; showTrack(); };
+  $("prev").onclick = () => { ti = (ti - 1 + tracks.length) % tracks.length; showTrack(); };
+  $("play").onclick = () => { playing = !playing; eq.classList.toggle("paused", !playing); $("play").textContent = playing ? "⏸" : "▶"; };
+</script>
+</body>
+</html>

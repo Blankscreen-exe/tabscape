@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terminal</title>
+<style>
+  :root {
+    --bg: #050805;
+    --fg: #39ff88;
+    --dim: #1f8f4e;
+    --faint: #0f3b22;
+    --glow: rgba(57, 255, 136, .45);
+    --mono: "Cascadia Code", "Cascadia Mono", Consolas, "Courier New", monospace;
+  }
+  :root[data-color="amber"] { --fg: #ffb000; --dim: #a06e00; --faint: #3d2a00; --glow: rgba(255, 176, 0, .45); }
+  :root[data-color="cyan"]  { --fg: #5cf2ff; --dim: #2a8f99; --faint: #0e3a3f; --glow: rgba(92, 242, 255, .45); }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(ellipse at center, #0b130b 0%, var(--bg) 75%);
+    color: var(--fg); font-family: var(--mono); font-size: 15px; line-height: 1.55;
+    min-height: 100vh; text-shadow: 0 0 6px var(--glow);
+  }
+  /* CRT scanlines + flicker */
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,.25) 0 1px, transparent 1px 3px);
+    animation: flicker 6s infinite;
+  }
+  @keyframes flicker { 0%, 97%, 100% { opacity: 1; } 98% { opacity: .85; } }
+
+  .screen { max-width: 1100px; margin: 0 auto; padding: 5vh 28px; display: grid; grid-template-columns: 1fr 300px; gap: 28px; }
+  .box { border: 1px solid var(--dim); padding: 14px 16px; position: relative; }
+  .box > .title { position: absolute; top: -11px; left: 12px; background: var(--bg); padding: 0 8px; color: var(--fg); }
+
+  pre.banner { color: var(--fg); font-size: 11px; line-height: 1.15; margin-bottom: 18px; white-space: pre; overflow: hidden; }
+
+  #out { white-space: pre-wrap; word-break: break-word; min-height: 200px; max-height: 52vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+  #out .muted { color: var(--dim); }
+  #out a { color: var(--fg); }
+  .prompt-line { display: flex; gap: 8px; margin-top: 6px; }
+  .prompt-line .ps { color: var(--dim); white-space: nowrap; }
+  #cmd { flex: 1; background: none; border: none; outline: none; color: var(--fg); font: inherit; text-shadow: inherit; caret-color: var(--fg); }
+
+  aside { display: grid; gap: 26px; align-content: start; }
+  .clock { font-size: 40px; letter-spacing: .05em; text-align: center; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; }
+  .kv dt { color: var(--dim); }
+  .bar { color: var(--dim); }
+  .bar b { color: var(--fg); font-weight: 400; }
+  .links a { display: block; color: var(--fg); text-decoration: none; }
+  .links a:hover { background: var(--fg); color: var(--bg); text-shadow: none; }
+  .links a span { color: var(--dim); }
+  .links a:hover span { color: var(--bg); }
+  #log { height: 120px; overflow: hidden; color: var(--dim); font-size: 12px; }
+
+  .blink { animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  @media (max-width: 860px) { .screen { grid-template-columns: 1fr; } pre.banner { font-size: 7px; } }
+</style>
+</head>
+<body>
+<div class="screen">
+  <main class="box">
+    <span class="title">[ tty1 ]</span>
+<pre class="banner">
+ _   _  _____  _    _   _____  ___  ______
+| \ | ||  ___|| |  | | |_   _|/ _ \ | ___ \
+|  \| || |__  | |  | |   | | / /_\ \| |_/ /
+| . ` ||  __| | |/\| |   | | |  _  || ___ \
+| |\  || |___ \  /\  /   | | | | | || |_/ /
+\_| \_/\____/  \/  \/    \_/ \_| |_/\____/
+</pre>
+    <div id="out"></div>
+    <form class="prompt-line" id="form">
+      <span class="ps">guest@newtab:~$</span>
+      <input id="cmd" autocomplete="off" spellcheck="false" autofocus>
+    </form>
+  </main>
+
+  <aside>
+    <section class="box">
+      <span class="title">[ clock ]</span>
+      <div class="clock" id="clock">00:00:00</div>
+      <div style="text-align:center;color:var(--dim)" id="date"></div>
+    </section>
+
+    <section class="box">
+      <span class="title">[ sys ]</span>
+      <dl class="kv">
+        <dt>session</dt><dd id="uptime">0s</dd>
+        <dt>screen</dt><dd id="res"></dd>
+        <dt>lang</dt><dd id="lang"></dd>
+        <dt>net</dt><dd id="net"></dd>
+      </dl>
+      <div class="bar" style="margin-top:8px">day <span id="daybar"></span></div>
+    </section>
+
+    <section class="box links">
+      <span class="title">[ bookmarks ]</span>
+      <div id="links"></div>
+    </section>
+
+    <section class="box">
+      <span class="title">[ syslog ]</span>
+      <div id="log"></div>
+    </section>
+  </aside>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const out = $("out"), cmd = $("cmd");
+
+  const bookmarks = [
+    ["gh", "GitHub", "https://github.com"],
+    ["yt", "YouTube", "https://youtube.com"],
+    ["hn", "Hacker News", "https://news.ycombinator.com"],
+    ["rd", "Reddit", "https://reddit.com"],
+    ["ml", "Gmail", "https://mail.google.com"],
+    ["so", "Stack Overflow", "https://stackoverflow.com"],
+  ];
+  const engines = {
+    g:  ["Google", q => "https://www.google.com/search?q=" + q],
+    d:  ["DuckDuckGo", q => "https://duckduckgo.com/?q=" + q],
+    yt: ["YouTube", q => "https://www.youtube.com/results?search_query=" + q],
+    gh: ["GitHub", q => "https://github.com/search?q=" + q],
+    w:  ["Wikipedia", q => "https://en.wikipedia.org/w/index.php?search=" + q],
+  };
+
+  $("links").innerHTML = bookmarks.map(([k, n, u]) => `<a href="${u}"><span>[${k}]</span> ${n}</a>`).join("");
+
+  function print(html, cls) {
+    const div = document.createElement("div");
+    if (cls) div.className = cls;
+    div.innerHTML = html;
+    out.appendChild(div);
+    out.scrollTop = out.scrollHeight;
+  }
+  const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  const help = `available commands:
+  <b>help</b>                show this message
+  <b>g|d|yt|gh|w</b> &lt;query&gt;  search google / duckduckgo / youtube / github / wikipedia
+  <b>open</b> &lt;key|url&gt;      open a bookmark (gh, yt, hn…) or any url
+  <b>ls</b>                  list bookmarks
+  <b>color</b> green|amber|cyan  change phosphor color
+  <b>date</b>                print date
+  <b>clear</b>               clear the screen
+  anything else          searches google`;
+
+  const history = []; let hIdx = 0;
+  const go = url => { print(`<span class="muted">→ ${esc(url)}</span>`); setTimeout(() => location.href = url, 250); };
+
+  function run(line) {
+    print(`<span class="muted">guest@newtab:~$</span> ${esc(line)}`);
+    const [c, ...rest] = line.trim().split(/\s+/);
+    const arg = rest.join(" ");
+    if (!c) return;
+    if (c === "help") return print(help);
+    if (c === "clear") return out.innerHTML = "";
+    if (c === "ls") return print(bookmarks.map(([k, n, u]) => `${k.padEnd(4)} ${n.padEnd(16)} <span class="muted">${u}</span>`).join("\n"));
+    if (c === "date") return print(new Date().toString());
+    if (c === "color") {
+      if (["green", "amber", "cyan"].includes(arg)) {
+        document.documentElement.dataset.color = arg;
+        try { localStorage.setItem("term-color", arg); } catch {}
+        return print(`phosphor set to ${arg}`);
+      }
+      return print("usage: color green|amber|cyan");
+    }
+    if (c === "open") {
+      const b = bookmarks.find(b => b[0] === arg);
+      if (b) return go(b[2]);
+      if (arg) return go(/^https?:\/\//.test(arg) ? arg : "https://" + arg);
+      return print("usage: open &lt;key|url&gt;");
+    }
+    if (engines[c] && arg) return go(engines[c][1](encodeURIComponent(arg)));
+    const b = bookmarks.find(b => b[0] === c);
+    if (b && !arg) return go(b[2]);
+    go(engines.g[1](encodeURIComponent(line.trim())));
+  }
+
+  $("form").onsubmit = e => {
+    e.preventDefault();
+    const v = cmd.value; cmd.value = "";
+    if (v.trim()) { history.push(v); hIdx = history.length; }
+    run(v);
+  };
+  cmd.addEventListener("keydown", e => {
+    if (e.key === "ArrowUp" && hIdx > 0) { cmd.value = history[--hIdx]; e.preventDefault(); }
+    if (e.key === "ArrowDown") { hIdx = Math.min(history.length, hIdx + 1); cmd.value = history[hIdx] ?? ""; }
+  });
+  document.addEventListener("click", e => { if (!e.target.closest("a")) cmd.focus(); });
+
+  try { const c = localStorage.getItem("term-color"); if (c) document.documentElement.dataset.color = c; } catch {}
+
+  print(`<span class="muted">NEWTAB OS v0.1 — last login: ${new Date().toLocaleString()}</span>`);
+  print(`type <b>help</b> to see commands. try <b>yt lofi</b> or <b>color amber</b>.`);
+
+  // side widgets
+  const t0 = Date.now();
+  function tick() {
+    const d = new Date();
+    $("clock").textContent = d.toLocaleTimeString([], { hour12: false });
+    $("date").textContent = d.toISOString().slice(0, 10) + " " + d.toLocaleDateString(undefined, { weekday: "short" }).toLowerCase();
+    const s = Math.floor((Date.now() - t0) / 1000);
+    $("uptime").textContent = s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
+    $("res").textContent = `${innerWidth}x${innerHeight}`;
+    $("lang").textContent = navigator.language;
+    $("net").textContent = navigator.onLine ? "online" : "offline";
+    const frac = (d.getHours() * 60 + d.getMinutes()) / 1440, n = 18, filled = Math.round(frac * n);
+    $("daybar").innerHTML = `[<b>${"#".repeat(filled)}</b>${".".repeat(n - filled)}] ${Math.round(frac * 100)}%`;
+  }
+  tick(); setInterval(tick, 1000);
+
+  const msgs = ["kernel: tab subsystem ready", "net: link up", "cron: coffee reminder armed", "fs: bookmarks mounted",
+    "audit: user looked at clock", "daemon: motivation.service started", "mem: 640K ought to be enough", "sched: procrastination deferred"];
+  const log = $("log");
+  setInterval(() => {
+    const line = document.createElement("div");
+    line.textContent = `[${(performance.now() / 1000).toFixed(3).padStart(9)}] ${msgs[Math.floor(Math.random() * msgs.length)]}`;
+    log.appendChild(line);
+    while (log.children.length > 7) log.firstChild.remove();
+  }, 1800);
+</script>
+</body>
+</html>

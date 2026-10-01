@@ -1,0 +1,6 @@
+#!/bin/sh
+# Rejects commit messages that add any other identity (docs/MAINTAINING.md, rule G1).
+if grep -qiE '^(co-authored-by|signed-off-by):' "$1" && grep -iE '^(co-authored-by|signed-off-by):' "$1" | grep -viq 'mhammad.hassan002@gmail.com'; then
+  echo "commit-msg: only Blankscreen-exe <mhammad.hassan002@gmail.com> may appear in commit trailers."
+  exit 1
+fi

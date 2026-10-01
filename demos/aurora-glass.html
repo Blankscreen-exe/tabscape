@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurora Glass</title>
+<style>
+  :root {
+    --bg: #0b0f1e;
+    --surface: rgba(255, 255, 255, 0.07);
+    --surface-hover: rgba(255, 255, 255, 0.12);
+    --border: rgba(255, 255, 255, 0.14);
+    --text: #eef1ff;
+    --muted: #9aa3c7;
+    --accent: #8be9fd;
+    --accent-2: #c792ea;
+    --radius: 20px;
+    --blur: 18px;
+    --font: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font);
+    color: var(--text);
+    background: var(--bg);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* animated aurora blobs */
+  .aurora { position: fixed; inset: 0; z-index: -1; overflow: hidden; filter: blur(80px); }
+  .aurora span {
+    position: absolute; border-radius: 50%; opacity: .55;
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  .aurora span:nth-child(1) { width: 55vw; height: 55vw; background: #3a1c71; top: -15%; left: -10%; }
+  .aurora span:nth-child(2) { width: 45vw; height: 45vw; background: #0f9b8e; bottom: -20%; right: -5%; animation-duration: 28s; }
+  .aurora span:nth-child(3) { width: 35vw; height: 35vw; background: #d76d77; top: 30%; left: 40%; animation-duration: 34s; opacity: .35; }
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(8vw, 6vh) scale(1.15); }
+  }
+
+  .page {
+    max-width: 1180px; margin: 0 auto; padding: 6vh 24px 48px;
+    display: grid; gap: 20px;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: minmax(90px, auto);
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(var(--blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(140%);
+    padding: 22px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+  }
+  .card h3 {
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 14px;
+  }
+
+  /* hero */
+  .hero { grid-column: 1 / -1; text-align: center; background: none; border: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .clock { font-size: clamp(64px, 11vw, 132px); font-weight: 200; letter-spacing: -.03em; line-height: 1; }
+  .clock .sec { font-size: .35em; color: var(--muted); margin-left: .15em; }
+  .greet { margin-top: 10px; font-size: 20px; color: var(--muted); }
+  .greet b { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 600; }
+
+  /* search */
+  .search { grid-column: 3 / span 8; padding: 6px; display: flex; align-items: center; }
+  .search svg { width: 20px; height: 20px; margin: 0 12px 0 16px; color: var(--muted); flex: none; }
+  .search input {
+    flex: 1; background: none; border: none; outline: none; color: var(--text);
+    font: inherit; font-size: 17px; padding: 14px 4px;
+  }
+  .search input::placeholder { color: var(--muted); }
+  .search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139, 233, 253, .12), 0 10px 40px rgba(0,0,0,.25); }
+
+  /* links */
+  .links { grid-column: span 7; }
+  .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px; }
+  .link-grid a {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 14px 6px; border-radius: 14px; color: var(--text); text-decoration: none; font-size: 13px;
+    transition: background .2s, transform .2s;
+  }
+  .link-grid a:hover { background: var(--surface-hover); transform: translateY(-2px); }
+  .link-grid .ico {
+    width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+    font-weight: 700; font-size: 18px; color: #0b0f1e;
+  }
+
+  /* weather */
+  .weather { grid-column: span 5; display: flex; flex-direction: column; }
+  .weather .now { display: flex; align-items: center; gap: 18px; }
+  .weather .temp { font-size: 56px; font-weight: 200; }
+  .weather .cond { color: var(--muted); }
+  .forecast { display: flex; justify-content: space-between; margin-top: auto; padding-top: 18px; font-size: 13px; color: var(--muted); text-align: center; }
+  .forecast b { display: block; color: var(--text); font-weight: 500; margin-top: 4px; }
+
+  /* todo */
+  .todo { grid-column: span 5; }
+  .todo form { display: flex; gap: 8px; margin-bottom: 12px; }
+  .todo input[type=text] {
+    flex: 1; background: rgba(0,0,0,.18); border: 1px solid var(--border); border-radius: 12px;
+    color: var(--text); font: inherit; padding: 10px 12px; outline: none;
+  }
+  .todo input[type=text]:focus { border-color: var(--accent); }
+  .todo button {
+    border: none; border-radius: 12px; padding: 0 16px; cursor: pointer; font: inherit; font-weight: 600;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #0b0f1e;
+  }
+  .todo ul { list-style: none; display: grid; gap: 6px; max-height: 210px; overflow: auto; }
+  .todo li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; }
+  .todo li:hover { background: var(--surface-hover); }
+  .todo li.done span { text-decoration: line-through; color: var(--muted); }
+  .todo li .x { margin-left: auto; background: none; color: var(--muted); padding: 0 4px; font-size: 18px; }
+  .todo input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  /* quote */
+  .quote { grid-column: span 7; display: flex; flex-direction: column; justify-content: center; }
+  .quote p { font-size: 22px; font-weight: 300; line-height: 1.45; }
+  .quote cite { margin-top: 12px; color: var(--muted); font-style: normal; font-size: 14px; }
+
+  @media (max-width: 860px) {
+    .page > * { grid-column: 1 / -1 !important; }
+  }
+</style>
+</head>
+<body>
+<div class="aurora"><span></span><span></span><span></span></div>
+
+<main class="page">
+  <section class="card hero">
+    <div class="clock" id="clock">--:--<span class="sec">00</span></div>
+    <div class="greet" id="greet">Hello</div>
+  </section>
+
+  <form class="card search" action="https://www.google.com/search" method="get">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input name="q" placeholder="Search the web…" autocomplete="off" autofocus>
+  </form>
+
+  <section class="card links">
+    <h3>Quick links</h3>
+    <div class="link-grid" id="links"></div>
+  </section>
+
+  <section class="card weather">
+    <h3>Weather · Demo</h3>
+    <div class="now">
+      <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="26" cy="26" r="11" fill="#ffd36e"/><path d="M20 46h26a10 10 0 0 0 0-20 14 14 0 0 0-26 6 7 7 0 0 0 0 14z" fill="rgba(255,255,255,.85)"/></svg>
+      <div>
+        <div class="temp">24°</div>
+        <div class="cond">Partly cloudy · H 27° L 18°</div>
+      </div>
+    </div>
+    <div class="forecast" id="forecast"></div>
+  </section>
+
+  <section class="card todo">
+    <h3>Today</h3>
+    <form id="todo-form"><input type="text" id="todo-input" placeholder="Add a task…"><button>Add</button></form>
+    <ul id="todo-list"></ul>
+  </section>
+
+  <section class="card quote">
+    <h3>Thought of the day</h3>
+    <p id="quote-text"></p>
+    <cite id="quote-by"></cite>
+  </section>
+</main>
+
+<script>
+  // clock + greeting
+  const clockEl = document.getElementById("clock");
+  const greetEl = document.getElementById("greet");
+  function tick() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    const ss = String(d.getSeconds()).padStart(2, "0");
+    clockEl.innerHTML = `${hh}:${mm}<span class="sec">${ss}</span>`;
+    const h = d.getHours();
+    const part = h < 5 ? "Good night" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+    const date = d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+    greetEl.innerHTML = `${part}, <b>friend</b> · ${date}`;
+  }
+  tick(); setInterval(tick, 1000);
+
+  // links
+  const links = [
+    ["GitHub", "https://github.com", "#c9d1d9"],
+    ["YouTube", "https://youtube.com", "#ff6b6b"],
+    ["Gmail", "https://mail.google.com", "#ffd36e"],
+    ["Reddit", "https://reddit.com", "#ff9f68"],
+    ["MDN", "https://developer.mozilla.org", "#8be9fd"],
+    ["Maps", "https://maps.google.com", "#7ee787"],
+    ["Drive", "https://drive.google.com", "#a5b4fc"],
+    ["Wikipedia", "https://wikipedia.org", "#e2e8f0"],
+  ];
+  document.getElementById("links").innerHTML = links.map(([n, u, c]) =>
+    `<a href="${u}"><span class="ico" style="background:${c}">${n[0]}</span>${n}</a>`).join("");
+
+  // forecast (demo data)
+  const days = ["Mon","Tue","Wed","Thu","Fri"], temps = [26, 23, 21, 25, 28], icons = ["☀️","⛅","🌧️","⛅","☀️"];
+  const today = new Date().getDay();
+  document.getElementById("forecast").innerHTML = days.map((_, i) => {
+    const name = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][(today + i + 1) % 7];
+    return `<div>${name}<b>${icons[i]} ${temps[i]}°</b></div>`;
+  }).join("");
+
+  // todo (localStorage)
+  const KEY = "aurora-todos";
+  let todos;
+  try { todos = JSON.parse(localStorage.getItem(KEY)) || null; } catch { todos = null; }
+  todos ??= [{ t: "Pick a theme I like", d: false }, { t: "Plan widget layout", d: true }];
+  const listEl = document.getElementById("todo-list");
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(todos)); } catch {} }
+  function renderTodos() {
+    listEl.innerHTML = "";
+    todos.forEach((td, i) => {
+      const li = document.createElement("li");
+      li.className = td.d ? "done" : "";
+      li.innerHTML = `<input type="checkbox" ${td.d ? "checked" : ""}><span></span><button class="x" title="Remove">×</button>`;
+      li.querySelector("span").textContent = td.t;
+      li.querySelector("input").onchange = () => { td.d = !td.d; save(); renderTodos(); };
+      li.querySelector(".x").onclick = () => { todos.splice(i, 1); save(); renderTodos(); };
+      listEl.appendChild(li);
+    });
+  }
+  document.getElementById("todo-form").onsubmit = e => {
+    e.preventDefault();
+    const inp = document.getElementById("todo-input");
+    if (inp.value.trim()) { todos.push({ t: inp.value.trim(), d: false }); inp.value = ""; save(); renderTodos(); }
+  };
+  renderTodos();
+
+  // quote
+  const quotes = [
+    ["The best way to predict the future is to invent it.", "Alan Kay"],
+    ["Simplicity is prerequisite for reliability.", "Edsger W. Dijkstra"],
+    ["Make it work, make it right, make it fast.", "Kent Beck"],
+    ["Well done is better than well said.", "Benjamin Franklin"],
+  ];
+  const q = quotes[new Date().getDate() % quotes.length];
+  document.getElementById("quote-text").textContent = `“${q[0]}”`;
+  document.getElementById("quote-by").textContent = `— ${q[1]}`;
+</script>
+</body>
+</html>

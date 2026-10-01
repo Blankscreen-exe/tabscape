@@ -1,0 +1,189 @@
+/*
+ * Core stylesheet.
+ *
+ * Cascade layers, lowest to highest priority:
+ *   reset   -> browser normalisation
+ *   core    -> page shell, grid, control panel (this file)
+ *   widgets -> each widget's widget.css
+ *   theme   -> tokens + each theme's theme.css  (themes always win, no !important needed)
+ *
+ * Every token has a default here, so a theme written today keeps working when new
+ * tokens are added later. Required tokens: see REQUIRED_TOKENS in core/contracts.js.
+ */
+@layer reset, core, widgets, theme;
+
+@layer core {
+  :root {
+    /* ---- required tokens (v1) ---- */
+    --bg: #f5f5f4;
+    --surface: #ffffff;
+    --surface-2: #f0f0ef;
+    --text: #1c1c1c;
+    --muted: #6b6b6b;
+    --accent: #3b6cf6;
+    --accent-contrast: #ffffff;
+    --border: #e2e2e0;
+    --danger: #d93a3a;
+    --radius: 14px;
+    --gap: 16px;
+    --shadow: 0 1px 2px rgb(0 0 0 / .05), 0 6px 20px -10px rgb(0 0 0 / .15);
+    --font-body: "Segoe UI", system-ui, sans-serif;
+    --font-display: var(--font-body);
+    --font-mono: "Cascadia Mono", Consolas, monospace;
+
+    /* ---- optional tokens (added after v1; always keep a default) ---- */
+    --success: #2f9e5b;
+    --warning: #d48a12;
+    --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+    --widget-padding: 18px;
+
+    /* ---- grid (set per theme by core/grid.js) ---- */
+    --grid-columns: 12;
+    --grid-row-height: 80px;
+    --grid-max-width: 1200px;
+  }
+}
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html, body { min-height: 100%; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  img, svg, canvas { display: block; max-width: 100%; }
+  [hidden] { display: none !important; }
+}
+
+@layer core {
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.4;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  html:not(.ready) body { visibility: hidden; } /* avoid flash before the theme is applied */
+
+  /* Decoration layer: themes draw backgrounds/effects here. Never receives clicks. */
+  #decor { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  #decor .interactive { pointer-events: auto; }
+
+  /* ---------------------------------------------------------------- grid */
+  #grid {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    grid-auto-rows: var(--grid-row-height);
+    gap: var(--gap);
+    max-width: var(--grid-max-width);
+    margin: 0 auto;
+    padding: 5vh 24px 80px;
+  }
+  .g-item { position: relative; min-width: 0; min-height: 0; display: flex; }
+  .g-item > .w { flex: 1; min-width: 0; min-height: 0; }
+
+  /* default widget card — themes restyle .w freely */
+  .w {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--widget-padding);
+    overflow: auto;
+  }
+  .w-error { color: var(--danger); display: grid; gap: 6px; font-size: 14px; }
+  .w-error small { color: var(--muted); font-family: var(--font-mono); white-space: pre-wrap; }
+
+  /* edit-mode chrome */
+  .g-chrome { display: none; }
+  .g-editing .g-item { outline: 2px dashed color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 2px; border-radius: var(--radius); }
+  .g-editing .g-item.g-locked { outline-color: color-mix(in srgb, var(--muted) 60%, transparent); }
+  .g-editing .g-item > .w { pointer-events: none; opacity: .85; }
+  .g-editing .g-chrome { display: block; position: absolute; inset: 0; z-index: 2; }
+  .g-bar {
+    position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 4px;
+    padding: 4px 6px; background: var(--accent); color: var(--accent-contrast);
+    border-radius: var(--radius) var(--radius) 0 0; font: 600 12px var(--font-body); cursor: grab; touch-action: none;
+  }
+  .g-locked .g-bar { background: var(--muted); cursor: default; }
+  .g-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .g-btn { background: none; border: none; color: inherit; cursor: pointer; padding: 0 4px; font-size: 13px; }
+  .g-resize {
+    position: absolute; right: 0; bottom: 0; width: 22px; height: 22px; cursor: nwse-resize; touch-action: none;
+    background: linear-gradient(135deg, transparent 50%, var(--accent) 50%); border-bottom-right-radius: var(--radius);
+  }
+  .g-dragging { z-index: 50; opacity: .8; cursor: grabbing; }
+  .g-ghost { border: 2px dashed var(--accent); border-radius: var(--radius); background: color-mix(in srgb, var(--accent) 12%, transparent); z-index: 1; }
+  .g-ghost-bad { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+
+  /* single column on narrow screens (theme positions are ignored, reading order kept) */
+  @media (max-width: 720px) {
+    #grid { grid-template-columns: 1fr; grid-auto-rows: auto; padding: 16px; }
+    #grid > .g-item, #grid > .g-ghost { grid-column: 1 / -1 !important; grid-row: auto !important; min-height: calc(var(--grid-row-height) * min(var(--h, 1), 4)); }
+  }
+
+  /* ---------------------------------------------------------------- control panel */
+  .ui-fab {
+    position: fixed; right: 18px; bottom: 18px; z-index: 1000; width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text); box-shadow: var(--shadow);
+    font-size: 18px; cursor: pointer; opacity: .35; transition: opacity .2s, transform .2s;
+  }
+  .ui-fab:hover, .ui-fab:focus-visible { opacity: 1; transform: rotate(45deg); }
+  .ui-done {
+    position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 1000;
+    padding: 10px 20px; border-radius: 99px; border: none; background: var(--accent); color: var(--accent-contrast);
+    font-weight: 600; cursor: pointer; box-shadow: var(--shadow);
+  }
+  .ui-panel {
+    position: fixed; right: 18px; bottom: 72px; z-index: 1000; width: min(360px, calc(100vw - 36px)); max-height: calc(100vh - 100px); overflow: auto;
+    background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 14px 16px; font: 14px var(--font-body); display: grid; gap: 8px;
+  }
+  .ui-panel header { display: flex; justify-content: space-between; align-items: center; }
+  .ui-panel h4 { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-top: 8px; }
+  .ui-x { background: none; border: none; cursor: pointer; font-size: 16px; }
+  .ui-themes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .ui-theme {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px; text-align: left; cursor: pointer;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: calc(var(--radius) * .6);
+  }
+  .ui-theme.on { border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .ui-swatch { width: 28px; height: 20px; border-radius: 4px; border: 1px solid; display: flex; align-items: flex-end; gap: 2px; padding: 2px; flex: none; }
+  .ui-swatch i { flex: 1; height: 7px; border-radius: 2px; }
+  .ui-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ui-btn {
+    padding: 7px 12px; border-radius: calc(var(--radius) * .6); border: 1px solid var(--border);
+    background: var(--surface-2); cursor: pointer;
+  }
+  .ui-btn.on { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+  .ui-btn:focus-visible, .ui-theme:focus-visible, .ui-chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .ui-add { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ui-add small { width: 100%; color: var(--muted); }
+  .ui-chip { padding: 5px 10px; border-radius: 99px; border: 1px dashed var(--accent); background: none; cursor: pointer; font-size: 13px; }
+  .ui-chip:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+
+  .ui-dialog {
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text);
+    padding: 18px; width: min(440px, calc(100vw - 32px)); box-shadow: var(--shadow); font-family: var(--font-body);
+  }
+  .ui-dialog::backdrop { background: rgb(0 0 0 / .35); }
+  .ui-dialog form { display: grid; gap: 12px; }
+  .ui-field { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .ui-field input[type=text], .ui-field input[type=number], .ui-field textarea, .ui-field select {
+    padding: 8px 10px; border: 1px solid var(--border); border-radius: calc(var(--radius) * .5); background: var(--surface-2); color: var(--text);
+  }
+  .ui-field input[type=checkbox] { justify-self: start; width: 18px; height: 18px; accent-color: var(--accent); }
+
+  .ui-toast {
+    position: fixed; left: 50%; top: 18px; transform: translate(-50%, -12px); opacity: 0; visibility: hidden; pointer-events: none;
+    z-index: 1100; transition: transform .25s, opacity .25s, visibility .25s;
+    background: var(--text); color: var(--bg); padding: 8px 16px; border-radius: 99px; font: 14px var(--font-body);
+  }
+  .ui-toast.show { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
+
+  .boot-error { position: fixed; inset: 20px; z-index: 2000; padding: 20px; background: #fff; color: #b00; border: 2px solid #b00; white-space: pre-wrap; overflow: auto; font: 13px monospace; visibility: visible; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @layer core { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+}

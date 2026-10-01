@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bento</title>
+<style>
+  :root {
+    --bg: #eef0f4;
+    --tile: #ffffff;
+    --tile-alt: #f6f7f9;
+    --text: #15171c;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --accent: #ff5a36;
+    --accent-soft: #ffe8e2;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --radius: 26px;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 8px 24px -12px rgba(16, 24, 40, .12);
+    --font: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0f12; --tile: #17191e; --tile-alt: #1e2027; --text: #f2f3f5; --muted: #8b91a0; --line: #2a2d35;
+    --accent-soft: #3a1e17; --shadow: 0 1px 2px rgba(0,0,0,.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; transition: background .3s, color .3s; }
+
+  .grid {
+    max-width: 1160px; margin: 0 auto; padding: 5vh 24px 40px;
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "hero   hero   cal    pomo"
+      "search search cal    pomo"
+      "links  links  goal   theme"
+      "links  links  stats  stats";
+  }
+  .tile { background: var(--tile); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); border: 1px solid var(--line); transition: background .3s, border-color .3s; }
+  .label { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  .hero { grid-area: hero; display: flex; justify-content: space-between; align-items: flex-end; background: var(--text); color: var(--bg); }
+  .hero .time { font-size: clamp(56px, 8vw, 96px); font-weight: 600; letter-spacing: -.04em; line-height: .9; }
+  .hero .meta { text-align: right; opacity: .7; font-size: 15px; line-height: 1.5; }
+
+  .search { grid-area: search; display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 22px; }
+  .search input { flex: 1; border: none; outline: none; background: none; font: inherit; font-size: 17px; color: var(--text); padding: 10px 0; }
+  .search input::placeholder { color: var(--muted); }
+  .engines { display: flex; gap: 4px; background: var(--tile-alt); border-radius: 14px; padding: 4px; }
+  .engines button { border: none; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--muted); padding: 8px 12px; border-radius: 10px; cursor: pointer; }
+  .engines button.on { background: var(--tile); color: var(--text); box-shadow: var(--shadow); }
+
+  .cal { grid-area: cal; }
+  .cal .month { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+  .cal table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; }
+  .cal th { color: var(--muted); font-weight: 500; padding-bottom: 6px; }
+  .cal td { padding: 6px 0; }
+  .cal td span { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; }
+  .cal td.today span { background: var(--accent); color: #fff; font-weight: 700; }
+  .cal td.other { color: var(--line); }
+
+  .pomo { grid-area: pomo; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
+  .ring { position: relative; width: 150px; height: 150px; margin: 6px 0 12px; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .val { position: absolute; inset: 0; display: grid; place-items: center; font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .pomo .btns { display: flex; gap: 8px; width: 100%; }
+  .pomo button { flex: 1; border: none; border-radius: 14px; padding: 11px; font: inherit; font-weight: 600; cursor: pointer; background: var(--tile-alt); color: var(--text); }
+  .pomo button.primary { background: var(--accent); color: #fff; }
+  .modes { display: flex; gap: 6px; font-size: 12px; }
+  .modes span { padding: 4px 10px; border-radius: 99px; cursor: pointer; color: var(--muted); }
+  .modes span.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+  .links { grid-area: links; }
+  .link-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .link-grid a {
+    background: var(--tile-alt); border-radius: 18px; padding: 16px; text-decoration: none; color: var(--text);
+    display: flex; flex-direction: column; gap: 22px; transition: transform .15s, background .15s;
+  }
+  .link-grid a:hover { transform: scale(1.03); }
+  .link-grid .ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 700; }
+  .link-grid small { color: var(--muted); font-size: 12px; display: block; margin-top: 2px; }
+
+  .goal { grid-area: goal; display: flex; flex-direction: column; background: var(--accent-soft); border-color: transparent; }
+  .goal .label { color: var(--accent); }
+  .goal textarea { flex: 1; min-height: 70px; resize: none; border: none; outline: none; background: none; font: inherit; font-size: 19px; font-weight: 600; color: var(--text); }
+
+  .theme { grid-area: theme; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; user-select: none; }
+  .switch { width: 64px; height: 36px; border-radius: 99px; background: var(--tile-alt); border: 1px solid var(--line); position: relative; align-self: flex-end; }
+  .switch::after { content: "☀️"; position: absolute; top: 3px; left: 3px; width: 28px; height: 28px; border-radius: 50%; background: var(--tile); display: grid; place-items: center; font-size: 14px; box-shadow: var(--shadow); transition: left .25s; }
+  :root[data-theme="dark"] .switch::after { content: "🌙"; left: 31px; }
+  .theme .big { font-size: 22px; font-weight: 600; }
+
+  .stats { grid-area: stats; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .stat .n { font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
+  .stat .bar { height: 6px; border-radius: 99px; background: var(--tile-alt); margin-top: 10px; overflow: hidden; }
+  .stat .bar span { display: block; height: 100%; border-radius: 99px; }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr 1fr; grid-template-areas: "hero hero" "search search" "cal pomo" "links links" "goal theme" "stats stats"; }
+    .link-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<main class="grid">
+  <section class="tile hero">
+    <div class="time" id="time">00:00</div>
+    <div class="meta"><div id="greet"></div><div id="date"></div></div>
+  </section>
+
+  <form class="tile search" id="search">
+    <input id="q" placeholder="Search…" autocomplete="off" autofocus>
+    <div class="engines" id="engines">
+      <button type="button" data-e="google" class="on">Google</button>
+      <button type="button" data-e="ddg">DDG</button>
+      <button type="button" data-e="yt">YouTube</button>
+    </div>
+  </form>
+
+  <section class="tile cal">
+    <div class="label"><span class="dot"></span>Calendar</div>
+    <div class="month" id="month"></div>
+    <table id="caltable"></table>
+  </section>
+
+  <section class="tile pomo">
+    <div class="modes" id="modes"><span data-m="25" class="on">Focus</span><span data-m="5">Short</span><span data-m="15">Long</span></div>
+    <div class="ring">
+      <svg width="150" height="150"><circle cx="75" cy="75" r="66" fill="none" stroke="var(--tile-alt)" stroke-width="10"/>
+        <circle id="arc" cx="75" cy="75" r="66" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="414.7" stroke-dashoffset="0"/></svg>
+      <div class="val" id="pomoval">25:00</div>
+    </div>
+    <div class="btns"><button class="primary" id="start">Start</button><button id="reset">Reset</button></div>
+  </section>
+
+  <section class="tile links">
+    <div class="label"><span class="dot" style="background:var(--blue)"></span>Favorites</div>
+    <div class="link-grid" id="links"></div>
+  </section>
+
+  <section class="tile goal">
+    <div class="label">🎯 Today's one thing</div>
+    <textarea id="goal" placeholder="What matters most today?"></textarea>
+  </section>
+
+  <section class="tile theme" id="themeTile">
+    <div class="label">Appearance</div>
+    <div class="switch"></div>
+    <div class="big" id="themeName">Light</div>
+  </section>
+
+  <section class="tile stats">
+    <div class="stat"><div class="label">Day</div><div class="n" id="s-day"></div><div class="bar"><span id="b-day" style="background:var(--accent)"></span></div></div>
+    <div class="stat"><div class="label">Week</div><div class="n" id="s-week"></div><div class="bar"><span id="b-week" style="background:var(--blue)"></span></div></div>
+    <div class="stat"><div class="label">Year</div><div class="n" id="s-year"></div><div class="bar"><span id="b-year" style="background:var(--green)"></span></div></div>
+  </section>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = {
+    get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  };
+
+  // theme
+  const applyTheme = t => { document.documentElement.dataset.theme = t; $("themeName").textContent = t === "dark" ? "Dark" : "Light"; };
+  applyTheme(store.get("bento-theme", matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  $("themeTile").onclick = () => {
+    const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    applyTheme(t); store.set("bento-theme", t);
+  };
+
+  // clock + stats
+  function tick() {
+    const d = new Date();
+    $("time").textContent = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const h = d.getHours();
+    $("greet").textContent = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+    $("date").textContent = d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+
+    const dayP = (h * 3600 + d.getMinutes() * 60 + d.getSeconds()) / 864;
+    const weekP = (((d.getDay() + 6) % 7) * 100 + dayP) / 7;
+    const y0 = new Date(d.getFullYear(), 0, 1), y1 = new Date(d.getFullYear() + 1, 0, 1);
+    const yearP = (d - y0) / (y1 - y0) * 100;
+    [["day", dayP], ["week", weekP], ["year", yearP]].forEach(([k, v]) => {
+      $("s-" + k).textContent = v.toFixed(0) + "%";
+      $("b-" + k).style.width = v + "%";
+    });
+  }
+  tick(); setInterval(tick, 1000);
+
+  // search engines
+  const engines = {
+    google: "https://www.google.com/search?q=",
+    ddg: "https://duckduckgo.com/?q=",
+    yt: "https://www.youtube.com/results?search_query=",
+  };
+  let engine = store.get("bento-engine", "google");
+  const markEngine = () => $("engines").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.e === engine));
+  markEngine();
+  $("engines").onclick = e => { const b = e.target.closest("button"); if (!b) return; engine = b.dataset.e; store.set("bento-engine", engine); markEngine(); $("q").focus(); };
+  $("search").onsubmit = e => { e.preventDefault(); const q = $("q").value.trim(); if (q) location.href = engines[engine] + encodeURIComponent(q); };
+
+  // calendar
+  (function () {
+    const d = new Date(), y = d.getFullYear(), m = d.getMonth();
+    $("month").textContent = d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    const first = (new Date(y, m, 1).getDay() + 6) % 7;
+    const days = new Date(y, m + 1, 0).getDate(), prevDays = new Date(y, m, 0).getDate();
+    let html = "<tr>" + ["M", "T", "W", "T", "F", "S", "S"].map(x => `<th>${x}</th>`).join("") + "</tr><tr>";
+    let cell = 0;
+    for (let i = first - 1; i >= 0; i--, cell++) html += `<td class="other"><span>${prevDays - i}</span></td>`;
+    for (let n = 1; n <= days; n++, cell++) {
+      if (cell && cell % 7 === 0) html += "</tr><tr>";
+      html += `<td class="${n === d.getDate() ? "today" : ""}"><span>${n}</span></td>`;
+    }
+    for (let n = 1; cell % 7; n++, cell++) html += `<td class="other"><span>${n}</span></td>`;
+    $("caltable").innerHTML = html + "</tr>";
+  })();
+
+  // pomodoro
+  const C = 414.7;
+  let total = 25 * 60, left = total, timer = null;
+  const render = () => {
+    $("pomoval").textContent = `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
+    $("arc").setAttribute("stroke-dashoffset", C * (1 - left / total));
+  };
+  const stop = () => { clearInterval(timer); timer = null; $("start").textContent = "Start"; };
+  $("start").onclick = () => {
+    if (timer) return stop();
+    $("start").textContent = "Pause";
+    timer = setInterval(() => { left--; render(); if (left <= 0) { stop(); left = total; document.title = "⏰ Time's up!"; } }, 1000);
+  };
+  $("reset").onclick = () => { stop(); left = total; render(); document.title = "Bento"; };
+  $("modes").onclick = e => {
+    const s = e.target.closest("span"); if (!s) return;
+    $("modes").querySelectorAll("span").forEach(x => x.classList.toggle("on", x === s));
+    stop(); total = left = +s.dataset.m * 60; render();
+  };
+  render();
+
+  // links
+  const links = [
+    ["GitHub", "Code", "https://github.com", "#24292f"],
+    ["Gmail", "Inbox", "https://mail.google.com", "#ea4335"],
+    ["YouTube", "Watch", "https://youtube.com", "#ff0000"],
+    ["Notion", "Notes", "https://notion.so", "#37352f"],
+    ["Figma", "Design", "https://figma.com", "#a259ff"],
+    ["Drive", "Files", "https://drive.google.com", "#1fa463"],
+    ["X", "Feed", "https://x.com", "#000000"],
+    ["ChatGPT", "AI", "https://chatgpt.com", "#10a37f"],
+  ];
+  $("links").innerHTML = links.map(([n, s, u, c]) =>
+    `<a href="${u}"><span class="ico" style="background:${c}">${n[0]}</span><span>${n}<small>${s}</small></span></a>`).join("");
+
+  // goal (autosave)
+  const goal = $("goal");
+  goal.value = store.get("bento-goal", "");
+  goal.oninput = () => store.set("bento-goal", goal.value);
+</script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission Control</title>
+<style>
+  /* Sci-fi mission control: thin cyan lines, telemetry, orbits, GO/NO-GO checklist. */
+  :root {
+    --bg: #03070d;
+    --panel: rgba(10, 26, 40, .65);
+    --line: rgba(80, 220, 255, .28);
+    --cyan: #50dcff;
+    --cyan-dim: #2a7a92;
+    --text: #d8f6ff;
+    --amber: #ffb547;
+    --red: #ff4d5e;
+    --green: #4dffa6;
+    --mono: "Cascadia Mono", Consolas, monospace;
+    --sans: "Segoe UI", "Bahnschrift", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--mono); color: var(--text); background: var(--bg); min-height: 100vh; font-size: 13px;
+    background-image: radial-gradient(ellipse at 70% 20%, rgba(80,220,255,.08), transparent 50%), linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: auto, 80px 80px, 80px 80px;
+    background-blend-mode: normal;
+  }
+  body::before { content: ""; position: fixed; inset: 0; background: radial-gradient(ellipse at center, transparent 40%, var(--bg) 85%); pointer-events: none; }
+
+  header { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 14px 28px; border-bottom: 1px solid var(--line); letter-spacing: .2em; font-size: 12px; }
+  header .live { color: var(--red); }
+  header .live::before { content: "●"; margin-right: 6px; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+
+  .page { position: relative; max-width: 1240px; margin: 0 auto; padding: 24px; display: grid; gap: 18px; grid-template-columns: 1fr 1.4fr 1fr; }
+  .panel { background: var(--panel); border: 1px solid var(--line); padding: 16px 18px; position: relative; backdrop-filter: blur(4px); }
+  /* corner brackets */
+  .panel::before, .panel::after { content: ""; position: absolute; width: 14px; height: 14px; border: 2px solid var(--cyan); }
+  .panel::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+  .panel::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+  .panel h3 { font-size: 11px; letter-spacing: .3em; color: var(--cyan); margin-bottom: 14px; display: flex; justify-content: space-between; }
+  .panel h3 span { color: var(--cyan-dim); }
+
+  .center { grid-row: span 2; display: flex; flex-direction: column; align-items: center; }
+  .orbit { width: 100%; max-width: 420px; }
+  .orbit .ring { fill: none; stroke: var(--line); }
+  .orbit .sat { animation: spin linear infinite; transform-origin: 210px 210px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .met { font: 300 clamp(44px, 6vw, 72px) var(--sans); letter-spacing: .06em; color: var(--text); text-shadow: 0 0 20px rgba(80,220,255,.5); margin-top: -8px; }
+  .met-sub { color: var(--cyan-dim); letter-spacing: .3em; font-size: 11px; }
+
+  .uplink { width: 100%; margin-top: 22px; display: flex; border: 1px solid var(--cyan); }
+  .uplink label { padding: 12px 14px; background: rgba(80,220,255,.12); color: var(--cyan); letter-spacing: .2em; font-size: 11px; display: flex; align-items: center; }
+  .uplink input { flex: 1; min-width: 0; background: none; border: none; outline: none; color: var(--text); font: 15px var(--mono); padding: 12px; }
+  .uplink input::placeholder { color: var(--cyan-dim); }
+  .uplink button { background: var(--cyan); color: var(--bg); border: none; font: bold 12px var(--mono); letter-spacing: .2em; padding: 0 18px; cursor: pointer; }
+
+  .tel dl { display: grid; grid-template-columns: 1fr auto; row-gap: 8px; }
+  .tel dt { color: var(--cyan-dim); letter-spacing: .1em; }
+  .tel dd { text-align: right; font-variant-numeric: tabular-nums; }
+  .spark { width: 100%; height: 48px; margin-top: 12px; }
+
+  .tminus .big { font: 300 40px var(--sans); color: var(--amber); letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+  .tminus .bar { height: 4px; background: var(--line); margin-top: 10px; }
+  .tminus .bar span { display: block; height: 100%; background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+
+  .moon { display: flex; gap: 16px; align-items: center; }
+  .moon svg { flex: none; }
+  .moon b { display: block; font: 400 18px var(--sans); margin-bottom: 4px; }
+  .moon span { color: var(--cyan-dim); }
+
+  .comms a { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--line); color: var(--text); text-decoration: none; letter-spacing: .08em; }
+  .comms a:hover { color: var(--cyan); }
+  .comms a span { color: var(--green); font-size: 11px; }
+
+  .check form input { width: 100%; background: none; border: 1px solid var(--line); color: var(--text); font: 13px var(--mono); padding: 8px 10px; outline: none; margin-bottom: 10px; }
+  .check form input:focus { border-color: var(--cyan); }
+  .check ul { list-style: none; max-height: 190px; overflow: auto; }
+  .check li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(80,220,255,.1); cursor: pointer; }
+  .check li .st { font-weight: bold; letter-spacing: .1em; color: var(--red); }
+  .check li.go .st { color: var(--green); }
+  .check li.go .t { color: var(--cyan-dim); }
+  .check li .del { color: var(--cyan-dim); background: none; border: none; font: inherit; cursor: pointer; }
+  .summary { margin-top: 10px; font-weight: bold; letter-spacing: .2em; }
+
+  @media (max-width: 1000px) { .page { grid-template-columns: 1fr; } .center { grid-row: auto; } }
+</style>
+</head>
+<body>
+<header><span>MISSION CONTROL · NEW TAB PROGRAM</span><span class="live" id="hdr-utc">LIVE</span></header>
+
+<main class="page">
+  <section class="panel tel">
+    <h3>TELEMETRY <span>SYS-01</span></h3>
+    <dl>
+      <dt>LOCAL</dt><dd id="t-local"></dd>
+      <dt>UTC</dt><dd id="t-utc"></dd>
+      <dt>UNIX</dt><dd id="t-unix"></dd>
+      <dt>DAY OF YEAR</dt><dd id="t-doy"></dd>
+      <dt>SIGNAL</dt><dd id="t-net"></dd>
+      <dt>VIEWPORT</dt><dd id="t-vp"></dd>
+    </dl>
+    <svg class="spark" id="spark" viewBox="0 0 200 48" preserveAspectRatio="none"><polyline fill="none" stroke="var(--cyan)" stroke-width="1.5" points=""/></svg>
+  </section>
+
+  <section class="panel center">
+    <h3 style="width:100%">ORBITAL VIEW <span>MET</span></h3>
+    <svg class="orbit" viewBox="0 0 420 420">
+      <circle class="ring" cx="210" cy="210" r="190" stroke-dasharray="2 6"/>
+      <circle class="ring" cx="210" cy="210" r="140"/>
+      <circle class="ring" cx="210" cy="210" r="90" stroke-dasharray="4 4"/>
+      <circle cx="210" cy="210" r="46" fill="url(#earth)"/>
+      <defs><radialGradient id="earth" cx="35%" cy="35%"><stop offset="0" stop-color="#7fe3ff"/><stop offset=".6" stop-color="#1b6c9a"/><stop offset="1" stop-color="#062033"/></radialGradient></defs>
+      <g class="sat" style="animation-duration: 20s"><circle cx="210" cy="70" r="5" fill="var(--cyan)"/><circle cx="210" cy="70" r="12" fill="none" stroke="var(--cyan)" opacity=".4"/></g>
+      <g class="sat" style="animation-duration: 45s; animation-direction: reverse"><circle cx="400" cy="210" r="4" fill="var(--amber)"/></g>
+      <g class="sat" style="animation-duration: 12s"><rect x="207" y="117" width="6" height="6" fill="var(--green)"/></g>
+      <line x1="210" y1="0" x2="210" y2="420" stroke="var(--line)"/><line x1="0" y1="210" x2="420" y2="210" stroke="var(--line)"/>
+    </svg>
+    <div class="met" id="met">00:00:00</div>
+    <div class="met-sub">MISSION ELAPSED TIME · SINCE 00:00 LOCAL</div>
+    <form class="uplink" id="uplink">
+      <label>UPLINK</label>
+      <input id="q" placeholder="transmit search query…" autocomplete="off" autofocus>
+      <button>SEND</button>
+    </form>
+  </section>
+
+  <section class="panel tminus">
+    <h3>T-MINUS <span>END OF DAY</span></h3>
+    <div class="big" id="tminus">T-00:00:00</div>
+    <div class="bar"><span id="tbar"></span></div>
+    <h3 style="margin-top:22px">LUNAR <span>PHASE</span></h3>
+    <div class="moon"><svg width="64" height="64" viewBox="0 0 64 64" id="moon-svg"></svg><div><b id="moon-name"></b><span id="moon-pct"></span></div></div>
+  </section>
+
+  <section class="panel comms">
+    <h3>COMMS <span>CHANNELS</span></h3>
+    <a href="https://mail.google.com">CH-01 MAIL<span>● OPEN</span></a>
+    <a href="https://github.com">CH-02 GITHUB<span>● OPEN</span></a>
+    <a href="https://youtube.com">CH-03 YOUTUBE<span>● OPEN</span></a>
+    <a href="https://www.nasa.gov">CH-04 NASA<span>● OPEN</span></a>
+    <a href="https://news.ycombinator.com">CH-05 HN<span>● OPEN</span></a>
+  </section>
+
+  <section class="panel check">
+    <h3>GO / NO-GO <span>POLL</span></h3>
+    <form id="c-form"><input id="c-input" placeholder="+ add checklist item"></form>
+    <ul id="checks"></ul>
+    <div class="summary" id="summary"></div>
+  </section>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+  const p = n => String(n).padStart(2, "0");
+  const spark = [];
+
+  function tick() {
+    const d = new Date();
+    $("t-local").textContent = d.toLocaleTimeString([], { hour12: false });
+    $("t-utc").textContent = d.toISOString().slice(11, 19);
+    $("hdr-utc").textContent = "LIVE · " + d.toISOString().slice(0, 10);
+    $("t-unix").textContent = Math.floor(d / 1000);
+    $("t-doy").textContent = String(Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5)).padStart(3, "0");
+    $("t-net").textContent = navigator.onLine ? "NOMINAL" : "LOST";
+    $("t-net").style.color = navigator.onLine ? "var(--green)" : "var(--red)";
+    $("t-vp").textContent = `${innerWidth}×${innerHeight}`;
+
+    const s = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+    $("met").textContent = `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    const left = 86400 - s;
+    $("tminus").textContent = `T-${p(Math.floor(left / 3600))}:${p(Math.floor(left / 60) % 60)}:${p(left % 60)}`;
+    $("tbar").style.width = (s / 864) + "%";
+
+    // fake signal sparkline
+    spark.push(20 + Math.sin(d / 900) * 10 + Math.random() * 12); if (spark.length > 40) spark.shift();
+    $("spark").firstElementChild.setAttribute("points", spark.map((v, i) => `${i * 5},${48 - v}`).join(" "));
+  }
+  tick(); setInterval(tick, 1000);
+
+  $("uplink").onsubmit = e => { e.preventDefault(); const q = $("q").value.trim(); if (q) location.href = "https://www.google.com/search?q=" + encodeURIComponent(q); };
+
+  // moon phase (synodic month from a known new moon)
+  (function moon() {
+    const syn = 29.530588853, ref = Date.UTC(2000, 0, 6, 18, 14);
+    const age = (((Date.now() - ref) / 864e5) % syn + syn) % syn, f = age / syn;
+    const names = ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent"];
+    $("moon-name").textContent = names[Math.round(f * 8) % 8];
+    const illum = (1 - Math.cos(2 * Math.PI * f)) / 2;
+    $("moon-pct").textContent = `${Math.round(illum * 100)}% lit · day ${age.toFixed(1)}`;
+    // draw: lit part via two arcs (outer semicircle + terminator ellipse)
+    const r = 28, cx = 32, cy = 32, k = Math.cos(2 * Math.PI * f) * r, waxing = f < .5;
+    const sweepOuter = waxing ? 1 : 0, sweepInner = (f < .25 || f > .75) ? (waxing ? 0 : 1) : (waxing ? 1 : 0);
+    $("moon-svg").innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#0b2233" stroke="var(--line)"/>
+      <path d="M${cx} ${cy - r} A${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy + r} A${Math.abs(k)} ${r} 0 0 ${sweepInner} ${cx} ${cy - r}Z" fill="#d8f6ff" style="filter:drop-shadow(0 0 6px rgba(80,220,255,.6))"/>`;
+  })();
+
+  // go / no-go checklist
+  let checks = store.get("mc-checks", [{ t: "COFFEE SYSTEMS", go: true }, { t: "INBOX CLEARED", go: false }, { t: "THEME SELECTED", go: false }]);
+  function render() {
+    $("checks").innerHTML = "";
+    checks.forEach((c, i) => {
+      const li = document.createElement("li");
+      li.className = c.go ? "go" : "";
+      li.innerHTML = `<span class="t"></span><span><span class="st">${c.go ? "GO" : "NO-GO"}</span> <button class="del">[x]</button></span>`;
+      li.querySelector(".t").textContent = c.t;
+      li.onclick = e => { if (e.target.closest(".del")) checks.splice(i, 1); else c.go = !c.go; store.set("mc-checks", checks); render(); };
+      $("checks").appendChild(li);
+    });
+    const allGo = checks.length && checks.every(c => c.go);
+    $("summary").textContent = allGo ? "▲ ALL STATIONS GO FOR LAUNCH" : `■ HOLD · ${checks.filter(c => !c.go).length} NO-GO`;
+    $("summary").style.color = allGo ? "var(--green)" : "var(--amber)";
+  }
+  $("c-form").onsubmit = e => { e.preventDefault(); const v = $("c-input").value.trim().toUpperCase(); if (v) { checks.push({ t: v, go: false }); $("c-input").value = ""; store.set("mc-checks", checks); render(); } };
+  render();
+</script>
+</body>
+</html>

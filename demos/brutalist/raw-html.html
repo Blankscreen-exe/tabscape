@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAW.HTML</title>
+<style>
+  /* Classic web brutalism: browser defaults, exposed structure, zero decoration. */
+  :root {
+    --bg: #ffffff;
+    --text: #000000;
+    --link: #0000ee;
+    --visited: #551a8b;
+    --rule: #000000;
+    --mark: #ffff00;
+    --font: "Times New Roman", Times, serif;
+    --mono: "Courier New", Courier, monospace;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); margin: 8px; font-size: 16px; }
+  a { color: var(--link); }
+  a:visited { color: var(--visited); }
+  h1 { font-size: 2em; margin: .2em 0; }
+  hr { border: 0; border-top: 1px solid var(--rule); }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border: 1px solid var(--rule); padding: 6px 8px; vertical-align: top; text-align: left; }
+  th { background: #eee; font-family: var(--mono); font-size: 13px; text-transform: uppercase; }
+  .clock { font-size: clamp(60px, 14vw, 180px); line-height: 1; font-weight: bold; margin: 0; }
+  input, button, textarea { font: inherit; }
+  input[type=text] { width: 60%; }
+  ul { margin: 0; padding-left: 22px; }
+  li.done { text-decoration: line-through; }
+  mark { background: var(--mark); }
+  code, .mono { font-family: var(--mono); font-size: 14px; }
+  #counter { font-family: var(--mono); background: #000; color: #0f0; padding: 2px 6px; letter-spacing: 2px; }
+  @media (max-width: 700px) { table, tbody, tr, td, th { display: block; width: auto; } input[type=text] { width: 100%; } }
+</style>
+</head>
+<body>
+<h1>NEW TAB</h1>
+<p class="mono">last modified: <span id="lm"></span> | <a href="#" id="src">[show source]</a></p>
+<pre class="mono" id="srcbox" hidden style="border:1px solid #000;padding:8px;max-height:300px;overflow:auto;white-space:pre-wrap"></pre>
+<hr>
+<p class="clock" id="clock">00:00:00</p>
+<p id="date"></p>
+<hr>
+
+<form action="https://www.google.com/search" method="get">
+  <b>SEARCH:</b> <input type="text" name="q" autofocus autocomplete="off"> <input type="submit" value="Submit Query">
+</form>
+<hr>
+
+<table>
+  <tr><th>Links</th><th>To-do</th><th>Visitor counter</th></tr>
+  <tr>
+    <td>
+      <ul>
+        <li><a href="https://github.com">github.com</a></li>
+        <li><a href="https://youtube.com">youtube.com</a></li>
+        <li><a href="https://news.ycombinator.com">news.ycombinator.com</a></li>
+        <li><a href="https://wikipedia.org">wikipedia.org</a></li>
+        <li><a href="https://mail.google.com">mail.google.com</a></li>
+        <li><a href="https://info.cern.ch/hypertext/WWW/TheProject.html">the first website ever</a></li>
+      </ul>
+    </td>
+    <td>
+      <form id="todo-form"><input type="text" id="todo-input" placeholder="new item"> <button>add</button></form>
+      <ul id="todo"></ul>
+      <p class="mono">click an item to toggle. double-click to delete.</p>
+    </td>
+    <td>
+      <p>You are new tab number<br><span id="counter">000000</span></p>
+      <p><mark>Thank you for visiting my homepage.</mark></p>
+      <p class="mono">Best viewed in any browser.</p>
+    </td>
+  </tr>
+</table>
+<hr>
+<address>no css frameworks were harmed in the making of this page.</address>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+  function tick() {
+    const d = new Date();
+    $("clock").textContent = d.toLocaleTimeString([], { hour12: false });
+    $("date").textContent = d.toDateString().toUpperCase();
+  }
+  tick(); setInterval(tick, 1000);
+  $("lm").textContent = document.lastModified;
+
+  const n = store.get("raw-count", 0) + 1; store.set("raw-count", n);
+  $("counter").textContent = String(n).padStart(6, "0");
+
+  $("src").onclick = e => {
+    e.preventDefault();
+    const box = $("srcbox");
+    if (box.hidden) box.textContent = "<!doctype html>\n" + document.documentElement.outerHTML;
+    box.hidden = !box.hidden;
+  };
+
+  let todos = store.get("brutal-todos", ["pick a brutalist theme", "touch grass"].map(t => ({ t, d: false })));
+  function render() {
+    $("todo").innerHTML = "";
+    todos.forEach((td, i) => {
+      const li = document.createElement("li");
+      li.textContent = td.t; li.className = td.d ? "done" : ""; li.style.cursor = "pointer";
+      li.onclick = () => { td.d = !td.d; store.set("brutal-todos", todos); render(); };
+      li.ondblclick = () => { todos.splice(i, 1); store.set("brutal-todos", todos); render(); };
+      $("todo").appendChild(li);
+    });
+  }
+  $("todo-form").onsubmit = e => { e.preventDefault(); const v = $("todo-input").value.trim(); if (v) { todos.push({ t: v, d: false }); $("todo-input").value = ""; store.set("brutal-todos", todos); render(); } };
+  render();
+</script>
+</body>
+</html>

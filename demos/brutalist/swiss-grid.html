@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swiss Grid</title>
+<style>
+  /* Swiss / typographic brutalism: giant grotesk type, strict grid, black-white-red. */
+  :root {
+    --bg: #f2f2ee;
+    --ink: #0a0a0a;
+    --red: #e10600;
+    --muted: #7a7a76;
+    --line: 2px solid var(--ink);
+    --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--ink); min-height: 100vh; }
+  .page { display: grid; grid-template-columns: repeat(12, 1fr); border-left: var(--line); border-top: var(--line); max-width: 1400px; margin: 0 auto; }
+  .cell { border-right: var(--line); border-bottom: var(--line); padding: 18px 20px; position: relative; min-width: 0; }
+  .num { font-size: 13px; font-weight: 700; letter-spacing: .02em; display: flex; justify-content: space-between; margin-bottom: 18px; text-transform: uppercase; }
+  .num i { font-style: normal; color: var(--red); }
+
+  .clock { grid-column: 1 / -1; padding-bottom: 0; overflow: hidden; }
+  .clock .big {
+    font-size: clamp(110px, 27vw, 400px); font-weight: 800; letter-spacing: -.07em; line-height: .78;
+    font-variant-numeric: tabular-nums; margin-left: -.04em; white-space: nowrap;
+  }
+  .clock .big .colon { color: var(--red); }
+  .clock .sec { position: absolute; right: 20px; top: 18px; font-size: 13px; font-weight: 700; }
+
+  .datecol { grid-column: span 3; background: var(--red); color: var(--bg); display: flex; flex-direction: column; justify-content: space-between; }
+  .datecol .num i { color: var(--bg); }
+  .datecol .day { font-size: clamp(56px, 7vw, 110px); font-weight: 800; letter-spacing: -.05em; line-height: .85; }
+  .datecol .rest { font-size: 22px; font-weight: 700; line-height: 1.1; margin-top: 10px; }
+
+  .search { grid-column: span 9; display: flex; flex-direction: column; }
+  .search form { display: flex; align-items: flex-end; gap: 16px; margin-top: auto; }
+  .search input {
+    flex: 1; min-width: 0; font: 700 clamp(28px, 4vw, 54px) var(--font); letter-spacing: -.03em; color: var(--ink);
+    background: none; border: none; border-bottom: 6px solid var(--ink); outline: none; padding: 4px 0;
+  }
+  .search input::placeholder { color: #c9c9c4; }
+  .search input:focus { border-bottom-color: var(--red); }
+  .search button { font: 800 18px var(--font); background: var(--ink); color: var(--bg); border: none; padding: 14px 22px; cursor: pointer; }
+  .search button:hover { background: var(--red); }
+
+  .links { grid-column: span 4; padding: 0; }
+  .links .num { padding: 18px 20px 0; }
+  .links a {
+    display: flex; justify-content: space-between; align-items: baseline; padding: 10px 20px; border-top: var(--line);
+    color: var(--ink); text-decoration: none; font-size: 28px; font-weight: 700; letter-spacing: -.03em;
+  }
+  .links a span { font-size: 13px; font-weight: 700; letter-spacing: 0; }
+  .links a:hover { background: var(--ink); color: var(--bg); }
+
+  .todo { grid-column: span 4; }
+  .todo form input { width: 100%; font: 700 18px var(--font); border: none; border-bottom: var(--line); background: none; padding: 6px 0; outline: none; margin-bottom: 10px; }
+  .todo ol { list-style: none; counter-reset: t; }
+  .todo li { counter-increment: t; display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid #c9c9c4; font-size: 18px; font-weight: 500; cursor: pointer; }
+  .todo li::before { content: counter(t, decimal-leading-zero); font-size: 13px; font-weight: 700; color: var(--red); }
+  .todo li.done span { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 3px; color: var(--muted); }
+  .todo li button { background: none; border: none; font: 700 13px var(--font); cursor: pointer; }
+  .todo li button:hover { color: var(--red); }
+
+  .world { grid-column: span 4; }
+  .world dl { display: grid; grid-template-columns: 1fr auto; }
+  .world dt, .world dd { padding: 9px 0; border-bottom: 1px solid #c9c9c4; }
+  .world dt { font-size: 14px; font-weight: 700; text-transform: uppercase; }
+  .world dt small { display: block; font-weight: 400; color: var(--muted); text-transform: none; }
+  .world dd { font-size: 30px; font-weight: 800; letter-spacing: -.04em; font-variant-numeric: tabular-nums; text-align: right; }
+
+  footer { grid-column: 1 / -1; display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+
+  @media (max-width: 900px) { .page > .cell { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="cell clock">
+    <div class="num"><span>01 — Time</span><i id="tz"></i></div>
+    <span class="sec" id="sec">:00</span>
+    <div class="big" id="clock">00<span class="colon">:</span>00</div>
+  </section>
+
+  <section class="cell datecol">
+    <div class="num"><span>02 — Date</span><i id="week"></i></div>
+    <div><div class="day" id="day">01</div><div class="rest" id="rest"></div></div>
+  </section>
+
+  <section class="cell search">
+    <div class="num"><span>03 — Search</span><i>Enter ↵</i></div>
+    <form action="https://www.google.com/search" method="get">
+      <input name="q" placeholder="Type to search" autocomplete="off" autofocus>
+      <button>GO</button>
+    </form>
+  </section>
+
+  <nav class="cell links">
+    <div class="num"><span>04 — Index</span><i>6</i></div>
+    <a href="https://github.com">GitHub<span>01</span></a>
+    <a href="https://youtube.com">YouTube<span>02</span></a>
+    <a href="https://mail.google.com">Mail<span>03</span></a>
+    <a href="https://news.ycombinator.com">News<span>04</span></a>
+    <a href="https://figma.com">Figma<span>05</span></a>
+    <a href="https://wikipedia.org">Wikipedia<span>06</span></a>
+  </nav>
+
+  <section class="cell todo">
+    <div class="num"><span>05 — Tasks</span><i id="count"></i></div>
+    <form id="todo-form"><input id="todo-input" placeholder="+ New task"></form>
+    <ol id="todo"></ol>
+  </section>
+
+  <section class="cell world">
+    <div class="num"><span>06 — World</span><i>UTC±</i></div>
+    <dl id="world"></dl>
+  </section>
+
+  <footer class="cell"><span>New Tab / Swiss Grid</span><span id="foot"></span></footer>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+  const cities = [["London", "Europe/London"], ["New York", "America/New_York"], ["Tokyo", "Asia/Tokyo"], ["Dubai", "Asia/Dubai"], ["Sydney", "Australia/Sydney"]];
+  $("tz").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  function tick() {
+    const d = new Date(), p = n => String(n).padStart(2, "0");
+    $("clock").innerHTML = `${p(d.getHours())}<span class="colon">:</span>${p(d.getMinutes())}`;
+    $("sec").textContent = ":" + p(d.getSeconds());
+    $("day").textContent = p(d.getDate());
+    $("rest").innerHTML = d.toLocaleDateString(undefined, { weekday: "long" }) + "<br>" + d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    const y0 = new Date(d.getFullYear(), 0, 1);
+    $("week").textContent = "W" + p(Math.ceil(((d - y0) / 864e5 + y0.getDay() + 1) / 7));
+    $("foot").textContent = d.toISOString();
+    $("world").innerHTML = cities.map(([c, tz]) => {
+      const t = d.toLocaleTimeString([], { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
+      const wd = d.toLocaleDateString(undefined, { timeZone: tz, weekday: "short" });
+      return `<dt>${c}<small>${wd}</small></dt><dd>${t}</dd>`;
+    }).join("");
+  }
+  tick(); setInterval(tick, 1000);
+
+  let todos = store.get("brutal-todos", ["pick a brutalist theme", "touch grass"].map(t => ({ t, d: false })));
+  function render() {
+    $("todo").innerHTML = "";
+    todos.forEach((td, i) => {
+      const li = document.createElement("li");
+      li.className = td.d ? "done" : "";
+      li.innerHTML = `<span></span><button title="Delete">DEL</button>`;
+      li.querySelector("span").textContent = td.t;
+      li.onclick = e => {
+        if (e.target.tagName === "BUTTON") todos.splice(i, 1); else td.d = !td.d;
+        store.set("brutal-todos", todos); render();
+      };
+      $("todo").appendChild(li);
+    });
+    $("count").textContent = `${todos.filter(t => !t.d).length}/${todos.length}`;
+  }
+  $("todo-form").onsubmit = e => { e.preventDefault(); const v = $("todo-input").value.trim(); if (v) { todos.push({ t: v, d: false }); $("todo-input").value = ""; store.set("brutal-todos", todos); render(); } };
+  render();
+</script>
+</body>
+</html>

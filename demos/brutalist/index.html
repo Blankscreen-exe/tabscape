@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brutalist Pack</title>
+<style>
+  :root { --bg: #e9e7e1; --ink: #000; --paper: #fff; --red: #e10600; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Courier New", monospace; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 5vh 24px; }
+  .wrap { max-width: 1160px; margin: 0 auto; }
+  h1 { font: 900 clamp(48px, 8vw, 104px) "Arial Black", Impact, sans-serif; letter-spacing: -.05em; line-height: .85; text-transform: uppercase; }
+  h1 span { color: var(--red); }
+  .sub { margin: 14px 0 34px; border-top: 4px solid var(--ink); padding-top: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .sub a { color: var(--ink); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+  a.card { display: block; text-decoration: none; color: var(--ink); background: var(--paper); border: 4px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); transition: transform .1s, box-shadow .1s; }
+  a.card:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 var(--ink); }
+  .preview { height: 200px; overflow: hidden; border-bottom: 4px solid var(--ink); }
+  .preview iframe { width: 1280px; height: 780px; border: 0; transform: scale(.27); transform-origin: 0 0; pointer-events: none; }
+  .info { padding: 12px 14px; }
+  .info b { font: 900 20px "Arial Black", Impact, sans-serif; text-transform: uppercase; display: flex; justify-content: space-between; }
+  .info b i { font-style: normal; color: var(--red); }
+  .info p { font-size: 13px; margin-top: 6px; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Brutalist<br><span>Theme Pack</span></h1>
+  <div class="sub"><span>5 THEMES · SAME CORE WIDGETS · SHARED TO-DO DATA</span><a href="../index.html">← all demos</a></div>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+  const themes = [
+    ["raw-html.html", "Raw HTML", "Default browser styles, Times, blue links, tables, <hr>. Unique: visitor counter + show source."],
+    ["neo-brutal.html", "Neo Brutal", "Loud flat colours, thick borders, hard offset shadows, buttons that press in. Unique: weekly habit tracker."],
+    ["swiss-grid.html", "Swiss Grid", "Giant grotesk numerals, strict ruled grid, black/white/red. Unique: world clocks."],
+    ["concrete.html", "Concrete", "Raw concrete texture, hazard tape, exposed grid coordinates, stencil mono. Unique: stopwatch with laps."],
+    ["anti-design.html", "Anti-Design", "Clashing colours, mixed fonts, rotated overlapping blocks, ticker. Unique: random-site die."],
+  ];
+  document.getElementById("grid").innerHTML = themes.map(([f, n, d], i) => `
+    <a class="card" href="${f}">
+      <div class="preview"><iframe src="${f}" loading="lazy" tabindex="-1"></iframe></div>
+      <div class="info"><b>${n}<i>0${i + 1}</i></b><p>${d.replace(/</g, "&lt;")}</p></div>
+    </a>`).join("");
+</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concrete</title>
+<style>
+  /* Industrial brutalism: raw concrete, exposed grid, hazard tape, stencil mono. */
+  :root {
+    --concrete: #9a9893;
+    --concrete-dark: #7d7b76;
+    --slab: #b4b1ab;
+    --ink: #1b1b1a;
+    --hazard: #f5c400;
+    --rust: #b6461d;
+    --line: 1px solid rgba(27, 27, 26, .55);
+    --mono: "Cascadia Mono", Consolas, "Lucida Console", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--mono); color: var(--ink); text-transform: uppercase; min-height: 100vh; font-size: 14px;
+    background-color: var(--concrete);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      linear-gradient(rgba(27,27,26,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27,27,26,.08) 1px, transparent 1px);
+    background-size: 220px 220px, 40px 40px, 40px 40px;
+  }
+  .tape { height: 26px; background: repeating-linear-gradient(-45deg, var(--hazard) 0 18px, var(--ink) 18px 36px); border-bottom: 3px solid var(--ink); }
+  .tape.bottom { border-top: 3px solid var(--ink); border-bottom: none; margin-top: 40px; }
+  header { display: flex; justify-content: space-between; padding: 10px 24px; border-bottom: 3px solid var(--ink); background: var(--ink); color: var(--hazard); font-weight: 700; letter-spacing: .15em; }
+
+  .site { max-width: 1200px; margin: 0 auto; padding: 32px 24px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 3px solid var(--ink); border-width: 3px 0 0 3px; margin-top: 32px; }
+  .slab {
+    border: 3px solid var(--ink); border-width: 0 3px 3px 0; padding: 30px 18px 18px; position: relative; min-width: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,.08), rgba(0,0,0,.06));
+  }
+  .slab::before {
+    content: attr(data-coord); position: absolute; top: 0; left: 0; background: var(--ink); color: var(--slab);
+    font-size: 11px; padding: 3px 8px; letter-spacing: .1em;
+  }
+  .slab::after {
+    /* bolt heads */
+    content: ""; position: absolute; top: 8px; right: 8px; width: 9px; height: 9px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #d6d3cc, #55534f); box-shadow: 0 0 0 1px var(--ink);
+  }
+  h2 { font-size: 12px; letter-spacing: .25em; margin-bottom: 14px; font-weight: 700; }
+  h2::before { content: "■ "; color: var(--rust); }
+
+  .clock { grid-column: span 3; }
+  .clock .big { font-size: clamp(70px, 12vw, 170px); font-weight: 700; line-height: .9; letter-spacing: -.04em; color: var(--ink); text-shadow: 3px 3px 0 rgba(255,255,255,.18); }
+  .clock .meta { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; letter-spacing: .1em; }
+  .clock .meta b { background: var(--ink); color: var(--hazard); padding: 1px 6px; font-weight: 400; }
+
+  .status { display: flex; flex-direction: column; justify-content: space-between; background: var(--hazard); }
+  .status .warn { font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+  .meter { height: 18px; border: 2px solid var(--ink); margin-top: 8px; background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(0,0,0,.15) 9px 10px); }
+  .meter span { display: block; height: 100%; background: var(--ink); }
+
+  .search { grid-column: 1 / -1; display: flex; gap: 0; padding: 30px 18px 18px; }
+  .search input { flex: 1; min-width: 0; font: 700 22px var(--mono); text-transform: uppercase; padding: 14px 16px; background: var(--slab); border: 3px solid var(--ink); outline: none; color: var(--ink); }
+  .search input:focus { background: #d8d5ce; }
+  .search button { font: 700 18px var(--mono); padding: 0 26px; border: 3px solid var(--ink); border-left: none; background: var(--ink); color: var(--hazard); cursor: pointer; letter-spacing: .15em; }
+  .search button:hover { background: var(--rust); color: var(--ink); }
+
+  .links { grid-column: span 2; }
+  .links .grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--ink); }
+  .links a { padding: 16px 10px; color: var(--ink); text-decoration: none; font-weight: 700; border: 1px solid var(--ink); letter-spacing: .05em; background: rgba(255,255,255,.07); }
+  .links a small { display: block; font-weight: 400; font-size: 11px; opacity: .7; margin-top: 4px; text-transform: lowercase; }
+  .links a:hover { background: var(--ink); color: var(--hazard); }
+
+  .todo form { display: flex; margin-bottom: 10px; }
+  .todo input { flex: 1; min-width: 0; font: 14px var(--mono); text-transform: uppercase; border: 2px solid var(--ink); background: var(--slab); padding: 8px; outline: none; }
+  .todo ul { list-style: none; }
+  .todo li { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--ink); cursor: pointer; }
+  .todo li::before { content: "[ ]"; }
+  .todo li.done::before { content: "[X]"; color: var(--rust); font-weight: 700; }
+  .todo li.done span { opacity: .45; text-decoration: line-through; }
+  .todo li button { margin-left: auto; background: none; border: none; font: 700 12px var(--mono); cursor: pointer; color: var(--rust); }
+
+  .watch .t { font-size: 40px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+  .watch .t small { font-size: .5em; }
+  .watch .row { display: flex; gap: 0; margin-top: 12px; }
+  .watch button { flex: 1; font: 700 13px var(--mono); letter-spacing: .1em; padding: 10px; border: 2px solid var(--ink); background: var(--slab); cursor: pointer; color: var(--ink); }
+  .watch button + button { border-left: none; }
+  .watch button:hover { background: var(--ink); color: var(--hazard); }
+  .watch ol { margin-top: 10px; font-size: 12px; list-style: none; max-height: 90px; overflow: auto; }
+
+  @media (max-width: 900px) { .site { grid-template-columns: 1fr; } .site > .slab { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<div class="tape"></div>
+<header><span>⚠ SITE: NEW-TAB / BLOCK B</span><span id="hdr"></span></header>
+
+<main class="site">
+  <section class="slab clock" data-coord="A1–C1">
+    <h2>Site clock</h2>
+    <div class="big" id="clock">00:00:00</div>
+    <div class="meta"><span>Date <b id="date"></b></span><span>Day <b id="doy"></b></span><span>TZ <b id="tz"></b></span></div>
+  </section>
+
+  <section class="slab status" data-coord="D1">
+    <h2>Shift status</h2>
+    <div class="warn" id="shift">ON DUTY</div>
+    <div><div style="font-size:12px;margin-top:12px">DAY LOAD <span id="pct"></span></div><div class="meter"><span id="meter"></span></div></div>
+  </section>
+
+  <form class="slab search" data-coord="A2–D2" action="https://www.google.com/search" method="get">
+    <input name="q" placeholder="> QUERY" autocomplete="off" autofocus>
+    <button>EXECUTE</button>
+  </form>
+
+  <nav class="slab links" data-coord="A3–B3">
+    <h2>Access points</h2>
+    <div class="grid">
+      <a href="https://github.com">GitHub<small>github.com</small></a>
+      <a href="https://youtube.com">YouTube<small>youtube.com</small></a>
+      <a href="https://mail.google.com">Mail<small>gmail</small></a>
+      <a href="https://reddit.com">Reddit<small>reddit.com</small></a>
+      <a href="https://stackoverflow.com">Stack<small>stackoverflow</small></a>
+      <a href="https://maps.google.com">Maps<small>google maps</small></a>
+    </div>
+  </nav>
+
+  <section class="slab todo" data-coord="C3">
+    <h2>Work orders</h2>
+    <form id="todo-form"><input id="todo-input" placeholder="+ ORDER"></form>
+    <ul id="todo"></ul>
+  </section>
+
+  <section class="slab watch" data-coord="D3">
+    <h2>Stopwatch</h2>
+    <div class="t" id="sw">00:00<small>.00</small></div>
+    <div class="row"><button id="sw-go">START</button><button id="sw-lap">LAP</button><button id="sw-rst">RST</button></div>
+    <ol id="laps"></ol>
+  </section>
+</main>
+
+<div class="tape bottom"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+  const p = n => String(n).padStart(2, "0");
+
+  $("tz").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  function tick() {
+    const d = new Date();
+    $("clock").textContent = d.toLocaleTimeString([], { hour12: false });
+    $("date").textContent = d.toLocaleDateString("sv");
+    $("doy").textContent = String(Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5)).padStart(3, "0");
+    $("hdr").textContent = d.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase();
+    const h = d.getHours();
+    $("shift").textContent = h < 6 ? "NIGHT SHIFT" : h < 9 ? "CLOCK IN" : h < 17 ? "ON DUTY" : h < 22 ? "OFF DUTY" : "LIGHTS OUT";
+    const pct = Math.round((h * 60 + d.getMinutes()) / 14.4);
+    $("pct").textContent = pct + "%"; $("meter").style.width = pct + "%";
+  }
+  tick(); setInterval(tick, 1000);
+
+  let todos = store.get("brutal-todos", ["pick a brutalist theme", "touch grass"].map(t => ({ t, d: false })));
+  function render() {
+    $("todo").innerHTML = "";
+    todos.forEach((td, i) => {
+      const li = document.createElement("li");
+      li.className = td.d ? "done" : "";
+      li.innerHTML = `<span></span><button>DEL</button>`;
+      li.querySelector("span").textContent = td.t;
+      li.onclick = e => { if (e.target.tagName === "BUTTON") todos.splice(i, 1); else td.d = !td.d; store.set("brutal-todos", todos); render(); };
+      $("todo").appendChild(li);
+    });
+  }
+  $("todo-form").onsubmit = e => { e.preventDefault(); const v = $("todo-input").value.trim(); if (v) { todos.push({ t: v, d: false }); $("todo-input").value = ""; store.set("brutal-todos", todos); render(); } };
+  render();
+
+  // stopwatch
+  let start = 0, acc = 0, raf = null, laps = [];
+  const fmt = ms => `${p(Math.floor(ms / 60000))}:${p(Math.floor(ms / 1000) % 60)}<small>.${p(Math.floor(ms / 10) % 100)}</small>`;
+  const elapsed = () => acc + (raf ? performance.now() - start : 0);
+  const draw = () => { $("sw").innerHTML = fmt(elapsed()); if (raf) raf = requestAnimationFrame(draw); };
+  $("sw-go").onclick = () => {
+    if (raf) { acc = elapsed(); cancelAnimationFrame(raf); raf = null; $("sw-go").textContent = "START"; draw(); }
+    else { start = performance.now(); raf = requestAnimationFrame(draw); $("sw-go").textContent = "STOP"; }
+  };
+  $("sw-lap").onclick = () => { if (!elapsed()) return; laps.unshift(elapsed()); $("laps").innerHTML = laps.map((l, i) => `<li>LAP ${p(laps.length - i)} — ${fmt(l).replace(/<\/?small>/g, "")}</li>`).join(""); };
+  $("sw-rst").onclick = () => { if (raf) cancelAnimationFrame(raf); raf = null; acc = 0; laps = []; $("laps").innerHTML = ""; $("sw-go").textContent = "START"; draw(); };
+</script>
+</body>
+</html>

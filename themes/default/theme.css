@@ -1,0 +1,4 @@
+/* Default theme: almost everything comes from tokens; only the hero clock is styled. */
+@layer theme {
+  [data-theme="default"] .w-clock { background: none; border: none; box-shadow: none; }
+}

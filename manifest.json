@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Browser Home Pages",
+  "version": "0.1.0",
+  "description": "Themeable new tab page with movable widgets.",
+  "chrome_url_overrides": { "newtab": "newtab.html" },
+  "permissions": ["storage"],
+  "browser_specific_settings": {
+    "gecko": { "id": "browser-home-pages@blankscreen-exe", "strict_min_version": "121.0" }
+  }
+}

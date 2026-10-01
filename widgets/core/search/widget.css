@@ -1,0 +1,8 @@
+@layer widgets {
+  .w-search { padding: 0 6px 0 16px; display: flex; align-items: center; overflow: hidden; }
+  .w-search:focus-within { border-color: var(--accent); box-shadow: var(--shadow), var(--focus-ring); }
+  .w-search .search-form { flex: 1; display: flex; align-items: center; gap: 10px; }
+  .w-search .search-icon { width: 20px; height: 20px; color: var(--muted); flex: none; }
+  .w-search .search-input { flex: 1; min-width: 0; border: none; outline: none; background: none; color: var(--text); font-size: 17px; padding: 12px 0; }
+  .w-search .search-input::placeholder { color: var(--muted); }
+}

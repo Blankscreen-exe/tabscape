@@ -1,0 +1,30 @@
+@layer widgets {
+  .w-links { display: flex; flex-direction: column; gap: 10px; }
+  .w-links .links-head { display: flex; justify-content: space-between; align-items: center; }
+  .w-links h3 { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-links .links-edit { background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity .2s; }
+  .w-links:hover .links-edit, .w-links .links-edit:focus-visible { opacity: 1; }
+
+  .w-links .links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+  .w-links .links-grid a {
+    display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: calc(var(--radius) * .7);
+    color: var(--text); text-decoration: none; font-size: 13px; transition: background .15s;
+  }
+  .w-links .links-grid a:hover { background: var(--surface-2); }
+  .w-links .links-ico {
+    width: 40px; height: 40px; border-radius: calc(var(--radius) * .7); display: grid; place-items: center;
+    background: var(--accent); color: var(--accent-contrast); font: 700 17px var(--font-display);
+  }
+  .w-links .links-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .w-links .links-list { display: grid; gap: 2px; }
+  .w-links .links-list a { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: calc(var(--radius) * .5); color: var(--text); text-decoration: none; }
+  .w-links .links-list a:hover { background: var(--surface-2); }
+  .w-links .links-list .links-ico { width: 24px; height: 24px; font-size: 12px; }
+
+  .w-links .links-help { font-size: 12px; color: var(--muted); }
+  .w-links .links-text { flex: 1; min-height: 80px; resize: none; padding: 8px; border: 1px solid var(--border); border-radius: calc(var(--radius) * .5); background: var(--surface-2); font: 13px var(--font-mono); }
+  .w-links .links-actions { display: flex; justify-content: flex-end; gap: 6px; }
+  .w-links .links-actions button { padding: 5px 12px; border-radius: calc(var(--radius) * .5); border: 1px solid var(--border); background: var(--surface-2); cursor: pointer; }
+  .w-links .links-actions .links-save { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+}

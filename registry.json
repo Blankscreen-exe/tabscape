@@ -1,0 +1,13 @@
+{
+  "themes": [
+    { "id": "default", "path": "themes/default/theme.js" },
+    { "id": "midnight", "path": "themes/midnight/theme.js" }
+  ],
+  "widgets": [
+    { "id": "clock", "path": "widgets/core/clock/widget.js" },
+    { "id": "search", "path": "widgets/core/search/widget.js" },
+    { "id": "links", "path": "widgets/core/links/widget.js" },
+    { "id": "todo", "path": "widgets/core/todo/widget.js" },
+    { "id": "notes", "path": "widgets/core/notes/widget.js" }
+  ]
+}

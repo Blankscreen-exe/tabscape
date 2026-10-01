@@ -1,0 +1,9 @@
+/*
+ * Theme stylesheet. Rules:
+ *  - wrap everything in @layer theme
+ *  - prefix every selector with [data-theme="<your-id>"] so it can't leak into other themes
+ *  - restyle widgets via their root class: .w (all), .w-clock, .w-todo, ... and [data-variant="..."]
+ */
+@layer theme {
+  [data-theme="template"] .w-clock { background: none; border: none; box-shadow: none; }
+}

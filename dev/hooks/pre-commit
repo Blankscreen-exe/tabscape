@@ -1,0 +1,28 @@
+#!/bin/sh
+# Project pre-commit hook (enabled with: git config core.hooksPath dev/hooks)
+#  1. enforces the project git identity (docs/MAINTAINING.md, rule G1)
+#  2. runs the consistency checker + unit tests (zero dependencies, needs Node)
+
+EXPECTED_NAME="Blankscreen-exe"
+EXPECTED_EMAIL="mhammad.hassan002@gmail.com"
+
+name="$(git config user.name)"
+email="$(git config user.email)"
+author_name="${GIT_AUTHOR_NAME:-$name}"
+author_email="${GIT_AUTHOR_EMAIL:-$email}"
+
+if [ "$name" != "$EXPECTED_NAME" ] || [ "$email" != "$EXPECTED_EMAIL" ] \
+   || [ "$author_name" != "$EXPECTED_NAME" ] || [ "$author_email" != "$EXPECTED_EMAIL" ]; then
+  echo "pre-commit: wrong git identity."
+  echo "  expected: $EXPECTED_NAME <$EXPECTED_EMAIL>"
+  echo "  got:      $author_name <$author_email>"
+  echo "  fix:      git config user.name \"$EXPECTED_NAME\" && git config user.email \"$EXPECTED_EMAIL\""
+  exit 1
+fi
+
+if command -v node >/dev/null 2>&1; then
+  node dev/check.mjs || exit 1
+  node --test "dev/tests/*.test.mjs" >/dev/null 2>&1 || { echo "pre-commit: unit tests failed — run: npm test"; exit 1; }
+else
+  echo "pre-commit: node not found, skipping checks"
+fi

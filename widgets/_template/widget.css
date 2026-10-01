@@ -1,0 +1,6 @@
+/* Widget stylesheet: wrap in @layer widgets, scope under .w-<id>, use tokens only. */
+@layer widgets {
+  .w-template { display: grid; gap: 10px; align-content: start; }
+  .w-template .tpl-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-template .tpl-btn { padding: 8px 12px; border: none; border-radius: calc(var(--radius) * .6); background: var(--accent); color: var(--accent-contrast); cursor: pointer; }
+}
