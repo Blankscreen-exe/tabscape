@@ -1,0 +1,27 @@
+@layer widgets {
+  .w-hackernews { display: flex; flex-direction: column; gap: 8px; }
+  .w-hackernews .hn-head { display: flex; align-items: center; gap: 8px; }
+  .w-hackernews .hn-title { display: flex; align-items: center; gap: 8px; font: 700 14px var(--font-display); color: var(--text); text-decoration: none; }
+  .w-hackernews .hn-logo {
+    width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--accent);
+    background: var(--accent); color: var(--accent-contrast); font: 700 13px var(--font-body);
+  }
+  .w-hackernews .hn-feed { font-size: 12px; color: var(--muted); }
+  .w-hackernews .hn-refresh { margin-left: auto; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 0 4px; }
+  .w-hackernews .hn-refresh:hover { color: var(--text); }
+  .w-hackernews .hn-refresh:disabled { opacity: .4; cursor: default; animation: hn-spin 1s linear infinite; }
+  @keyframes hn-spin { to { transform: rotate(360deg); } }
+
+  .w-hackernews .hn-list { list-style: none; padding: 0; margin: 0; overflow: auto; min-height: 0; flex: 1; display: grid; gap: 8px; align-content: start; }
+  .w-hackernews .hn-list li { display: flex; gap: 8px; }
+  .w-hackernews .hn-rank { color: var(--muted); font: 600 12px var(--font-mono); min-width: 1.6em; text-align: right; padding-top: 2px; }
+  .w-hackernews .hn-body { min-width: 0; font-size: 14px; line-height: 1.35; }
+  .w-hackernews .hn-link { color: var(--text); text-decoration: none; }
+  .w-hackernews .hn-link:visited { color: var(--muted); }
+  .w-hackernews .hn-link:hover { color: var(--accent); }
+  .w-hackernews .hn-domain { color: var(--muted); font-size: 12px; }
+  .w-hackernews .hn-meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .w-hackernews .hn-meta a { color: inherit; }
+  .w-hackernews .hn-meta a:hover { color: var(--accent); }
+  .w-hackernews .hn-empty, .w-hackernews .hn-status { color: var(--muted); font-size: 13px; margin: 0; }
+}

@@ -5,6 +5,7 @@ User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 ## [Unreleased]
 
 ### Added
+- **Hacker News** widget: today's top stories (last 24 h, ranked by points) by default, or front page, newest, Ask HN and Show HN. Points, comments link and age. One request per list via the HN Search API (Algolia), cached 15 minutes, works offline with the last list.
 - **Feeling Lucky** can roll from **The Useless Web**'s collection: the live list (fetched weekly once you allow access to theuselessweb.com on the first roll) with a bundled 118-site fallback, credited in the widget. Also new: no repeats until every site was shown, and "go there right away".
 - `npm run update:uselessweb` refreshes the bundled list. `core/url.js` holds the shared safe-link rule.
 - **Weather widget**: current conditions plus a 3/5/7-day forecast. Your location is detected automatically (named via reverse geocoding), or you can pick any place by searching inside the widget. °C/km/h or °F/mph. Cached 30 minutes and works offline with the last data. Aurora Glass shows it by default.

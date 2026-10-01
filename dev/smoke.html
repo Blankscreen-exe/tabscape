@@ -489,6 +489,26 @@
     assert(seen.length === 1 && same(seen[0], link.href), `seen not recorded: ${seen}`);
   });
 
+  // ---------------------------------------------------------------- hacker news (seeded, no network)
+  await step("hackernews: renders cached stories with meta, respects 'How many', escapes titles", async () => {
+    await load("default");
+    const { store } = frame.contentWindow.__homepage;
+    const stories = Array.from({ length: 30 }, (_, i) => ({
+      id: String(i), title: i === 0 ? "<img src=x onerror=alert(1)> Show HN" : `Story ${i}`, url: `https://example.com/${i}`, domain: "example.com",
+      points: 300 - i, comments: i, commentsUrl: `https://news.ycombinator.com/item?id=${i}`, by: "u", at: Date.now() - 3600_000,
+    }));
+    store.update(s => {
+      s.widgetData.hackernews = { cache: { today: { at: Date.now(), stories } } };
+      s.layouts.default = [{ id: "hn-1", widget: "hackernews", x: 0, y: 0, w: 4, h: 5 }];
+    });
+    frame.contentWindow.__homepage.bus.emit(frame.contentWindow.__homepage.events.STORE_CHANGED, { source: "external" });
+    assert(await until(() => $$(".w-hackernews .hn-list li").length === 10), `expected 10 stories, got ${$$(".w-hackernews .hn-list li").length}`);
+    assert(!$(".w-hackernews img"), "title HTML was not escaped");
+    assert(/300 points/.test($(".w-hackernews .hn-meta").textContent) && /1h/.test($(".w-hackernews .hn-meta").textContent), "meta line wrong");
+    assert($(".w-hackernews .hn-meta a").href.includes("news.ycombinator.com/item?id=0"), "comments link wrong");
+    assert(/Top today/.test($(".w-hackernews .hn-feed").textContent), "feed label missing");
+  });
+
   const summary = document.getElementById("summary");
   summary.textContent = `SMOKE RESULT: ${passed} passed, ${failed} failed`;
   summary.className = failed ? "fail" : "pass";

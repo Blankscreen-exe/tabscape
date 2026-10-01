@@ -33,6 +33,7 @@
     { "id": "stopwatch", "path": "widgets/core/stopwatch/widget.js" },
     { "id": "moon", "path": "widgets/core/moon/widget.js" },
     { "id": "weather", "path": "widgets/core/weather/widget.js" },
+    { "id": "hackernews", "path": "widgets/core/hackernews/widget.js" },
     { "id": "breath", "path": "widgets/signature/breath/widget.js" },
     { "id": "intention", "path": "widgets/signature/intention/widget.js" },
     { "id": "haiku", "path": "widgets/signature/haiku/widget.js" },
