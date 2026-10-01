@@ -1,0 +1,6 @@
+@layer widgets {
+  .w-countdown { display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  .w-countdown .cd-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-countdown .cd-big { font: 600 clamp(24px, 3.4vw, 40px) var(--font-display); color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+  .w-countdown .cd-sub { color: var(--muted); }
+}

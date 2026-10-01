@@ -4,7 +4,12 @@
     { "id": "midnight", "path": "themes/midnight/theme.js" },
     { "id": "zen", "path": "themes/zen/theme.js" },
     { "id": "rpg-quest", "path": "themes/rpg-quest/theme.js" },
-    { "id": "anti-design", "path": "themes/anti-design/theme.js" }
+    { "id": "anti-design", "path": "themes/anti-design/theme.js" },
+    { "id": "aurora-glass", "path": "themes/aurora-glass/theme.js" },
+    { "id": "paper-ink", "path": "themes/paper-ink/theme.js" },
+    { "id": "terminal", "path": "themes/terminal/theme.js" },
+    { "id": "synthwave", "path": "themes/synthwave/theme.js" },
+    { "id": "bento", "path": "themes/bento/theme.js" }
   ],
   "widgets": [
     { "id": "clock", "path": "widgets/core/clock/widget.js" },
@@ -12,11 +17,18 @@
     { "id": "links", "path": "widgets/core/links/widget.js" },
     { "id": "todo", "path": "widgets/core/todo/widget.js" },
     { "id": "notes", "path": "widgets/core/notes/widget.js" },
+    { "id": "quote", "path": "widgets/core/quote/widget.js" },
+    { "id": "progress", "path": "widgets/core/progress/widget.js" },
+    { "id": "calendar", "path": "widgets/core/calendar/widget.js" },
+    { "id": "pomodoro", "path": "widgets/core/pomodoro/widget.js" },
+    { "id": "countdown", "path": "widgets/core/countdown/widget.js" },
     { "id": "breath", "path": "widgets/signature/breath/widget.js" },
     { "id": "intention", "path": "widgets/signature/intention/widget.js" },
     { "id": "haiku", "path": "widgets/signature/haiku/widget.js" },
     { "id": "hero", "path": "widgets/signature/hero/widget.js" },
     { "id": "oracle", "path": "widgets/signature/oracle/widget.js" },
-    { "id": "dice", "path": "widgets/signature/dice/widget.js" }
+    { "id": "dice", "path": "widgets/signature/dice/widget.js" },
+    { "id": "terminal", "path": "widgets/signature/terminal/widget.js" },
+    { "id": "sysinfo", "path": "widgets/signature/sysinfo/widget.js" }
   ]
 }

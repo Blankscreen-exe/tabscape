@@ -1,0 +1,8 @@
+@layer widgets {
+  .w-sysinfo { font: 13px/1.6 var(--font-mono); display: flex; flex-direction: column; gap: 8px; }
+  .w-sysinfo .sys-title { font: 600 12px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-sysinfo .sys-kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; margin: 0; }
+  .w-sysinfo dt { color: var(--muted); }
+  .w-sysinfo dd { margin: 0; }
+  .w-sysinfo .sys-bar { color: var(--muted); white-space: pre; }
+}

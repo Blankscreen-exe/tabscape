@@ -2,6 +2,15 @@
 
 User-visible changes. Newest first. Format: `## [version] - YYYY-MM-DD`.
 
+## [0.4.0] - 2026-10-01
+
+### Added
+- Themes: **Aurora Glass**, **Paper & Ink** (masthead, lined notebook, almanac), **Terminal** (the accent is the phosphor colour), **Synthwave** (striped sun, neon grid floor), **Bento** (follows system light/dark).
+- Core widgets: Quote, Progress (tiles or almanac), Calendar, Pomodoro (survives closing the tab), Countdown (weekend, end of day, any date).
+- Signature widgets: Terminal (command line) and System Info.
+- Search: optional engine buttons ("pills"); the last pick is remembered.
+- Unit tests for widget helpers. The smoke test now covers terminal, pomodoro, calendar, engine pills, countdown and almanac.
+
 ## [0.3.0] - 2026-10-01
 
 ### Added

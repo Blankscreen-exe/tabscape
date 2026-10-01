@@ -1,0 +1,6 @@
+@layer widgets {
+  .w-quote { display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+  .w-quote .quote-title { font: 600 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .w-quote .quote-text { font: 300 clamp(16px, 2vw, 22px) / 1.45 var(--font-display); margin: 0; }
+  .w-quote .quote-by { color: var(--muted); font-style: normal; font-size: 14px; }
+}

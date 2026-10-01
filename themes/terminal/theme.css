@@ -1,0 +1,41 @@
+@layer theme {
+  [data-theme="terminal"] body {
+    background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent) 5%, #050805) 0%, var(--bg) 75%);
+    text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  /* CRT scanlines + rare flicker, above everything, never clickable */
+  [data-theme="terminal"] body::after {
+    content: ""; position: fixed; inset: 0; z-index: 900; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .25) 0 1px, transparent 1px 3px);
+    animation: term-flicker 6s infinite;
+  }
+  @keyframes term-flicker { 0%, 97%, 100% { opacity: 1; } 98% { opacity: .85; } }
+
+  /* boxes with a title notch: [ title ] */
+  [data-theme="terminal"] .w { border: 1px solid var(--border); overflow: visible; }
+  [data-theme="terminal"] .w h3,
+  [data-theme="terminal"] .w .links-head h3 {
+    position: absolute; top: -10px; left: 12px; background: var(--bg); padding: 0 8px;
+    font: 400 13px var(--font-mono); letter-spacing: 0; text-transform: none; color: var(--text);
+  }
+  [data-theme="terminal"] .w h3::before { content: "[ "; }
+  [data-theme="terminal"] .w h3::after { content: " ]"; }
+  [data-theme="terminal"] .w-terminal::before {
+    content: "[ tty1 ]"; position: absolute; top: -10px; left: 12px; background: var(--bg); padding: 0 8px; font-size: 13px;
+  }
+  [data-theme="terminal"] .w-terminal .term-out { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+  [data-theme="terminal"] .w-clock .clock-time { font-weight: 400; letter-spacing: .05em; }
+
+  [data-theme="terminal"] .w-links .links-ico { display: none; }
+  [data-theme="terminal"] .w-links .links-list a { border-radius: 0; padding: 2px 4px; }
+  [data-theme="terminal"] .w-links .links-list a::before { content: "> "; color: var(--muted); }
+  [data-theme="terminal"] .w-links .links-list a:hover { background: var(--accent); color: var(--bg); text-shadow: none; }
+  [data-theme="terminal"] .w-links .links-head { height: 0; margin: 0; } /* title is the notch; keep only the edit button */
+  [data-theme="terminal"] .w-links .links-edit { position: absolute; top: -10px; right: 12px; background: var(--bg); }
+
+  [data-theme="terminal"] .w-todo .todo-check,
+  [data-theme="terminal"] .w-todo .todo-input,
+  [data-theme="terminal"] .w-todo .todo-add,
+  [data-theme="terminal"] .w-search { border-radius: 0; }
+}

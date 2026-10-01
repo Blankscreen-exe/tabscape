@@ -1,0 +1,32 @@
+@layer theme {
+  /*
+   * Dark mode follows the system. These override the tokens from theme.js: same layer,
+   * same specificity, and this stylesheet is loaded later, so it wins.
+   */
+  @media (prefers-color-scheme: dark) {
+    [data-theme="bento"] {
+      color-scheme: dark;
+      --bg: #0e0f12; --surface: #17191e; --surface-2: #1e2027; --text: #f2f3f5; --muted: #8b91a0; --border: #2a2d35;
+      --shadow: 0 1px 2px rgb(0 0 0 / .4);
+    }
+  }
+
+  /* the hero tile is inverted: text colour as background */
+  [data-theme="bento"] .w-clock { background: var(--text); color: var(--bg); border-color: transparent; align-items: flex-start; padding-left: 26px; }
+  [data-theme="bento"] .w-clock .clock-time { font-weight: 600; letter-spacing: -.04em; }
+  [data-theme="bento"] .w-clock .clock-sub { color: var(--bg); opacity: .7; }
+
+  [data-theme="bento"] .w-search { padding: 8px 8px 8px 20px; }
+
+  [data-theme="bento"] .w-links .links-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  [data-theme="bento"] .w-links .links-grid a { background: var(--surface-2); border-radius: 18px; align-items: flex-start; gap: 22px; padding: 16px; }
+  [data-theme="bento"] .w-links .links-grid a:hover { transform: scale(1.03); }
+  [data-theme="bento"] .w-links .links-ico { border-radius: 10px; width: 34px; height: 34px; }
+
+  [data-theme="bento"] .w-intention { background: var(--accent-soft); border-color: transparent; }
+  [data-theme="bento"] .w-intention .int-title { color: var(--accent); }
+  [data-theme="bento"] .w-intention .int-text { font-style: normal; font-weight: 600; font-family: var(--font-display); }
+
+  [data-theme="bento"] .w h3,
+  [data-theme="bento"] .w .links-head h3 { text-transform: none; letter-spacing: 0; font-size: 13px; }
+}

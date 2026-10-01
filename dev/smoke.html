@@ -303,6 +303,55 @@
     assert(frame.contentWindow.getComputedStyle($(".w-todo")).transform === "none", "widget still tilted in edit mode");
   });
 
+  // ---------------------------------------------------------------- batch 2 widgets
+  await step("terminal: commands print output and keep history", async () => {
+    await load("terminal");
+    const cmd = $(".w-terminal .term-cmd");
+    cmd.value = "ls";
+    cmd.form.requestSubmit();
+    await sleep(50);
+    assert(/github\.com/.test($(".w-terminal .term-out").textContent), "ls did not list bookmarks");
+    cmd.dispatchEvent(new frame.contentWindow.KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+    assert(cmd.value === "ls", "history recall failed");
+    cmd.value = "clear";
+    cmd.form.requestSubmit();
+    await sleep(50);
+    assert($(".w-terminal .term-out").textContent.trim() === "", "clear did not clear");
+  });
+
+  await step("bento: engine pills, pomodoro start/pause, calendar navigation", async () => {
+    await load("bento");
+    const { store } = frame.contentWindow.__homepage;
+    $$(".w-search .search-pills button").find(b => b.dataset.e === "youtube").click();
+    await sleep(50);
+    assert($('.w-search .search-pills button[data-e="youtube"]').classList.contains("on"), "pill not selected");
+    assert(store.snapshot().widgetData.search?.picked === "youtube", "pill choice not saved");
+
+    $(".w-pomodoro .pomo-start").click();
+    await sleep(50);
+    assert(store.snapshot().widgetData.pomodoro?.endsAt > Date.now(), "pomodoro did not start");
+    assert($(".w-pomodoro .pomo-start").textContent === "Pause", "button not showing Pause");
+    $(".w-pomodoro .pomo-start").click();
+    await sleep(50);
+    assert(store.snapshot().widgetData.pomodoro?.pausedLeft > 0, "pomodoro did not pause");
+
+    const month = $(".w-calendar .cal-month").textContent;
+    $('.w-calendar .cal-nav[data-d="1"]').click();
+    assert($(".w-calendar .cal-month").textContent !== month, "next month did not change");
+    assert(!$(".w-calendar td.today"), "today shown in another month");
+    $(".w-calendar .cal-month").click();
+    assert($(".w-calendar td.today"), "back to today failed");
+  });
+
+  await step("synthwave + paper-ink: countdown, almanac and masthead render", async () => {
+    await load("synthwave");
+    assert($(".w-countdown .cd-big").textContent.trim().length > 0, "countdown empty");
+    assert($(".sw-sun") && $(".sw-floor"), "synthwave decorations missing");
+    await load("paper-ink");
+    assert($('.w-progress[data-variant="almanac"] dl'), "almanac variant not applied");
+    assert(/\d/.test($(".paper-mast .paper-time .t").textContent), "masthead time missing");
+  });
+
   const summary = document.getElementById("summary");
   summary.textContent = `SMOKE RESULT: ${passed} passed, ${failed} failed`;
   summary.className = failed ? "fail" : "pass";

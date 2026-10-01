@@ -1,0 +1,13 @@
+@layer widgets {
+  .w-calendar { display: flex; flex-direction: column; gap: 8px; }
+  .w-calendar .cal-head { display: flex; align-items: center; gap: 4px; }
+  .w-calendar .cal-month { flex: 1; text-align: left; background: none; border: none; cursor: pointer; font: 600 18px var(--font-display); padding: 0; }
+  .w-calendar .cal-nav { background: none; border: 1px solid transparent; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; color: var(--muted); font-size: 18px; }
+  .w-calendar .cal-nav:hover { border-color: var(--border); color: var(--text); }
+  .w-calendar .cal-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; }
+  .w-calendar th { color: var(--muted); font-weight: 500; padding-bottom: 4px; }
+  .w-calendar td { padding: 3px 0; }
+  .w-calendar td span { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; }
+  .w-calendar td.today span { background: var(--accent); color: var(--accent-contrast); font-weight: 700; }
+  .w-calendar td.other { color: var(--muted); opacity: .45; }
+}

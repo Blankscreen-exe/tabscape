@@ -1,0 +1,55 @@
+@layer theme {
+  [data-theme="paper-ink"] body {
+    background: radial-gradient(circle at 20% 10%, rgb(255 255 255 / .6), transparent 40%), var(--bg);
+  }
+  /* paper grain */
+  [data-theme="paper-ink"] #decor::before {
+    content: ""; position: absolute; inset: 0; opacity: .35;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .45 0 0 0 0 .4 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  [data-theme="paper-ink"] #grid { padding-top: 190px; }
+
+  /* ---- masthead (decoration) ------------------------------------------------- */
+  [data-theme="paper-ink"] .paper-mast {
+    position: absolute; top: 6vh; left: 50%; transform: translateX(-50%); width: min(1040px, calc(100% - 48px));
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 16px;
+    border-bottom: 2px solid var(--text); padding-bottom: 14px; box-shadow: 0 4px 0 -2px var(--bg), 0 5px 0 -2px var(--text);
+    color: var(--text); font-family: var(--font-display);
+  }
+  [data-theme="paper-ink"] .paper-mast small { display: block; font-size: 13px; letter-spacing: .25em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  [data-theme="paper-ink"] .paper-mast h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 400; font-style: italic; line-height: 1; }
+  [data-theme="paper-ink"] .paper-time { text-align: right; }
+  [data-theme="paper-ink"] .paper-time .t { font-size: 40px; font-variant-numeric: oldstyle-nums; }
+  [data-theme="paper-ink"] .paper-time .d { color: var(--muted); font-size: 15px; }
+  @media (max-width: 720px) { [data-theme="paper-ink"] .paper-time { display: none; } [data-theme="paper-ink"] #grid { padding-top: 150px; } }
+
+  /* ---- widgets: columns of a newspaper, no cards ----------------------------- */
+  [data-theme="paper-ink"] .w { background: none; border: none; box-shadow: none; padding: 4px 0; }
+  [data-theme="paper-ink"] .w h3,
+  [data-theme="paper-ink"] .w .links-head h3 { font: 600 13px var(--font-body); letter-spacing: .25em; text-transform: uppercase; color: var(--accent); }
+  [data-theme="paper-ink"] .w-notes,
+  [data-theme="paper-ink"] .w-progress,
+  [data-theme="paper-ink"] .w-quote { border-left: 1px solid var(--border); padding-left: 28px; }
+
+  [data-theme="paper-ink"] .w-search .search-icon { display: none; }
+  [data-theme="paper-ink"] .w-search:focus-within { box-shadow: none; }
+  [data-theme="paper-ink"] .w-search .search-input { font-size: 24px; border-bottom: 1px dashed var(--muted); }
+  [data-theme="paper-ink"] .w-search .search-input:focus { border-bottom: 1px solid var(--accent); }
+  [data-theme="paper-ink"] .w-search .search-button { background: none; color: var(--accent); font: italic 18px var(--font-body); }
+
+  [data-theme="paper-ink"] .w-links .links-list { counter-reset: n; }
+  [data-theme="paper-ink"] .w-links .links-ico { display: none; }
+  [data-theme="paper-ink"] .w-links .links-list a { counter-increment: n; border-radius: 0; border-bottom: 1px dotted var(--border); padding: 9px 0; font-size: 18px; }
+  [data-theme="paper-ink"] .w-links .links-list a::before { content: counter(n, upper-roman) "."; color: var(--muted); width: 32px; font-size: 14px; }
+  [data-theme="paper-ink"] .w-links .links-list a:hover { background: none; color: var(--accent); }
+
+  /* lined notebook */
+  [data-theme="paper-ink"] .w-notes .notes-text {
+    background: var(--surface) repeating-linear-gradient(to bottom, transparent 0 31px, #d7e1ef 31px 32px);
+    border: 1px solid var(--border); padding: 0 14px 0 40px; line-height: 32px; transform: rotate(-.4deg);
+    font: 17px "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive; color: #2a3a6b;
+    box-shadow: inset 30px 0 0 -28px color-mix(in srgb, var(--accent) 35%, transparent), 0 12px 30px -18px rgb(60 40 20 / .35);
+  }
+
+  [data-theme="paper-ink"] .w-quote .quote-text { font-style: italic; font-size: 19px; border-left: 3px solid var(--accent); padding-left: 16px; }
+}

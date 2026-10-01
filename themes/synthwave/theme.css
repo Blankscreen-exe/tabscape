@@ -1,0 +1,53 @@
+@layer theme {
+  /* Fixed identity colours (not the accent): night sky, cyan, sun yellow. */
+  [data-theme="synthwave"] { --sw-cyan: #05d9e8; --sw-yellow: #f9c80e; }
+
+  /* ---- decorations ---------------------------------------------------------- */
+  [data-theme="synthwave"] .sw-sky { position: absolute; inset: 0; background: linear-gradient(to bottom, #0d0221 0%, #261447 45%, #3d1a5b 55%, #120327 55.1%, #090118 100%); }
+  [data-theme="synthwave"] .sw-stars { position: absolute; inset: 0 0 45% 0; }
+  [data-theme="synthwave"] .sw-stars i { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: sw-twinkle 3s ease-in-out infinite; }
+  @keyframes sw-twinkle { 50% { opacity: .2; } }
+  [data-theme="synthwave"] .sw-sun {
+    position: absolute; left: 50%; top: 55%; width: min(46vw, 460px); aspect-ratio: 1; transform: translate(-50%, -78%); border-radius: 50%;
+    background: linear-gradient(to bottom, var(--sw-yellow) 10%, #ff6c11 50%, var(--accent) 85%);
+    box-shadow: 0 0 80px color-mix(in srgb, var(--accent) 60%, transparent), 0 0 160px rgb(249 200 14 / .25);
+    -webkit-mask-image: linear-gradient(#000 0 55%, transparent 55%), repeating-linear-gradient(to bottom, #000 0 14px, transparent 14px 22px);
+            mask-image: linear-gradient(#000 0 55%, transparent 55%), repeating-linear-gradient(to bottom, #000 0 14px, transparent 14px 22px);
+  }
+  [data-theme="synthwave"] .sw-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 45%; perspective: 300px; overflow: hidden; }
+  [data-theme="synthwave"] .sw-floor::before {
+    content: ""; position: absolute; left: -50%; right: -50%; top: 0; height: 200%;
+    transform-origin: top; transform: rotateX(70deg);
+    background-image: linear-gradient(var(--accent) 2px, transparent 2px), linear-gradient(90deg, var(--accent) 2px, transparent 2px);
+    background-size: 60px 60px; animation: sw-run 1.2s linear infinite;
+    filter: drop-shadow(0 0 4px var(--accent));
+  }
+  [data-theme="synthwave"] .sw-floor::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, #120327 0%, transparent 35%); }
+  @keyframes sw-run { to { background-position: 0 60px; } }
+
+  /* ---- widgets ------------------------------------------------------------------ */
+  [data-theme="synthwave"] .w { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  [data-theme="synthwave"] .w h3,
+  [data-theme="synthwave"] .w .links-head h3 { font: 900 12px var(--font-display); letter-spacing: .3em; color: var(--sw-cyan); }
+
+  [data-theme="synthwave"] .w-clock { background: none; border: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; overflow: visible; }
+  [data-theme="synthwave"] .w-clock .clock-time {
+    font: italic 900 clamp(48px, min(60cqh, 22cqw), 150px) var(--font-display); letter-spacing: .04em;
+    background: linear-gradient(to bottom, #fff 0%, var(--sw-cyan) 45%, #2b2be0 50%, var(--accent) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 12px rgb(5 217 232 / .55));
+  }
+  [data-theme="synthwave"] .w-clock .clock-sub { font: 30px "Brush Script MT", "Segoe Script", cursive; color: var(--accent); transform: rotate(-4deg); text-shadow: 0 0 10px var(--accent); }
+
+  [data-theme="synthwave"] .w-search { border: 2px solid var(--sw-cyan); box-shadow: 0 0 14px rgb(5 217 232 / .5), inset 0 0 14px rgb(5 217 232 / .2); padding: 0 0 0 16px; }
+  [data-theme="synthwave"] .w-search .search-icon { color: var(--sw-cyan); }
+  [data-theme="synthwave"] .w-search .search-input { letter-spacing: .06em; }
+  [data-theme="synthwave"] .w-search .search-button { align-self: stretch; border-radius: 0; background: var(--sw-cyan); color: #0d0221; font-family: var(--font-display); letter-spacing: .1em; padding: 0 22px; }
+
+  [data-theme="synthwave"] .w-links .links-grid { grid-template-columns: repeat(3, 1fr); }
+  [data-theme="synthwave"] .w-links .links-ico { display: none; }
+  [data-theme="synthwave"] .w-links .links-grid a { border: 1px solid var(--accent); border-radius: 0; text-transform: uppercase; letter-spacing: .08em; padding: 10px 4px; }
+  [data-theme="synthwave"] .w-links .links-grid a:hover { background: var(--accent); color: var(--accent-contrast); box-shadow: 0 0 18px var(--accent); }
+
+  [data-theme="synthwave"] .w-countdown .cd-big { font: 900 clamp(18px, 2vw, 28px) var(--font-display); white-space: nowrap; color: var(--sw-yellow); text-shadow: 0 0 12px rgb(249 200 14 / .6); }
+}
